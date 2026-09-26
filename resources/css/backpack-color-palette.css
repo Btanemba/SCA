@@ -1,0 +1,33 @@
+:root,
+[data-bs-theme="light"],
+[data-menu-theme="light"] {
+    --tblr-primary: #4CAF50;
+    --tblr-primary-rgb: 76, 175, 80;
+    --tblr-tabler: #4CAF50;
+    --tblr-tabler-rgb: 76, 175, 80;
+    --tblr-secondary: #42A5F5;
+    --tblr-secondary-rgb: 66, 165, 245;
+    --tblr-primary-text-emphasis: #2E7D32;
+    --tblr-primary-bg-subtle: #E8F5E9;
+    --tblr-primary-border-subtle: #A5D6A7;
+    --tblr-secondary-text-emphasis: #1565C0;
+    --tblr-secondary-bg-subtle: #E3F2FD;
+    --tblr-secondary-border-subtle: #90CAF9;
+    --tblr-link-color: #4CAF50;
+    --tblr-link-color-rgb: 76, 175, 80;
+    --tblr-link-hover-color: #388E3C;
+}
+
+body {
+    background-color: #E7F4EA;
+    background-image:
+        linear-gradient(118deg, rgba(76, 175, 80, 0.32) 0%, rgba(76, 175, 80, 0) 38%),
+        linear-gradient(296deg, rgba(66, 165, 245, 0.28) 0%, rgba(66, 165, 245, 0) 42%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
+    background-attachment: fixed;
+    background-size: cover;
+}
+
+[data-bs-theme="light"] .page {
+    background: transparent;
+}

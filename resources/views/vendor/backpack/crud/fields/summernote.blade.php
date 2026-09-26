@@ -1,0 +1,170 @@
+{{-- summernote editor --}}
+@php
+    // make sure that the options array is defined
+    // and at the very least, dialogsInBody is true;
+    // that's needed for modals to show above the overlay in Bootstrap 4
+    $field['options'] = array_merge(['dialogsInBody' => true, 'tooltip' => false], $field['options'] ?? []);
+    $summernoteLocales = [
+        'ar' => 'ar-AR', 'az' => 'az-AZ', 'bg' => 'bg-BG', 'bn' => 'bn-BD',
+        'ca' => 'ca-ES', 'cs' => 'cs-CZ', 'da' => 'da-DK', 'de' => 'de-DE',
+        'de-ch' => 'de-CH', 'el' => 'el-GR', 'en' => 'en-US', 'es' => 'es-ES',
+        'eu' => 'es-EU', 'fa' => 'fa-IR', 'fi' => 'fi-FI', 'fr' => 'fr-FR',
+        'gl' => 'gl-ES', 'he' => 'he-IL', 'hr' => 'hr-HR', 'hu' => 'hu-HU',
+        'id' => 'id-ID', 'it' => 'it-IT', 'ja' => 'ja-JP', 'ko' => 'ko-KR',
+        'lt' => 'lt-LT', 'lv' => 'lt-LV', 'mn' => 'mn-MN', 'nb' => 'nb-NO',
+        'nl' => 'nl-NL', 'pl' => 'pl-PL', 'pt' => 'pt-PT', 'pt-br' => 'pt-BR',
+        'pt-pt' => 'pt-PT', 'ro' => 'ro-RO', 'ru' => 'ru-RU', 'sk' => 'sk-SK',
+        'sl' => 'sl-SI', 'sr' => 'sr-RS', 'sr-latin' => 'sr-RS-Latin',
+        'sv' => 'sv-SE', 'ta' => 'ta-IN', 'th' => 'th-TH', 'tr' => 'tr-TR',
+        'uk' => 'uk-UA', 'uz' => 'uz-UZ', 'vi' => 'vi-VN', 'zh' => 'zh-CN',
+        'zh-tw' => 'zh-TW',
+    ];
+
+    $field['summernoteLocale'] = $field['summernoteLocale'] ?? $summernoteLocales[strtolower(str_replace('_', '-', app()->getLocale()))] ?? null;
+
+    // tell summernote which language to use (en-US is the default, so there's no need to set it)
+    if ($field['summernoteLocale'] && $field['summernoteLocale'] !== 'en-US') {
+        $field['options']['lang'] = $field['summernoteLocale'];
+    }
+@endphp
+
+@include('crud::fields.inc.wrapper_start')
+    <label>{!! $field['label'] !!}</label>
+    @include('crud::fields.inc.translatable_icon')
+    <textarea
+        name="{{ $field['name'] }}"
+        data-init-function="bpFieldInitSummernoteElement"
+        data-options="{{ json_encode($field['options']) }}"
+        data-upload-enabled="{{ isset($field['withFiles']) || isset($field['withMedia']) || isset($field['imageUploadEndpoint']) ? 'true' : 'false'}}"
+        data-upload-endpoint="{{ isset($field['imageUploadEndpoint']) ? $field['imageUploadEndpoint'] : 'false'}}"
+        data-default-upload-url="{{ url($crud->route.'/ajax-upload') }}"
+        data-upload-operation="{{ $crud->get('ajax-upload.formOperation') }}"
+        bp-field-main-input
+        @include('crud::fields.inc.attributes', ['default_class' =>  'form-control summernote'])
+        >{{ old_empty_or_null($field['name'], '') ??  $field['value'] ?? $field['default'] ?? '' }}</textarea>
+
+    {{-- HINT --}}
+    @if (isset($field['hint']))
+        <p class="help-block">{!! $field['hint'] !!}</p>
+    @endif
+@include('crud::fields.inc.wrapper_end')
+
+
+{{-- ########################################## --}}
+{{-- Extra CSS and JS for this particular field --}}
+{{-- If a field type is shown multiple times on a form, the CSS and JS will only be loaded once --}}
+
+{{-- FIELD CSS - will be loaded in the after_styles section --}}
+@push('crud_fields_styles')
+    {{-- include summernote css --}}
+    @basset('https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-lite.min.css')
+    @basset('https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/font/summernote.woff2', false)
+    @bassetBlock('backpack/crud/fields/summernote-field.css')
+    <style type="text/css">
+        .note-editor.note-frame .note-status-output, .note-editor.note-airframe .note-status-output {
+                height: auto;
+        }
+
+        .note-modal {
+            z-index: 1060 !important; /* Higher than Bootstrap's default modal z-index */
+        }
+    </style>
+    @endBassetBlock
+@endpush
+
+{{-- FIELD JS - will be loaded in the after_scripts section --}}
+@push('crud_fields_scripts')
+    {{-- include summernote js --}}
+    @basset('https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-lite.min.js')
+    {{-- include summernote locale, if the app locale matches one of summernote's languages --}}
+    @if (!empty($field['summernoteLocale']) && $field['summernoteLocale'] !== 'en-US')
+        @basset('https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/lang/summernote-'.$field['summernoteLocale'].'.min.js')
+    @endif
+    @bassetBlock('backpack/crud/fields/summernote-field.js')
+    <script>
+        function bpFieldInitSummernoteElement(element) {
+             var summernoteOptions = element.data('options');
+
+            let summernotCallbacks = {
+                onChange: function(contents, $editable) {
+                    element.val(contents).trigger('change');
+                },
+            }
+
+            if(element.data('upload-enabled') === true){
+                let imageUploadEndpoint =  element.data('upload-endpoint') !== false ? element.data('upload-endpoint') : element.data('default-upload-url');
+                let paramName = typeof element.attr('data-repeatable-input-name') !== 'undefined' ? element.closest('[data-repeatable-identifier]').attr('data-repeatable-identifier')+'#'+element.attr('data-repeatable-input-name') : element.attr('name');
+                summernotCallbacks.onImageUpload = function(file) {
+                    var data = new FormData();
+                    data.append(paramName, file[0]);
+                    data.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+                    data.append('fieldName', paramName);
+                    data.append('operation', element.data('upload-operation'));
+
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('POST', imageUploadEndpoint, true);
+                    xhr.setRequestHeader('Accept', 'application/json');
+
+                    xhr.onload = function() {
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            var response = JSON.parse(xhr.responseText);
+                            element.summernote('insertImage', response.data.filePath);
+                        } else {
+                            var response = JSON.parse(xhr.responseText);
+                            let errorBagName = paramName;
+                            // it's in a repeatable field
+                            if(errorBagName.includes('#')) {
+                                errorBagName = errorBagName.replace('#', '.0.');
+                            }
+                            let errorMessages = typeof response.errors !== 'undefined' ? response.errors[errorBagName].join('<br/>') : response + '<br/>';
+
+                            let summernoteTextarea = element[0];
+
+                            // remove previous error messages
+                            summernoteTextarea.parentNode.querySelector('.invalid-feedback')?.remove();
+
+                            // add the red text classes
+                            summernoteTextarea.parentNode.classList.add('text-danger');
+
+                            // create the error message container
+                            let errorContainer = document.createElement("div");
+                            errorContainer.classList.add('invalid-feedback', 'd-block');
+                            errorContainer.innerHTML = errorMessages;
+                            summernoteTextarea.parentNode.appendChild(errorContainer);
+                        }
+                    };
+
+                    xhr.onerror = function() {
+                        console.error('An error occurred during the upload process');
+                    };
+
+                    xhr.send(data);
+                }
+                
+            }
+
+            element.on('CrudField:disable', function(e) {
+                element.summernote('disable');
+                element.next('.note-editor').addClass('bp-disabled');
+            });
+
+            element.on('CrudField:enable', function(e) {
+                element.summernote('enable');
+                element.next('.note-editor').removeClass('bp-disabled');
+            });
+
+            summernoteOptions['callbacks'] = summernotCallbacks;
+
+            element.summernote(summernoteOptions);
+
+            if (element.attr('disabled')) {
+                element.summernote('disable');
+                element.next('.note-editor').addClass('bp-disabled');
+            }
+        }
+    </script>
+    @endBassetBlock
+@endpush
+
+{{-- End of Extra CSS and JS --}}
+{{-- ########################################## --}}
