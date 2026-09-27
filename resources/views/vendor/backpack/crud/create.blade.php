@@ -37,9 +37,7 @@
 		  <form method="post"
 		  		action="{{ url($crud->route) }}"
                 id="{{ $id ?? 'crudForm' }}"
-				@if ($crud->hasUploadFields('create'))
 				enctype="multipart/form-data"
-				@endif
 		  		>
                 {!! csrf_field() !!}
                 {{-- load the view from the application if it exists, otherwise load the one in the package --}}

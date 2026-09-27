@@ -3,11 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\PersonRequest;
+use App\Models\ChildPickupContact;
 use App\Models\Person;
+use App\Models\PickupContact;
 use App\Models\SacRole;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -24,6 +28,22 @@ class PersonCrudController extends CrudController
         'Sibling' => 'Sibling',
         'Foster parent' => 'Foster parent',
         'Legal guardian' => 'Legal guardian',
+        'Other' => 'Other',
+    ];
+
+    private const PICKUP_RELATIONSHIP_OPTIONS = [
+        'Mother' => 'Mother',
+        'Father' => 'Father',
+        'Stepparent' => 'Stepparent',
+        'Grandparent' => 'Grandparent',
+        'Aunt' => 'Aunt',
+        'Uncle' => 'Uncle',
+        'Sibling' => 'Sibling',
+        'Foster parent' => 'Foster parent',
+        'Legal guardian' => 'Legal guardian',
+        'Nanny' => 'Nanny',
+        'Family friend' => 'Family friend',
+        'Driver' => 'Driver',
         'Other' => 'Other',
     ];
 
@@ -45,7 +65,9 @@ class PersonCrudController extends CrudController
         $this->syncUserFromRequest();
 
         $response = $this->traitStore();
-        $this->syncGuardianRelationshipsFromRequest($this->data['entry'] ?? null);
+        $entry = $this->data['entry'] ?? null;
+        $this->syncGuardianRelationshipsFromRequest($entry);
+        $this->syncPickupContactsFromRequest($entry);
 
         return $response;
     }
@@ -73,6 +95,7 @@ class PersonCrudController extends CrudController
 
         $response = $this->traitUpdate();
         $this->syncGuardianRelationshipsFromRequest($this->data['entry'] ?? $entry);
+        $this->syncPickupContactsFromRequest($this->data['entry'] ?? $entry);
 
         return $response;
     }
@@ -140,17 +163,34 @@ class PersonCrudController extends CrudController
         }
 
         $user = $entry?->user;
+        $existingUser = User::query()
+            ->where('email', $email)
+            ->when($user, fn ($query) => $query->where('id', '<>', $user->getKey()))
+            ->first();
+
+        $linkedPerson = $existingUser
+            ? Person::query()
+                ->where('user_id', $existingUser->getKey())
+                ->when($entry, fn ($query) => $query->where('persons.id', '<>', $entry->getKey()))
+                ->first()
+            : null;
+
+        if ($linkedPerson) {
+            throw ValidationException::withMessages([
+                'email' => 'This email is already assigned to another person.',
+            ]);
+        }
 
         if ($user) {
             $user->update(['email' => $email]);
+        } elseif ($existingUser) {
+            $user = $existingUser;
         } else {
-            $user = User::firstOrCreate(
-                ['email' => $email],
-                [
-                    'name' => trim(request('first_name').' '.request('last_name')),
-                    'password' => Hash::make(Str::random(32)),
-                ]
-            );
+            $user = User::create([
+                'email' => $email,
+                'name' => trim(request('first_name').' '.request('last_name')),
+                'password' => Hash::make(Str::random(32)),
+            ]);
         }
 
         request()->merge(['user_id' => $user->id]);
@@ -180,6 +220,119 @@ class PersonCrudController extends CrudController
                 ),
             ]);
         }
+    }
+
+    protected function syncPickupContactsFromRequest(?Person $child): void
+    {
+        if (! $child || $child->sacRole?->code !== Person::ROLE_STUDENT) {
+            return;
+        }
+
+        $submittedContacts = request()->input('pickup_contacts', []);
+        if (! is_array($submittedContacts)) {
+            $submittedContacts = [];
+        }
+
+        $existingContacts = $child->pickupContactLinks()->with('contact')->get()->keyBy('slot');
+        $savedSlots = [];
+
+        foreach ($submittedContacts as $index => $details) {
+            $slot = ((int) $index) + 1;
+            if ($slot > 3 || ! is_array($details)) {
+                continue;
+            }
+
+            $firstName = trim((string) ($details['first_name'] ?? ''));
+            $lastName = trim((string) ($details['last_name'] ?? ''));
+            if ($firstName === '' || $lastName === '') {
+                continue;
+            }
+
+            $existingLink = $existingContacts->get($slot);
+            $contact = $existingLink?->contact;
+            $email = filled($details['email'] ?? null) ? trim($details['email']) : null;
+            $phone = filled($details['phone'] ?? null) ? trim($details['phone']) : null;
+            $registeredPerson = null;
+
+            if ($email) {
+                $registeredPerson = Person::query()
+                    ->where('persons.id', '<>', $child->getKey())
+                    ->whereHas('user', fn ($query) => $query->where('email', $email))
+                    ->first();
+            }
+
+            if (! $registeredPerson && $phone) {
+                $registeredPerson = Person::query()
+                    ->where('persons.id', '<>', $child->getKey())
+                    ->where('phone', $phone)
+                    ->first();
+            }
+
+            if (! $contact) {
+                $contactQuery = PickupContact::query();
+
+                if ($registeredPerson) {
+                    $contactQuery->where('person_id', $registeredPerson->getKey());
+                } elseif ($email) {
+                    $contactQuery->where('email', $email);
+                } elseif ($phone) {
+                    $contactQuery->where('phone', $phone);
+                } else {
+                    $contactQuery = null;
+                }
+
+                $contact = $contactQuery?->first();
+            }
+
+            $contact ??= new PickupContact();
+            $imagePath = $contact->image_path;
+            $image = request()->file("pickup_contacts.{$index}.image");
+
+            if ($image) {
+                if ($imagePath) {
+                    Storage::disk('public')->delete($imagePath);
+                }
+                $imagePath = $image->store('pickup-contacts', 'public');
+            }
+
+            $contact->fill([
+                'person_id' => $registeredPerson?->getKey() ?? $contact->person_id,
+                'first_name' => $firstName,
+                'last_name' => $lastName,
+                'image_path' => $imagePath,
+                'address' => filled($details['address'] ?? null) ? trim($details['address']) : null,
+                'email' => $email,
+                'phone' => $phone,
+            ])->save();
+
+            $child->pickupContactLinks()->updateOrCreate(
+                ['slot' => $slot],
+                [
+                    'pickup_contact_id' => $contact->getKey(),
+                    'relationship' => filled($details['relationship'] ?? null) ? trim($details['relationship']) : null,
+                    'can_pick_up' => filter_var($details['can_pick_up'] ?? true, FILTER_VALIDATE_BOOLEAN),
+                    'can_drop_off' => filter_var($details['can_drop_off'] ?? true, FILTER_VALIDATE_BOOLEAN),
+                    'created_by' => $existingLink?->created_by ?? backpack_user()?->getKey(),
+                    'updated_by' => backpack_user()?->getKey(),
+                ]
+            );
+            $savedSlots[] = $slot;
+        }
+
+        if ($savedSlots === []) {
+            return;
+        }
+
+        $child->pickupContactLinks()
+            ->when($savedSlots, fn ($query) => $query->whereNotIn('slot', $savedSlots))
+            ->when(! $savedSlots, fn ($query) => $query)
+            ->get()
+            ->each(function (ChildPickupContact $contact) {
+                if ($contact->image_path) {
+                    Storage::disk('public')->delete($contact->image_path);
+                }
+                $contact->delete();
+            });
     }
 
     protected function setupListOperation(): void
@@ -427,6 +580,20 @@ class PersonCrudController extends CrudController
                 'view' => 'vendor.backpack.crud.fields.guardian_details',
                 'wrapper' => ['class' => 'form-group col-md-12'],
                 'tab' => 'Parents/Guardians',
+            ]);
+
+            $entry->loadMissing('pickupContactLinks.contact');
+        }
+
+        if ($selectedRole?->code === Person::ROLE_STUDENT) {
+            CRUD::addField([
+                'name' => 'pickup_contacts',
+                'label' => 'Pickup and drop-off contacts',
+                'type' => 'view',
+                'view' => 'vendor.backpack.crud.fields.child_pickup_contacts',
+                'relationship_options' => self::PICKUP_RELATIONSHIP_OPTIONS,
+                'wrapper' => ['class' => 'form-group col-md-12'],
+                'tab' => 'Pickup and drop-off',
             ]);
         }
 

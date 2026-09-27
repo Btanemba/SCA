@@ -1,7 +1,11 @@
 @extends(backpack_view('blank'))
 
 @php
-    if (backpack_theme_config('show_getting_started')) {
+    $isSecurityUser = backpack_user()?->person?->sacRole?->code === \App\Models\Person::ROLE_SECURITY;
+
+    if ($isSecurityUser) {
+        $widgets['before_content'] = [];
+    } elseif (backpack_theme_config('show_getting_started')) {
         $widgets['before_content'][] = [
             'type'        => 'view',
             'view'        => backpack_view('inc.getting_started'),
@@ -20,4 +24,7 @@
 @endphp
 
 @section('content')
+@if ($isSecurityUser)
+    @include('security.attendance_content')
+@endif
 @endsection

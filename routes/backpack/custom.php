@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\SecurityAttendanceController;
 use Illuminate\Support\Facades\Route;
 
 // --------------------------
@@ -16,13 +17,21 @@ Route::group([
     ),
     'namespace' => 'App\Http\Controllers\Admin',
 ], function () { // custom admin routes
-    Route::crud('sac-role', 'SacRoleCrudController');
-    Route::get('person/students/search', 'PersonCrudController@searchStudents')->name('person.students.search');
-    Route::get('person/students/{student}/details', 'PersonCrudController@showStudentDetails')->name('person.students.details');
-    Route::crud('person', 'PersonCrudController');
-    Route::crud('job-opening', 'JobOpeningCrudController');
-    Route::get('job-application/{id}/resume', 'JobApplicationCrudController@downloadResume')->name('job-application.resume');
-    Route::crud('job-application', 'JobApplicationCrudController');
+    Route::get('security-attendance', [SecurityAttendanceController::class, 'index'])->name('security.attendance');
+    Route::get('security-attendance/search', [SecurityAttendanceController::class, 'search'])->name('security.attendance.search');
+    Route::post('security-attendance/drop-off', [SecurityAttendanceController::class, 'dropOff'])->name('security.attendance.drop-off');
+    Route::post('security-attendance/pick-up', [SecurityAttendanceController::class, 'pickUp'])->name('security.attendance.pick-up');
+
+    Route::middleware(\App\Http\Middleware\BlockSecurityRole::class)->group(function () {
+        Route::crud('sac-role', 'SacRoleCrudController');
+        Route::get('person/students/search', 'PersonCrudController@searchStudents')->name('person.students.search');
+        Route::get('person/students/{student}/details', 'PersonCrudController@showStudentDetails')->name('person.students.details');
+        Route::crud('person', 'PersonCrudController');
+        Route::crud('job-opening', 'JobOpeningCrudController');
+        Route::get('job-application/{id}/resume', 'JobApplicationCrudController@downloadResume')->name('job-application.resume');
+        Route::crud('job-application', 'JobApplicationCrudController');
+        Route::crud('attendance', 'AttendanceCrudController');
+    });
 }); // this should be the absolute last line of this file
 
 /**

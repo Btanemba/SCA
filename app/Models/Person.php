@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -14,6 +15,7 @@ class Person extends Model
 
     public const ROLE_STUDENT = 'SUDT';
     public const ROLE_PARENT = 'PT';
+    public const ROLE_SECURITY = 'SET';
 
     protected $table = 'persons';
 
@@ -83,6 +85,27 @@ class Person extends Model
         return $this->belongsToMany(Person::class, 'person_guardians', 'student_id', 'parent_id')
             ->withPivot(['relationship', 'is_primary_contact'])
             ->withTimestamps();
+    }
+
+    public function pickupContactLinks(): HasMany
+    {
+        return $this->hasMany(ChildPickupContact::class, 'child_id')->orderBy('slot');
+    }
+
+    public function pickupContacts(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            PickupContact::class,
+            'child_pickup_contacts',
+            'child_id',
+            'pickup_contact_id'
+        )->withPivot(['slot', 'relationship', 'can_pick_up', 'can_drop_off'])
+            ->withTimestamps();
+    }
+
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(Attendance::class, 'child_id');
     }
 
     public function getEmailAttribute(): ?string

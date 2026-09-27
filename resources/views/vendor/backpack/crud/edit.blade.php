@@ -35,9 +35,7 @@
 		  <form method="post"
 		  		action="{{ url($crud->route.'/'.$entry->getKey()) }}"
 				id="{{ $id ?? 'crudForm' }}"
-				@if ($crud->hasUploadFields('update', $entry->getKey()))
 				enctype="multipart/form-data"
-				@endif
 		  		>
 		  {!! csrf_field() !!}
 		  {!! method_field('PUT') !!}

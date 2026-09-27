@@ -14,6 +14,13 @@
 <body>
     @include('partials.nav')
 
+    <aside class="resumption-notice" aria-label="School resumption notice">
+        <div class="resumption-notice-track">
+            <span class="resumption-notice-label">Notice</span>
+            <span>Springcare Academy Starts Operations in September 2027.</span>
+        </div>
+    </aside>
+
     <main id="top">
         <section class="hero" aria-labelledby="hero-title">
             <img
@@ -44,25 +51,25 @@
         <section class="intro" id="approach">
             <div>
                 <p class="eyebrow">Our approach</p>
-                <h2>Little steps. Big beginnings.</h2>
+                <h2>A place to play, learn and grow.</h2>
             </div>
             <div class="intro-copy">
-                <p>The early years are full of firsts. We make room for children to explore, find their voice, and build the confidence to try again, with caring adults alongside them.</p>
+                <p>Every child develops in their own way. We give children a safe, caring environment where they can be themselves, explore the world around them, and take those little steps towards becoming more independent.</p>
                 <div class="principles">
                     <article class="principle">
                         <span class="principle-number">01</span>
-                        <h3>Feel known</h3>
-                        <p>Warm relationships and familiar rhythms help little ones feel settled and supported.</p>
+                        <h3>Feel safe</h3>
+                        <p>Warm relationships, familiar faces, and gentle routines help children feel secure and confident.</p>
                     </article>
                     <article class="principle">
                         <span class="principle-number">02</span>
-                        <h3>Play and wonder</h3>
-                        <p>Everyday play gives children space to explore ideas, use their imagination, and learn by doing.</p>
+                        <h3>Learn through play</h3>
+                        <p>Children are naturally curious. We encourage them to explore, make things, ask questions, and discover something new every day.</p>
                     </article>
                     <article class="principle">
                         <span class="principle-number">03</span>
-                        <h3>Grow together</h3>
-                        <p>Children thrive when families and caregivers share trust, care, and encouragement.</p>
+                        <h3>Grow with confidence</h3>
+                        <p>We celebrate each child's progress, encourage their independence, and work together with families to support their journey.</p>
                     </article>
                 </div>
             </div>
@@ -135,8 +142,8 @@
                 <figure class="care-reasons-image-wrap">
                     <img
                         class="care-reasons-image"
-                        src="https://images.unsplash.com/photo-1472162072942-cd5147eb3902?auto=format&fit=crop&w=1200&q=85"
-                        alt="Children sharing a playful moment together"
+                        src="https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=85"
+                        alt="Children learning together in a bright classroom"
                         loading="lazy"
                     >
                     <figcaption>Little moments become big discoveries.</figcaption>

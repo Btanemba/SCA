@@ -322,5 +322,11 @@
         "asset_path": "C:\\Users\\anemb\\Desktop\\springcare-academy\\resources/css/backpack-color-palette.css",
         "asset_disk_path": "basset/resources/css/backpack-color-palette.css",
         "asset_attributes": []
+    },
+    "https://www.gravatar.com/avatar/29feb527fde20e9df73a98b5cc2d61bc991559c0699a5c9f07d32f02392ae1f1.jpg?s=80&d=blank&r=g": {
+        "asset_name": "https://www.gravatar.com/avatar/29feb527fde20e9df73a98b5cc2d61bc991559c0699a5c9f07d32f02392ae1f1.jpg?s=80&d=blank&r=g",
+        "asset_path": "https://www.gravatar.com/avatar/29feb527fde20e9df73a98b5cc2d61bc991559c0699a5c9f07d32f02392ae1f1.jpg?s=80&d=blank&r=g",
+        "asset_disk_path": "basset/www.gravatar.com/avatar/29feb527fde20e9df73a98b5cc2d61bc991559c0699a5c9f07d32f02392ae1f1.jpg",
+        "asset_attributes": []
     }
 }
