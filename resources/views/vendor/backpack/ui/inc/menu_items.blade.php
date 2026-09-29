@@ -1,6 +1,19 @@
 {{-- This file is used for menu items by any Backpack v7 theme --}}
+@php
+	$currentRoleCode = backpack_user()?->person?->sacRole?->code;
+	$isSecurity = $currentRoleCode === \App\Models\Person::ROLE_SECURITY;
+	$isAccountant = $currentRoleCode === \App\Models\Person::ROLE_ACCOUNTANT;
+@endphp
 <li class="nav-item"><a class="nav-link" href="{{ backpack_url('dashboard') }}"><i class="la la-home nav-icon"></i> {{ trans('backpack::base.dashboard') }}</a></li>
-@if (backpack_user()?->person?->sacRole?->code === \App\Models\Person::ROLE_SECURITY)
+@if ($isSecurity)
+@elseif ($isAccountant)
+	<x-backpack::menu-dropdown title="People" icon="la la-users" :open="request()->routeIs('person.*')">
+		<x-backpack::menu-dropdown-item
+			title="Staffs"
+			:link="backpack_url('person?role=' . \App\Models\Person::ROLE_STAFF)"
+			:class="request()->query('role') === \App\Models\Person::ROLE_STAFF ? 'active' : ''"
+		/>
+	</x-backpack::menu-dropdown>
 @else
 	<li class="nav-item"><a class="nav-link" href="{{ backpack_url('sac-role') }}"><i class="la la-user-tag nav-icon"></i> Roles</a></li>
 	@php

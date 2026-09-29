@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CompleteRegistrationController;
 use App\Http\Controllers\JobController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,3 +16,9 @@ Route::get('/jobs/{jobOpening}', [JobController::class, 'show'])->name('jobs.sho
 Route::post('/jobs/{jobOpening}/apply', [JobController::class, 'apply'])
     ->middleware('throttle:5,1')
     ->name('jobs.apply');
+
+Route::get('/registration/complete/{token}', [CompleteRegistrationController::class, 'show'])
+    ->name('registration.complete');
+Route::post('/registration/complete', [CompleteRegistrationController::class, 'store'])
+    ->middleware('throttle:6,1')
+    ->name('registration.complete.store');

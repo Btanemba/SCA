@@ -22,10 +22,17 @@ Route::group([
     Route::post('security-attendance/drop-off', [SecurityAttendanceController::class, 'dropOff'])->name('security.attendance.drop-off');
     Route::post('security-attendance/pick-up', [SecurityAttendanceController::class, 'pickUp'])->name('security.attendance.pick-up');
 
-    Route::middleware(\App\Http\Middleware\BlockSecurityRole::class)->group(function () {
+    Route::get('my-account', 'PersonCrudController@myAccount')->name('person.my-account');
+
+    Route::middleware([
+        \App\Http\Middleware\BlockSecurityRole::class,
+        \App\Http\Middleware\RestrictAccountantRole::class,
+    ])->group(function () {
         Route::crud('sac-role', 'SacRoleCrudController');
-        Route::get('person/students/search', 'PersonCrudController@searchStudents')->name('person.students.search');
-        Route::get('person/students/{student}/details', 'PersonCrudController@showStudentDetails')->name('person.students.details');
+        Route::get('person/students/search', 'PersonCrudController@searchStudents')->name('person.students.search');        Route::get('person/students/{student}/details', 'PersonCrudController@showStudentDetails')->name('person.students.details');
+        Route::post('person/{id}/send-registration-invite', 'PersonCrudController@sendRegistrationInvite')
+            ->middleware('throttle:6,1')
+            ->name('person.registration.invite');
         Route::crud('person', 'PersonCrudController');
         Route::crud('job-opening', 'JobOpeningCrudController');
         Route::get('job-application/{id}/resume', 'JobApplicationCrudController@downloadResume')->name('job-application.resume');

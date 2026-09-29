@@ -8,11 +8,13 @@ use App\Models\Person;
 use App\Models\PickupContact;
 use App\Models\SacRole;
 use App\Models\User;
+use App\Notifications\CompleteRegistrationInvitation;
 use Illuminate\Support\Facades\Storage;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 
 class PersonCrudController extends CrudController
@@ -152,9 +154,64 @@ class PersonCrudController extends CrudController
         return view('vendor.backpack.crud.fields.student_details', compact('student'));
     }
 
-    // Students never get a login account; everyone else does, keyed by email
-    protected function syncUserFromRequest(?Person $entry = null): void
+    public function myAccount()
     {
+        $person = backpack_user()?->person;
+
+        if (! $person || $person->sacRole?->code === Person::ROLE_SECURITY) {
+            return redirect(backpack_url('dashboard'));
+        }
+
+        return redirect(backpack_url('person/'.$person->getKey().'/edit'));
+    }
+
+    public function sendRegistrationInvite(int $id)
+    {
+        abort_unless($this->canManageAccounts(), 403);
+
+        $person = Person::with(['user', 'sacRole'])->findOrFail($id);
+
+        if ($person->sacRole?->code === Person::ROLE_STUDENT) {
+            return response()->json(['message' => 'Students do not get login accounts.'], 422);
+        }
+
+        $user = $person->user;
+
+        if (! $user?->email) {
+            return response()->json(['message' => 'Add an email address for this person first.'], 422);
+        }
+
+        $token = Password::createToken($user);
+        $user->notify(new CompleteRegistrationInvitation($token));
+
+        $person->forceFill(['invited_at' => now()])->saveQuietly();
+
+        return response()->json([
+            'message' => 'Invitation sent to '.$user->email.'.',
+        ]);
+    }
+
+    protected function canManageAccounts(): bool
+    {
+        return in_array(
+            backpack_user()?->person?->sacRole?->code,
+            Person::ROLES_MANAGE_ACCOUNTS,
+            true
+        );
+    }
+
+    // Students never get a login account; everyone else does, keyed by email
+    protected function syncUserFromRequest(?Person $entry = null): void    {
+        // Once an account exists the email is permanent, so ignore any attempt to change it.
+        if ($entry?->user?->email) {
+            request()->merge([
+                'email' => $entry->user->email,
+                'user_id' => $entry->user->getKey(),
+            ]);
+
+            return;
+        }
+
         $email = request('email');
         $role = SacRole::find(request('sac_role_id'));
 
@@ -182,7 +239,11 @@ class PersonCrudController extends CrudController
         }
 
         if ($user) {
-            $user->update(['email' => $email]);
+            // A changed address is unproven until they open a fresh invitation link.
+            $user->forceFill([
+                'email' => $email,
+                'email_verified_at' => $user->email === $email ? $user->email_verified_at : null,
+            ])->save();
         } elseif ($existingUser) {
             $user = $existingUser;
         } else {
@@ -337,7 +398,18 @@ class PersonCrudController extends CrudController
 
     protected function setupListOperation(): void
     {
+        $ownPersonId = backpack_user()?->person?->getKey();
+        if ($ownPersonId) {
+            CRUD::addClause('where', 'persons.id', '<>', $ownPersonId);
+        }
+
         $roleCode = request()->query('role');
+
+        // Accountants only ever see staff, whatever the query string says.
+        if (backpack_user()?->person?->sacRole?->code === Person::ROLE_ACCOUNTANT) {
+            $roleCode = Person::ROLE_STAFF;
+        }
+
         if (is_string($roleCode) && SacRole::query()->where('code', $roleCode)->exists()) {
             CRUD::addClause('whereHas', 'sacRole', fn ($query) => $query->where('code', $roleCode));
         }
@@ -384,7 +456,8 @@ class PersonCrudController extends CrudController
     {
         CRUD::setValidation(PersonRequest::class);
 
-        $entry = CRUD::getCurrentEntry();
+        // getCurrentEntry() returns false (not null) during create.
+        $entry = CRUD::getCurrentEntry() ?: null;
         $selectedRoleId = request()->input('sac_role_id') ?? ($entry ? $entry->sac_role_id : null);
         $selectedRole = $selectedRoleId ? SacRole::find($selectedRoleId) : null;
 
@@ -447,10 +520,17 @@ class PersonCrudController extends CrudController
         ]);
 
         if ($selectedRole?->code !== Person::ROLE_STUDENT) {
+            $lockedEmail = $entry?->user?->email;
+
             CRUD::addField([
                 'name' => 'email',
                 'label' => 'Email',
                 'type' => 'text',
+                'hint' => $lockedEmail ? 'The sign-in email cannot be changed once the account exists.' : null,
+                'attributes' => $lockedEmail ? [
+                    'readonly' => 'readonly',
+                    'style' => 'background-color: #e5e5e5;',
+                ] : [],
                 'wrapper' => ['class' => 'form-group col-md-6'],
                 'tab' => 'General',
             ]);
@@ -596,6 +676,21 @@ class PersonCrudController extends CrudController
                 'tab' => 'Pickup and drop-off',
             ]);
         }
+
+        if ($entry instanceof Person && $selectedRole?->code !== Person::ROLE_STUDENT && $this->canManageAccounts()) {
+            $entry->loadMissing('user');
+
+            CRUD::addField([
+                'name' => 'registration_invite',
+                'type' => 'view',
+                'view' => 'vendor.backpack.crud.fields.registration_invite',
+                'person' => $entry,
+                'invite_url' => route('person.registration.invite', $entry->getKey()),
+                'wrapper' => ['class' => 'form-group col-md-12'],
+                'tab' => 'Security',
+            ]);
+        }
+
 
          CRUD::addField([
             'name' => 'created_by_name',

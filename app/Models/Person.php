@@ -16,6 +16,12 @@ class Person extends Model
     public const ROLE_STUDENT = 'SUDT';
     public const ROLE_PARENT = 'PT';
     public const ROLE_SECURITY = 'SET';
+    public const ROLE_ADMIN = 'ADM';
+    public const ROLE_FOUNDER = 'CEO';
+    public const ROLE_ACCOUNTANT = 'ACC';
+    public const ROLE_STAFF = 'STF';
+
+    public const ROLES_MANAGE_ACCOUNTS = [self::ROLE_ADMIN, self::ROLE_FOUNDER];
 
     protected $table = 'persons';
 
@@ -58,6 +64,7 @@ class Person extends Model
     {
         return [
             'date_of_birth' => 'date',
+            'invited_at' => 'datetime',
         ];
     }
 
