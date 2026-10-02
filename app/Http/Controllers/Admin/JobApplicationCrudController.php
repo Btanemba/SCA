@@ -31,6 +31,14 @@ class JobApplicationCrudController extends CrudController
     protected function setupListOperation(): void
     {
         CRUD::orderBy('created_at', 'desc');
+        CRUD::addColumn([
+            'name' => 'custom_actions',
+            'type' => 'view',
+            'view' => 'vendor.backpack.crud.columns.custom_button',
+            'orderable' => false,
+            'searchable' => false,
+            'visibleInExport' => false,
+        ]);
 
         $openingId = request()->query('job_opening');
         if (is_numeric($openingId)) {
@@ -58,6 +66,11 @@ class JobApplicationCrudController extends CrudController
             'searchable' => false,
             'visibleInExport' => false,
         ]);
+         $this->crud->removeButton('preview');
+        $this->crud->removeButton('update');
+        $this->crud->removeButton('revisions');
+        $this->crud->removeButton('delete');
+        $this->crud->removeButton('show');
     }
 
     protected function setupShowOperation(): void
