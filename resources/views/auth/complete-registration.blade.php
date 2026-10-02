@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#235b48">
     <meta name="robots" content="noindex, nofollow">
     <title>Complete your registration | Springcare Academy</title>
-    @vite('resources/css/home.css')
+    <link rel="stylesheet" href="{{ asset('css/home.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">

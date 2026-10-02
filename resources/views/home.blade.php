@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f5f4ed">
     <title>Springcare Academy</title>
-    <meta name="description" content="Springcare Academy offers a caring daycare and early learning experience where children grow through play, connection, and discovery.">
-    @vite('resources/css/home.css')
+    <meta name="description" content="Springcare Academy">
+    <link rel="stylesheet" href="{{ asset('css/home.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">

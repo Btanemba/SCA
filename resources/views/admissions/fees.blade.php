@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#f5f4ed">
     <title>Fees &amp; Tuition | Springcare Academy</title>
     <meta name="description" content="Learn what to discuss with Springcare Academy when planning childcare tuition and fees.">
-    @vite('resources/css/home.css')
+    <link rel="stylesheet" href="{{ asset('css/home.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
