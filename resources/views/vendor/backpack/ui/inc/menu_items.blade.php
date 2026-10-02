@@ -35,6 +35,9 @@
 		<x-backpack::menu-dropdown-item title="Job openings" :link="backpack_url('job-opening')" icon="la la-bullhorn" />
 		<x-backpack::menu-dropdown-item title="Applications" :link="backpack_url('job-application')" icon="la la-inbox" />
 	</x-backpack::menu-dropdown>
+    @if (in_array($currentRoleCode, [\App\Models\Person::ROLE_ADMIN, \App\Models\Person::ROLE_FOUNDER], true))
+	    <li class="nav-item"><a class="nav-link" href="{{ backpack_url('management-member') }}"><i class="la la-users-cog nav-icon"></i> Management</a></li>
+    @endif
     <li class="nav-item"><a class="nav-link" href="{{ backpack_url('attendance') }}"><i class="la la-clipboard-check nav-icon"></i> Attendance</a></li>
 @endif
 <li class="nav-item"><a class="nav-link text-danger" href="{{ backpack_url('logout') }}"><i class="la la-sign-out-alt nav-icon"></i> {{ trans('backpack::base.logout') }}</a></li>

@@ -531,6 +531,27 @@ h1 {
 .admissions-overview-actions .button-secondary { border-color: var(--line); color: var(--green); }
 
 .jobs-page { background: var(--paper); }
+.management-page { min-height: calc(100vh - 164px); background: #fff; }
+.management-hero { padding: 76px 8% 68px; background: #e7e8d8; }
+.management-hero-inner, .management-content-inner { max-width: 1120px; margin: 0 auto; }
+.management-eyebrow { margin: 0 0 14px; color: var(--green); font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.management-hero h1 { max-width: 760px; margin: 0 0 18px; font-size: 52px; }
+.management-hero-copy { max-width: 700px; margin: 0; color: var(--muted); font-size: 17px; line-height: 1.7; }
+.management-content { padding: 62px 8% 92px; }
+.management-content-inner { padding: 0 28px; }
+.management-section-heading { margin-bottom: 28px; }
+.management-section-heading h2 { margin: 0; font-family: 'Fraunces', Georgia, serif; font-size: 34px; font-weight: 500; }
+.management-featured { width: min(340px, 100%); margin: 0 auto 34px; }
+.management-grid { margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px 24px; list-style: none; }
+.management-grid > li { min-width: 0; }
+.management-card { min-width: 0; border-top: 2px solid var(--green); background: #f5f4ed; }
+.management-photo, .management-photo-placeholder { width: 100%; aspect-ratio: 4 / 3; display: block; object-fit: cover; background: #dce4d9; }
+.management-photo-placeholder { display: grid; place-items: center; color: var(--green); font-family: 'Fraunces', Georgia, serif; font-size: 52px; }
+.management-card-copy { padding: 20px 20px 22px; }
+.management-card h3 { margin: 0 0 5px; font-family: 'Fraunces', Georgia, serif; font-size: 23px; font-weight: 500; }
+.management-title { margin: 0 0 14px; color: var(--green); font-size: 12px; font-weight: 700; }
+.management-description { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.7; }
+.management-empty { margin: 0; padding: 24px 0; border-top: 1px solid var(--line); color: var(--muted); line-height: 1.7; }
 .jobs-hero { display: grid; grid-template-columns: 1fr 1fr; background: #e7e8d8; }
 .jobs-hero-copy { max-width: 720px; padding: 56px 6% 56px max(8%, calc((100vw - 1120px) / 2)); align-self: center; }
 .jobs-eyebrow { margin-bottom: 14px; color: var(--green); font-size: 11px; font-weight: 700; text-transform: uppercase; }
@@ -659,6 +680,14 @@ h1 {
     .admissions-overview-content { padding: 42px 24px 64px; }
     .admissions-overview-steps { grid-template-columns: 1fr; gap: 0; }
     .jobs-hero { grid-template-columns: 1fr; }
+    .management-hero { padding: 62px 24px 48px; }
+    .management-hero h1 { font-size: 42px; }
+    .management-content { padding: 46px 24px 72px; }
+    .management-content-inner { padding: 0; }
+    .management-featured { margin-bottom: 28px; }
+    .management-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 16px; }
+    .management-card-copy { padding: 16px; }
+    .management-card h3 { font-size: 20px; }
     .jobs-hero-copy { padding: 62px 24px 48px; }
     .jobs-hero h1 { font-size: 42px; }
     .jobs-hero-image { min-height: 300px; max-height: 420px; }
@@ -676,6 +705,7 @@ h1 {
 }
 
 @media (max-width: 480px) {
+    .management-grid { grid-template-columns: 1fr; }
     .principles { grid-template-columns: 1fr; gap: 24px; }
     .principle h3 { margin-top: 9px; }
     .values-strip { font-size: 14px; }

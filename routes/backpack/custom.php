@@ -34,6 +34,7 @@ Route::group([
             ->middleware('throttle:6,1')
             ->name('person.registration.invite');
         Route::crud('person', 'PersonCrudController');
+        Route::crud('management-member', 'ManagementMemberCrudController');
         Route::crud('job-opening', 'JobOpeningCrudController');
         Route::get('job-application/{id}/resume', 'JobApplicationCrudController@downloadResume')->name('job-application.resume');
         Route::crud('job-application', 'JobApplicationCrudController');

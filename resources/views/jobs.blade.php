@@ -15,21 +15,7 @@
     @include('partials.nav')
 
     <main class="jobs-page" id="top">
-        <section class="jobs-hero" aria-labelledby="jobs-title">
-            <div class="jobs-hero-copy">
-                <p class="jobs-eyebrow">Work with purpose</p>
-                <h1 id="jobs-title">Help little learners feel at home.</h1>
-                <p>Working in childcare is built from meaningful everyday moments: welcoming a child, encouraging a new discovery, and helping families feel connected.</p>
-                <a class="button button-primary" href="#openings">Explore opportunities</a>
-            </div>
-            <img
-                class="jobs-hero-image"
-                src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=1400&q=85"
-                alt="Young children learning and playing together"
-                fetchpriority="high"
-            >
-        </section>
-
+     
         <section class="jobs-values" aria-labelledby="jobs-values-title">
             <div class="jobs-values-inner">
                 <p class="jobs-eyebrow">Growing together</p>

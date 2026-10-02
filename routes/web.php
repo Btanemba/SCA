@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CompleteRegistrationController;
 use App\Http\Controllers\JobController;
+use App\Http\Controllers\ManagementController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -10,6 +11,8 @@ Route::get('/', function () {
 
 Route::view('/admissions', 'admissions.overview')->name('admissions.overview');
 Route::view('/admissions/fees', 'admissions.fees')->name('admissions.fees');
+
+Route::get('/management', [ManagementController::class, 'index'])->name('management.index');
 
 Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');
 Route::get('/jobs/{jobOpening}', [JobController::class, 'show'])->name('jobs.show');
