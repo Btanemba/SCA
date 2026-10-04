@@ -60,10 +60,15 @@ class PersonCrudController extends CrudController
         CRUD::setModel(Person::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/person');
         CRUD::setEntityNameStrings('person', 'people');
+
+        if (backpack_user()?->person?->sacRole?->code === Person::ROLE_ACCOUNTANT) {
+            CRUD::denyAccess('create');
+        }
     }
 
     public function store()
     {
+        CRUD::hasAccessOrFail('create');
         $this->syncUserFromRequest();
 
         $response = $this->traitStore();
@@ -783,5 +788,10 @@ class PersonCrudController extends CrudController
     protected function setupUpdateOperation(): void
     {
         $this->setupCreateOperation();
+
+        $entry = CRUD::getCurrentEntry();
+        if ($entry && $entry->user_id === backpack_user()?->id) {
+            CRUD::setOperationSetting('backToAllEntriesUrl', backpack_url('dashboard'));
+        }
     }
 }
