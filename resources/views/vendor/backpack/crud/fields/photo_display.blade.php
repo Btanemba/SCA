@@ -25,37 +25,89 @@
 @push('after_scripts')
     <script>
         function initializePersonPhotoPreview() {
-            const imageInput = document.querySelector('input.file_input[type="file"][name="image_path"]');
+            const imageInputSelector = 'input.file_input[type="file"][name="image_path"]';
             const preview = document.getElementById('person-photo-preview');
 
-            if (!imageInput || !preview) {
+            if (!preview) {
                 return;
             }
 
-            imageInput.addEventListener('change', function (event) {
-                const file = event.target.files[0];
+            let selectedImageUrl = null;
 
-                if (!file || !file.type.startsWith('image/')) {
+            function clearPreview(input = null) {
+                if (selectedImageUrl) {
+                    URL.revokeObjectURL(selectedImageUrl);
+                    selectedImageUrl = null;
+                }
+
+                if (input) {
+                    input.value = '';
+                    const marker = input.nextElementSibling;
+                    if (!marker || marker.type !== 'hidden' || marker.name !== 'image_path') {
+                        const removalMarker = document.createElement('input');
+                        removalMarker.type = 'hidden';
+                        removalMarker.name = 'image_path';
+                        removalMarker.value = '';
+                        input.insertAdjacentElement('afterend', removalMarker);
+                    }
+                }
+
+                preview.innerHTML = '<span class="text-muted">No photo uploaded</span>';
+            }
+
+            function showPreview(file) {
+                if (!file.type.startsWith('image/')) {
                     return;
                 }
 
-                const reader = new FileReader();
+                if (selectedImageUrl) {
+                    URL.revokeObjectURL(selectedImageUrl);
+                }
 
-                reader.addEventListener('load', function () {
-                    preview.innerHTML = '';
+                selectedImageUrl = URL.createObjectURL(file);
+                preview.innerHTML = '';
 
-                    const image = document.createElement('img');
-                    image.src = reader.result;
-                    image.alt = 'Selected person photo';
-                    image.style.width = '100%';
-                    image.style.height = '100%';
-                    image.style.objectFit = 'contain';
+                const image = document.createElement('img');
+                image.src = selectedImageUrl;
+                image.alt = 'Selected person photo';
+                image.style.width = '100%';
+                image.style.height = '100%';
+                image.style.objectFit = 'contain';
 
-                    preview.appendChild(image);
-                });
+                preview.appendChild(image);
+            }
 
-                reader.readAsDataURL(file);
+            document.addEventListener('click', function (event) {
+                const target = event.target instanceof Element ? event.target : null;
+                const clearButton = target?.closest('.file_clear_button');
+                const uploadField = clearButton?.closest('.form-group');
+
+                if (uploadField?.querySelector(imageInputSelector)) {
+                    clearPreview();
+                }
+            }, true);
+
+            document.addEventListener('change', function (event) {
+                const input = event.target;
+                if (!(input instanceof HTMLInputElement) || !input.matches(imageInputSelector)) {
+                    return;
+                }
+
+                const file = input.files?.[0];
+                if (!file) {
+                    clearPreview(input);
+                    return;
+                }
+
+                showPreview(file);
             });
+
+            document.addEventListener('cancel', function (event) {
+                const input = event.target;
+                if (input instanceof HTMLInputElement && input.matches(imageInputSelector)) {
+                    clearPreview(input);
+                }
+            }, true);
         }
 
         if (document.readyState === 'loading') {

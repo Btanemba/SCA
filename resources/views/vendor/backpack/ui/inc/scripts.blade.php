@@ -32,3 +32,47 @@
 @push('after_scripts')
     @basset(base_path('vendor/backpack/crud/src/resources/assets/js/common.js'))
 @endpush
+
+@bassetBlock('academy/form-confirmations.js')
+<script>
+    (() => {
+        const pendingForms = new WeakSet();
+        const confirmedForms = new WeakSet();
+
+        document.addEventListener('submit', event => {
+            const form = event.target;
+            if (!(form instanceof HTMLFormElement) || !form.hasAttribute('data-confirm')) return;
+            if (confirmedForms.has(form)) {
+                confirmedForms.delete(form);
+                return;
+            }
+
+            event.preventDefault();
+            if (pendingForms.has(form) || !form.reportValidity()) return;
+            pendingForms.add(form);
+            const submitter = event.submitter;
+            const danger = form.dataset.confirmDanger === 'true';
+
+            swal({
+                title: form.dataset.confirmTitle || 'Confirm Action',
+                text: form.dataset.confirm,
+                icon: danger ? 'warning' : 'info',
+                buttons: {
+                    cancel: { text: 'Cancel', value: null, visible: true },
+                    confirm: { text: form.dataset.confirmButton || 'Continue', value: true, visible: true },
+                },
+                dangerMode: danger,
+            }).then(confirmed => {
+                if (!confirmed || !form.isConnected) return;
+                confirmedForms.add(form);
+                HTMLFormElement.prototype.requestSubmit.call(form, submitter?.form === form ? submitter : undefined);
+            }).catch(error => {
+                console.error('Unable to complete the confirmation.', error);
+            }).finally(() => {
+                pendingForms.delete(form);
+                confirmedForms.delete(form);
+            });
+        });
+    })();
+</script>
+@endBassetBlock

@@ -8,20 +8,21 @@
     $oldContacts = old('pickup_contacts', []);
     $relationshipOptions = $field['relationship_options'] ?? [];
     $highestSavedSlot = (int) $contacts->keys()->max();
-    $visibleSlots = max(1, min(3, max($highestSavedSlot, count($oldContacts))));
+    $visibleSlots = max(1, min(2, max($highestSavedSlot, count($oldContacts))));
 @endphp
 
 @include('crud::fields.inc.wrapper_start')
     <label>{{ $field['label'] ?? 'Pickup and drop-off contacts' }}</label>
-    <p class="text-muted small">Add up to three people authorized to pick up or drop off this child.</p>
+    <p class="text-muted small">Add up to two people authorized to pick up or drop off this child.</p>
     <p class="text-muted small"><span class="text-danger">*</span> Required field</p>
 
     <div class="row g-3">
-        @for ($slot = 1; $slot <= 3; $slot++)
+        @for ($slot = 1; $slot <= 2; $slot++)
             @php
                 $link = $contacts->get($slot);
                 $contact = $link?->contact;
                 $oldContact = $oldContacts[$slot - 1] ?? [];
+                $removeImage = filter_var($oldContact['remove_image'] ?? false, FILTER_VALIDATE_BOOLEAN);
                 $value = fn (string $key) => array_key_exists($key, $oldContact)
                     ? $oldContact[$key]
                     : $contact?->{$key};
@@ -76,16 +77,19 @@
                         <div class="col-md-6">
                             <label class="form-label" for="pickup-contact-{{ $slot }}-image">Photo</label>
                             <input id="pickup-contact-{{ $slot }}-image" type="file" class="form-control" name="pickup_contacts[{{ $slot - 1 }}][image]" accept="image/*">
+                            <input type="hidden" class="pickup-contact-remove-image-flag" name="pickup_contacts[{{ $slot - 1 }}][remove_image]" value="{{ $removeImage ? '1' : '0' }}">
                         </div>
                         <div class="col-md-6 pickup-contact-current-photo">
                             <span class="form-label d-block">Current photo</span>
-                            @if ($contact?->image_path)
+                            @if ($contact?->image_path && ! $removeImage)
                                 <div class="pickup-contact-preview">
                                     <img src="{{ asset('storage/'.$contact->image_path) }}" alt="Photo of {{ $contact->full_name }}" class="img-thumbnail" style="width: 200px; height: 200px; object-fit: contain;">
+                                    <button type="button" class="btn btn-sm btn-outline-danger mt-2 pickup-contact-photo-remove">Remove photo</button>
                                 </div>
                             @else
                                 <div class="pickup-contact-preview">
                                     <p class="text-muted small mb-0">No photo uploaded.</p>
+                                    <button type="button" class="btn btn-sm btn-outline-danger mt-2 pickup-contact-photo-remove d-none">Remove photo</button>
                                 </div>
                             @endif
                         </div>
@@ -107,7 +111,7 @@
         @endfor
     </div>
 
-    <button type="button" class="btn btn-outline-primary mt-3 pickup-contact-add{{ $visibleSlots >= 3 ? ' d-none' : '' }}">Add another contact</button>
+    <button type="button" class="btn btn-outline-primary mt-3 pickup-contact-add{{ $visibleSlots >= 2 ? ' d-none' : '' }}">Add another contact</button>
 @include('crud::fields.inc.wrapper_end')
 
 <script>
@@ -152,16 +156,12 @@
             const currentFirstName = slot.querySelector('input[name$="[first_name]"]')?.value.trim();
             const currentLastName = slot.querySelector('input[name$="[last_name]"]')?.value.trim();
             if (currentFirstName && currentLastName && completeSlots.length <= 1) {
-                if (typeof swal === 'function') {
-                    swal({
-                        title: 'Contact required',
-                        text: 'At least one pickup or drop-off contact is required.',
-                        icon: 'warning',
-                        button: 'OK',
-                    });
-                } else {
-                    window.alert('At least one pickup or drop-off contact is required.');
-                }
+                swal({
+                    title: 'Contact required',
+                    text: 'At least one pickup or drop-off contact is required.',
+                    icon: 'warning',
+                    button: 'OK',
+                });
                 return;
             }
 
@@ -190,31 +190,33 @@
                 slot.closest('.form-group')?.querySelector('.pickup-contact-add')?.classList.remove('d-none');
             };
 
-            if (typeof swal === 'function') {
-                swal({
-                    title: 'Remove contact?',
-                    text: 'This contact will be removed from this child after you save.',
-                    icon: 'warning',
-                    buttons: ['Cancel', 'Remove'],
-                    dangerMode: true,
-                }).then((confirmed) => {
-                    if (confirmed) {
-                        removeContact();
-                    }
-                });
-            } else if (window.confirm('Remove this pickup and drop-off contact? Save the student to confirm.')) {
-                removeContact();
-            }
+            swal({
+                title: 'Remove contact?',
+                text: 'This contact will be removed from this child after you save.',
+                icon: 'warning',
+                buttons: ['Cancel', 'Remove'],
+                dangerMode: true,
+            }).then((confirmed) => {
+                if (confirmed) {
+                    removeContact();
+                }
+            });
         });
     });
 
     document.querySelectorAll('.pickup-contact-slot input[type="file"]').forEach((input) => {
+        input.addEventListener('cancel', () => clearPhoto(input));
         input.addEventListener('change', () => {
             const file = input.files?.[0];
             const slot = input.closest('.pickup-contact-slot');
             const preview = slot?.querySelector('.pickup-contact-preview');
 
-            if (!file || !preview || !file.type.startsWith('image/')) {
+            if (!file) {
+                clearPhoto(input);
+                return;
+            }
+
+            if (!preview || !file.type.startsWith('image/')) {
                 return;
             }
 
@@ -223,6 +225,7 @@
             }
 
             const objectUrl = URL.createObjectURL(file);
+            slot.querySelector('.pickup-contact-remove-image-flag').value = '0';
             preview.dataset.objectUrl = objectUrl;
             preview.innerHTML = '';
 
@@ -234,6 +237,40 @@
             image.style.height = '200px';
             image.style.objectFit = 'contain';
             preview.appendChild(image);
+
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.className = 'btn btn-sm btn-outline-danger mt-2 pickup-contact-photo-remove';
+            removeButton.textContent = 'Remove photo';
+            preview.appendChild(removeButton);
+            bindPhotoRemove(removeButton);
         });
     });
+
+    function clearPhoto(input) {
+        const slot = input.closest('.pickup-contact-slot');
+        const preview = slot?.querySelector('.pickup-contact-preview');
+        if (!slot || !preview) {
+            return;
+        }
+
+        if (preview.dataset.objectUrl) {
+            URL.revokeObjectURL(preview.dataset.objectUrl);
+            delete preview.dataset.objectUrl;
+        }
+        input.value = '';
+        slot.querySelector('.pickup-contact-remove-image-flag').value = '1';
+        preview.innerHTML = '<p class="text-muted small mb-0">No photo uploaded.</p>';
+    }
+
+    function bindPhotoRemove(button) {
+        button.addEventListener('click', () => {
+            const input = button.closest('.pickup-contact-slot')?.querySelector('input[type="file"]');
+            if (input) {
+                clearPhoto(input);
+            }
+        });
+    }
+
+    document.querySelectorAll('.pickup-contact-photo-remove').forEach(bindPhotoRemove);
 </script>

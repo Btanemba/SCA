@@ -299,7 +299,7 @@ class PersonCrudController extends CrudController
 
         foreach ($submittedContacts as $index => $details) {
             $slot = ((int) $index) + 1;
-            if ($slot > 3 || ! is_array($details)) {
+            if ($slot > 2 || ! is_array($details)) {
                 continue;
             }
 
@@ -354,6 +354,11 @@ class PersonCrudController extends CrudController
                     Storage::disk('public')->delete($imagePath);
                 }
                 $imagePath = $image->store('pickup-contacts', 'public');
+            } elseif (filter_var($details['remove_image'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+                if ($imagePath) {
+                    Storage::disk('public')->delete($imagePath);
+                }
+                $imagePath = null;
             }
 
             $contact->fill([
@@ -461,6 +466,15 @@ class PersonCrudController extends CrudController
         $selectedRoleId = request()->input('sac_role_id') ?? ($entry ? $entry->sac_role_id : null);
         $selectedRole = $selectedRoleId ? SacRole::find($selectedRoleId) : null;
 
+        if ($entry && $entry->user_id === backpack_user()?->id) {
+            CRUD::addField([
+                'name' => 'my_payslips_link',
+                'type' => 'custom_html',
+                'value' => '<a class="btn btn-outline-primary" href="'.e(route('payroll.mine')).'"><i class="la la-file-invoice-dollar"></i> My Payslips</a>',
+                'tab' => 'General',
+            ]);
+        }
+
         if ($entry && $entry->student_id) {
             CRUD::addField([
                 'name' => 'student_id',
@@ -559,6 +573,29 @@ class PersonCrudController extends CrudController
             ->type('text')
             ->wrapper(['class' => 'form-group col-md-6'])
             ->tab('General');
+        }
+
+        if (in_array($selectedRole?->code, [Person::ROLE_STAFF, Person::ROLE_ADMIN, Person::ROLE_ACCOUNTANT, Person::ROLE_SECURITY], true)) {
+            CRUD::field('bank_name')
+                ->type('text')
+                ->label('Bank name')
+                ->wrapper(['class' => 'form-group col-md-4'])
+                ->tab('Banking');
+
+            CRUD::field('account_name')
+                ->type('text')
+                ->label('Account name')
+                ->wrapper(['class' => 'form-group col-md-4'])
+                ->tab('Banking');
+
+            CRUD::addField([
+                'name' => 'account_number',
+                'label' => 'Account number',
+                'type' => 'text',
+                'attributes' => ['inputmode' => 'numeric', 'maxlength' => 10, 'pattern' => '[0-9]{10}'],
+                'wrapper' => ['class' => 'form-group col-md-4'],
+                'tab' => 'Banking',
+            ]);
         }
 
         CRUD::field('address_line_1')

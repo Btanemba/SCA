@@ -3,6 +3,11 @@
 	$currentRoleCode = backpack_user()?->person?->sacRole?->code;
 	$isSecurity = $currentRoleCode === \App\Models\Person::ROLE_SECURITY;
 	$isAccountant = $currentRoleCode === \App\Models\Person::ROLE_ACCOUNTANT;
+	$currentPerson = backpack_user()?->person;
+	$hasPayslips = $currentPerson && \App\Models\PayrollEntry::query()
+		->where('person_id', $currentPerson->id)
+		->whereHas('payroll', fn ($query) => $query->whereIn('status', ['approved', 'paid']))
+		->exists();
 @endphp
 <li class="nav-item"><a class="nav-link" href="{{ backpack_url('dashboard') }}"><i class="la la-home nav-icon"></i> {{ trans('backpack::base.dashboard') }}</a></li>
 @if ($isSecurity)
@@ -40,4 +45,19 @@
     @endif
     <li class="nav-item"><a class="nav-link" href="{{ backpack_url('attendance') }}"><i class="la la-clipboard-check nav-icon"></i> Attendance</a></li>
 @endif
-<li class="nav-item"><a class="nav-link text-danger" href="{{ backpack_url('logout') }}"><i class="la la-sign-out-alt nav-icon"></i> {{ trans('backpack::base.logout') }}</a></li>
+@if (in_array($currentRoleCode, [\App\Models\Person::ROLE_ACCOUNTANT, \App\Models\Person::ROLE_FOUNDER], true))
+	<x-backpack::menu-dropdown title="Finance" icon="la la-calculator" :open="request()->routeIs('payroll.*') || request()->routeIs('expenses.*')">
+		<x-backpack::menu-dropdown-item title="Payroll" :link="route('payroll.index')" icon="la la-money-bill" />
+		<x-backpack::menu-dropdown-item title="Expenses" :link="route('expenses.index')" icon="la la-file-invoice-dollar" />
+		@if ($hasPayslips)
+			<x-backpack::menu-dropdown-item title="My Payslips" :link="route('payroll.mine')" icon="la la-file-invoice-dollar" />
+		@endif
+	</x-backpack::menu-dropdown>
+@endif
+@if (in_array($currentRoleCode, [\App\Models\Person::ROLE_ADMIN, \App\Models\Person::ROLE_FOUNDER], true))
+	<li class="nav-item"><a class="nav-link" href="{{ route('academy.settings') }}"><i class="la la-school nav-icon"></i> Academy Settings</a></li>
+@endif
+@if ($hasPayslips && ! in_array($currentRoleCode, [\App\Models\Person::ROLE_ACCOUNTANT, \App\Models\Person::ROLE_FOUNDER], true))
+	<li class="nav-item"><a class="nav-link" href="{{ route('payroll.mine') }}"><i class="la la-file-invoice-dollar nav-icon"></i> My Payslips</a></li>
+@endif
+<li class="nav-item"><a class="nav-link text-danger" href="{{ route('backpack.logout.home') }}"><i class="la la-sign-out-alt nav-icon"></i> {{ trans('backpack::base.logout') }}</a></li>

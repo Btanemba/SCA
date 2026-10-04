@@ -1,182 +1,23 @@
 {
-    "https://cdn.datatables.net/2.1.8/js/dataTables.min.js": {
-        "asset_name": "https://cdn.datatables.net/2.1.8/js/dataTables.min.js",
-        "asset_path": "https://cdn.datatables.net/2.1.8/js/dataTables.min.js",
-        "asset_disk_path": "basset/cdn.datatables.net/2.1.8/js/dataTables.min.js",
+    "https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/css/tabler.min.css": {
+        "asset_name": "https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/css/tabler.min.css",
+        "asset_path": "https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/css/tabler.min.css",
+        "asset_disk_path": "basset/cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/css/tabler.min.css",
+        "asset_attributes": {
+            "integrity": "sha256-fvdQvRBUamldCxJ2etgEi9jz7F3n2u+xBn+dDao9HJo=",
+            "crossorigin": "anonymous"
+        }
+    },
+    "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/theme-tabler/resources/assets/css/style.css": {
+        "asset_name": "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/theme-tabler/resources/assets/css/style.css",
+        "asset_path": "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/theme-tabler/resources/assets/css/style.css",
+        "asset_disk_path": "basset/vendor/backpack/theme-tabler/resources/assets/css/style.css",
         "asset_attributes": []
     },
-    "https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.min.js": {
-        "asset_name": "https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.min.js",
-        "asset_path": "https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.min.js",
-        "asset_disk_path": "basset/cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.min.js",
-        "asset_attributes": []
-    },
-    "https://cdn.datatables.net/responsive/3.0.3/js/dataTables.responsive.min.js": {
-        "asset_name": "https://cdn.datatables.net/responsive/3.0.3/js/dataTables.responsive.min.js",
-        "asset_path": "https://cdn.datatables.net/responsive/3.0.3/js/dataTables.responsive.min.js",
-        "asset_disk_path": "basset/cdn.datatables.net/responsive/3.0.3/js/dataTables.responsive.min.js",
-        "asset_attributes": []
-    },
-    "https://cdn.datatables.net/fixedheader/4.0.1/js/dataTables.fixedHeader.min.js": {
-        "asset_name": "https://cdn.datatables.net/fixedheader/4.0.1/js/dataTables.fixedHeader.min.js",
-        "asset_path": "https://cdn.datatables.net/fixedheader/4.0.1/js/dataTables.fixedHeader.min.js",
-        "asset_disk_path": "basset/cdn.datatables.net/fixedheader/4.0.1/js/dataTables.fixedHeader.min.js",
-        "asset_attributes": []
-    },
-    "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/crud/src/resources/assets/img/spinner.svg": {
-        "asset_name": "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/crud/src/resources/assets/img/spinner.svg",
-        "asset_path": "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/crud/src/resources/assets/img/spinner.svg",
-        "asset_disk_path": "basset/vendor/backpack/crud/src/resources/assets/img/spinner.svg",
-        "asset_attributes": []
-    },
-    "https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.min.css": {
-        "asset_name": "https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.min.css",
-        "asset_path": "https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.min.css",
-        "asset_disk_path": "basset/cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.min.css",
-        "asset_attributes": []
-    },
-    "https://cdn.datatables.net/responsive/3.0.3/css/responsive.dataTables.min.css": {
-        "asset_name": "https://cdn.datatables.net/responsive/3.0.3/css/responsive.dataTables.min.css",
-        "asset_path": "https://cdn.datatables.net/responsive/3.0.3/css/responsive.dataTables.min.css",
-        "asset_disk_path": "basset/cdn.datatables.net/responsive/3.0.3/css/responsive.dataTables.min.css",
-        "asset_attributes": []
-    },
-    "https://cdn.datatables.net/fixedheader/4.0.1/css/fixedHeader.dataTables.min.css": {
-        "asset_name": "https://cdn.datatables.net/fixedheader/4.0.1/css/fixedHeader.dataTables.min.css",
-        "asset_path": "https://cdn.datatables.net/fixedheader/4.0.1/css/fixedHeader.dataTables.min.css",
-        "asset_disk_path": "basset/cdn.datatables.net/fixedheader/4.0.1/css/fixedHeader.dataTables.min.css",
-        "asset_attributes": []
-    },
-    "https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-lite.min.css": {
-        "asset_name": "https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-lite.min.css",
-        "asset_path": "https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-lite.min.css",
-        "asset_disk_path": "basset/cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-lite.min.css",
-        "asset_attributes": []
-    },
-    "https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/font/summernote.woff2": {
-        "asset_name": "https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/font/summernote.woff2",
-        "asset_path": "https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/font/summernote.woff2",
-        "asset_disk_path": "basset/cdn.jsdelivr.net/npm/summernote@0.9.1/dist/font/summernote.woff2",
-        "asset_attributes": []
-    },
-    "https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-lite.min.js": {
-        "asset_name": "https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-lite.min.js",
-        "asset_path": "https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-lite.min.js",
-        "asset_disk_path": "basset/cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-lite.min.js",
-        "asset_attributes": []
-    },
-    "https://cdn.datatables.net/buttons/3.2.0/js/dataTables.buttons.min.js": {
-        "asset_name": "https://cdn.datatables.net/buttons/3.2.0/js/dataTables.buttons.min.js",
-        "asset_path": "https://cdn.datatables.net/buttons/3.2.0/js/dataTables.buttons.min.js",
-        "asset_disk_path": "basset/cdn.datatables.net/buttons/3.2.0/js/dataTables.buttons.min.js",
-        "asset_attributes": []
-    },
-    "https://cdn.datatables.net/buttons/3.2.0/js/buttons.bootstrap5.min.js": {
-        "asset_name": "https://cdn.datatables.net/buttons/3.2.0/js/buttons.bootstrap5.min.js",
-        "asset_path": "https://cdn.datatables.net/buttons/3.2.0/js/buttons.bootstrap5.min.js",
-        "asset_disk_path": "basset/cdn.datatables.net/buttons/3.2.0/js/buttons.bootstrap5.min.js",
-        "asset_attributes": []
-    },
-    "https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js": {
-        "asset_name": "https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js",
-        "asset_path": "https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js",
-        "asset_disk_path": "basset/cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js",
-        "asset_attributes": []
-    },
-    "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.18/pdfmake.min.js": {
-        "asset_name": "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.18/pdfmake.min.js",
-        "asset_path": "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.18/pdfmake.min.js",
-        "asset_disk_path": "basset/cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.18/pdfmake.min.js",
-        "asset_attributes": []
-    },
-    "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.18/vfs_fonts.js": {
-        "asset_name": "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.18/vfs_fonts.js",
-        "asset_path": "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.18/vfs_fonts.js",
-        "asset_disk_path": "basset/cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.18/vfs_fonts.js",
-        "asset_attributes": []
-    },
-    "https://cdn.datatables.net/buttons/3.2.0/js/buttons.html5.min.js": {
-        "asset_name": "https://cdn.datatables.net/buttons/3.2.0/js/buttons.html5.min.js",
-        "asset_path": "https://cdn.datatables.net/buttons/3.2.0/js/buttons.html5.min.js",
-        "asset_disk_path": "basset/cdn.datatables.net/buttons/3.2.0/js/buttons.html5.min.js",
-        "asset_attributes": []
-    },
-    "https://cdn.datatables.net/buttons/3.2.0/js/buttons.print.min.js": {
-        "asset_name": "https://cdn.datatables.net/buttons/3.2.0/js/buttons.print.min.js",
-        "asset_path": "https://cdn.datatables.net/buttons/3.2.0/js/buttons.print.min.js",
-        "asset_disk_path": "basset/cdn.datatables.net/buttons/3.2.0/js/buttons.print.min.js",
-        "asset_attributes": []
-    },
-    "https://cdn.datatables.net/buttons/3.2.0/js/buttons.colVis.min.js": {
-        "asset_name": "https://cdn.datatables.net/buttons/3.2.0/js/buttons.colVis.min.js",
-        "asset_path": "https://cdn.datatables.net/buttons/3.2.0/js/buttons.colVis.min.js",
-        "asset_disk_path": "basset/cdn.datatables.net/buttons/3.2.0/js/buttons.colVis.min.js",
-        "asset_attributes": []
-    },
-    "https://cdn.datatables.net/buttons/3.2.0/css/buttons.bootstrap5.min.css": {
-        "asset_name": "https://cdn.datatables.net/buttons/3.2.0/css/buttons.bootstrap5.min.css",
-        "asset_path": "https://cdn.datatables.net/buttons/3.2.0/css/buttons.bootstrap5.min.css",
-        "asset_disk_path": "basset/cdn.datatables.net/buttons/3.2.0/css/buttons.bootstrap5.min.css",
-        "asset_attributes": []
-    },
-    "https://cdn.jsdelivr.net/npm/urijs@1.19.11/src/URI.min.js": {
-        "asset_name": "https://cdn.jsdelivr.net/npm/urijs@1.19.11/src/URI.min.js",
-        "asset_path": "https://cdn.jsdelivr.net/npm/urijs@1.19.11/src/URI.min.js",
-        "asset_disk_path": "basset/cdn.jsdelivr.net/npm/urijs@1.19.11/src/URI.min.js",
-        "asset_attributes": []
-    },
-    "https://cdn.jsdelivr.net/npm/jquery-ui@1.13.2/dist/jquery-ui.min.js": {
-        "asset_name": "https://cdn.jsdelivr.net/npm/jquery-ui@1.13.2/dist/jquery-ui.min.js",
-        "asset_path": "https://cdn.jsdelivr.net/npm/jquery-ui@1.13.2/dist/jquery-ui.min.js",
-        "asset_disk_path": "basset/cdn.jsdelivr.net/npm/jquery-ui@1.13.2/dist/jquery-ui.min.js",
-        "asset_attributes": []
-    },
-    "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/crud/src/resources/assets/libs/jquery.mjs.nestedSortable2.js": {
-        "asset_name": "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/crud/src/resources/assets/libs/jquery.mjs.nestedSortable2.js",
-        "asset_path": "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/crud/src/resources/assets/libs/jquery.mjs.nestedSortable2.js",
-        "asset_disk_path": "basset/vendor/backpack/crud/src/resources/assets/libs/jquery.mjs.nestedSortable2.js",
-        "asset_attributes": []
-    },
-    "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/base16/dracula.min.css": {
-        "asset_name": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/base16/dracula.min.css",
-        "asset_path": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/base16/dracula.min.css",
-        "asset_disk_path": "basset/cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/base16/dracula.min.css",
-        "asset_attributes": []
-    },
-    "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js": {
-        "asset_name": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js",
-        "asset_path": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js",
-        "asset_disk_path": "basset/cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js",
-        "asset_attributes": []
-    },
-    "https://cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.min.js": {
-        "asset_name": "https://cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.min.js",
-        "asset_path": "https://cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.min.js",
-        "asset_disk_path": "basset/cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.min.js",
-        "asset_attributes": []
-    },
-    "https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js": {
-        "asset_name": "https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js",
-        "asset_path": "https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js",
-        "asset_disk_path": "basset/cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js",
-        "asset_attributes": []
-    },
-    "https://cdn.jsdelivr.net/npm/noty@3.2.0-beta-deprecated/lib/noty.min.js": {
-        "asset_name": "https://cdn.jsdelivr.net/npm/noty@3.2.0-beta-deprecated/lib/noty.min.js",
-        "asset_path": "https://cdn.jsdelivr.net/npm/noty@3.2.0-beta-deprecated/lib/noty.min.js",
-        "asset_disk_path": "basset/cdn.jsdelivr.net/npm/noty@3.2.0-beta-deprecated/lib/noty.min.js",
-        "asset_attributes": []
-    },
-    "https://cdn.jsdelivr.net/npm/sweetalert@2.1.2/dist/sweetalert.min.js": {
-        "asset_name": "https://cdn.jsdelivr.net/npm/sweetalert@2.1.2/dist/sweetalert.min.js",
-        "asset_path": "https://cdn.jsdelivr.net/npm/sweetalert@2.1.2/dist/sweetalert.min.js",
-        "asset_disk_path": "basset/cdn.jsdelivr.net/npm/sweetalert@2.1.2/dist/sweetalert.min.js",
-        "asset_attributes": []
-    },
-    "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/crud/src/resources/assets/js/common.js": {
-        "asset_name": "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/crud/src/resources/assets/js/common.js",
-        "asset_path": "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/crud/src/resources/assets/js/common.js",
-        "asset_disk_path": "basset/vendor/backpack/crud/src/resources/assets/js/common.js",
+    "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/theme-tabler/resources/assets/css/color-adjustments.css": {
+        "asset_name": "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/theme-tabler/resources/assets/css/color-adjustments.css",
+        "asset_path": "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/theme-tabler/resources/assets/css/color-adjustments.css",
+        "asset_disk_path": "basset/vendor/backpack/theme-tabler/resources/assets/css/color-adjustments.css",
         "asset_attributes": []
     },
     "https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.compat.css": {
@@ -257,6 +98,72 @@
         "asset_disk_path": "basset/vendor/backpack/crud/src/resources/assets/css/common.css",
         "asset_attributes": []
     },
+    "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/theme-tabler/resources/assets/css/skins/backpack-color-palette.css": {
+        "asset_name": "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/theme-tabler/resources/assets/css/skins/backpack-color-palette.css",
+        "asset_path": "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/theme-tabler/resources/assets/css/skins/backpack-color-palette.css",
+        "asset_disk_path": "basset/vendor/backpack/theme-tabler/resources/assets/css/skins/backpack-color-palette.css",
+        "asset_attributes": []
+    },
+    "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/theme-tabler/resources/assets/css/skins/glass.css": {
+        "asset_name": "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/theme-tabler/resources/assets/css/skins/glass.css",
+        "asset_path": "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/theme-tabler/resources/assets/css/skins/glass.css",
+        "asset_disk_path": "basset/vendor/backpack/theme-tabler/resources/assets/css/skins/glass.css",
+        "asset_attributes": []
+    },
+    "C:\\Users\\anemb\\Desktop\\springcare-academy\\resources/css/backpack-color-palette.css": {
+        "asset_name": "C:\\Users\\anemb\\Desktop\\springcare-academy\\resources/css/backpack-color-palette.css",
+        "asset_path": "C:\\Users\\anemb\\Desktop\\springcare-academy\\resources/css/backpack-color-palette.css",
+        "asset_disk_path": "basset/resources/css/backpack-color-palette.css",
+        "asset_attributes": []
+    },
+    "https://www.gravatar.com/avatar/62955e414b8a5f68e3a81ec777e74dab6c176b2fe4b15060081ebfa17a23d55e.jpg?s=80&d=blank&r=g": {
+        "asset_name": "https://www.gravatar.com/avatar/62955e414b8a5f68e3a81ec777e74dab6c176b2fe4b15060081ebfa17a23d55e.jpg?s=80&d=blank&r=g",
+        "asset_path": "https://www.gravatar.com/avatar/62955e414b8a5f68e3a81ec777e74dab6c176b2fe4b15060081ebfa17a23d55e.jpg?s=80&d=blank&r=g",
+        "asset_disk_path": "basset/www.gravatar.com/avatar/62955e414b8a5f68e3a81ec777e74dab6c176b2fe4b15060081ebfa17a23d55e.jpg",
+        "asset_attributes": []
+    },
+    "tabler-menu-javascript.js": {
+        "asset_name": "tabler-menu-javascript.js",
+        "asset_path": "C:\\Users\\anemb\\Desktop\\springcare-academy\\tabler-menu-javascript.js",
+        "asset_disk_path": "basset/tabler-menu-javascript-0a9427d9.js",
+        "asset_attributes": []
+    },
+    "https://cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.min.js": {
+        "asset_name": "https://cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.min.js",
+        "asset_path": "https://cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.min.js",
+        "asset_disk_path": "basset/cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.min.js",
+        "asset_attributes": []
+    },
+    "https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js": {
+        "asset_name": "https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js",
+        "asset_path": "https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js",
+        "asset_disk_path": "basset/cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js",
+        "asset_attributes": []
+    },
+    "https://cdn.jsdelivr.net/npm/noty@3.2.0-beta-deprecated/lib/noty.min.js": {
+        "asset_name": "https://cdn.jsdelivr.net/npm/noty@3.2.0-beta-deprecated/lib/noty.min.js",
+        "asset_path": "https://cdn.jsdelivr.net/npm/noty@3.2.0-beta-deprecated/lib/noty.min.js",
+        "asset_disk_path": "basset/cdn.jsdelivr.net/npm/noty@3.2.0-beta-deprecated/lib/noty.min.js",
+        "asset_attributes": []
+    },
+    "https://cdn.jsdelivr.net/npm/sweetalert@2.1.2/dist/sweetalert.min.js": {
+        "asset_name": "https://cdn.jsdelivr.net/npm/sweetalert@2.1.2/dist/sweetalert.min.js",
+        "asset_path": "https://cdn.jsdelivr.net/npm/sweetalert@2.1.2/dist/sweetalert.min.js",
+        "asset_disk_path": "basset/cdn.jsdelivr.net/npm/sweetalert@2.1.2/dist/sweetalert.min.js",
+        "asset_attributes": []
+    },
+    "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/crud/src/resources/assets/js/common.js": {
+        "asset_name": "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/crud/src/resources/assets/js/common.js",
+        "asset_path": "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/crud/src/resources/assets/js/common.js",
+        "asset_disk_path": "basset/vendor/backpack/crud/src/resources/assets/js/common.js",
+        "asset_attributes": []
+    },
+    "academy/form-confirmations.js": {
+        "asset_name": "academy/form-confirmations.js",
+        "asset_path": "C:\\Users\\anemb\\Desktop\\springcare-academy\\academy/form-confirmations.js",
+        "asset_disk_path": "basset/academy/form-confirmations-c25df36c.js",
+        "asset_attributes": []
+    },
     "https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/js/tabler.min.js": {
         "asset_name": "https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/js/tabler.min.js",
         "asset_path": "https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/js/tabler.min.js",
@@ -272,61 +179,106 @@
         "asset_disk_path": "basset/vendor/backpack/theme-tabler/resources/assets/js/tabler.js",
         "asset_attributes": []
     },
-    "https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/css/tabler.min.css": {
-        "asset_name": "https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/css/tabler.min.css",
-        "asset_path": "https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/css/tabler.min.css",
-        "asset_disk_path": "basset/cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/css/tabler.min.css",
-        "asset_attributes": {
-            "integrity": "sha256-fvdQvRBUamldCxJ2etgEi9jz7F3n2u+xBn+dDao9HJo=",
-            "crossorigin": "anonymous"
-        }
-    },
-    "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/theme-tabler/resources/assets/css/style.css": {
-        "asset_name": "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/theme-tabler/resources/assets/css/style.css",
-        "asset_path": "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/theme-tabler/resources/assets/css/style.css",
-        "asset_disk_path": "basset/vendor/backpack/theme-tabler/resources/assets/css/style.css",
+    "https://www.gravatar.com/avatar/7813525c07d3e4f0e057cdba60ffb889626869b7c652e3ff1cfee4aa1e08e0be.jpg?s=80&d=blank&r=g": {
+        "asset_name": "https://www.gravatar.com/avatar/7813525c07d3e4f0e057cdba60ffb889626869b7c652e3ff1cfee4aa1e08e0be.jpg?s=80&d=blank&r=g",
+        "asset_path": "https://www.gravatar.com/avatar/7813525c07d3e4f0e057cdba60ffb889626869b7c652e3ff1cfee4aa1e08e0be.jpg?s=80&d=blank&r=g",
+        "asset_disk_path": "basset/www.gravatar.com/avatar/7813525c07d3e4f0e057cdba60ffb889626869b7c652e3ff1cfee4aa1e08e0be.jpg",
         "asset_attributes": []
     },
-    "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/theme-tabler/resources/assets/css/color-adjustments.css": {
-        "asset_name": "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/theme-tabler/resources/assets/css/color-adjustments.css",
-        "asset_path": "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/theme-tabler/resources/assets/css/color-adjustments.css",
-        "asset_disk_path": "basset/vendor/backpack/theme-tabler/resources/assets/css/color-adjustments.css",
+    "https://www.gravatar.com/avatar/35a84080faf6fe28334fed1d1b646e8f073b97741d095d05fd830d9cfe917b85.jpg?s=80&d=blank&r=g": {
+        "asset_name": "https://www.gravatar.com/avatar/35a84080faf6fe28334fed1d1b646e8f073b97741d095d05fd830d9cfe917b85.jpg?s=80&d=blank&r=g",
+        "asset_path": "https://www.gravatar.com/avatar/35a84080faf6fe28334fed1d1b646e8f073b97741d095d05fd830d9cfe917b85.jpg?s=80&d=blank&r=g",
+        "asset_disk_path": "basset/www.gravatar.com/avatar/35a84080faf6fe28334fed1d1b646e8f073b97741d095d05fd830d9cfe917b85.jpg",
         "asset_attributes": []
     },
-    "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/theme-tabler/resources/assets/css/skins/backpack-color-palette.css": {
-        "asset_name": "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/theme-tabler/resources/assets/css/skins/backpack-color-palette.css",
-        "asset_path": "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/theme-tabler/resources/assets/css/skins/backpack-color-palette.css",
-        "asset_disk_path": "basset/vendor/backpack/theme-tabler/resources/assets/css/skins/backpack-color-palette.css",
+    "https://www.gravatar.com/avatar/c5b301c2ea792cdf44f5e70c7c29208e95fffa6451ae237a2b7380a00a8c9154.jpg?s=80&d=blank&r=g": {
+        "asset_name": "https://www.gravatar.com/avatar/c5b301c2ea792cdf44f5e70c7c29208e95fffa6451ae237a2b7380a00a8c9154.jpg?s=80&d=blank&r=g",
+        "asset_path": "https://www.gravatar.com/avatar/c5b301c2ea792cdf44f5e70c7c29208e95fffa6451ae237a2b7380a00a8c9154.jpg?s=80&d=blank&r=g",
+        "asset_disk_path": "basset/www.gravatar.com/avatar/c5b301c2ea792cdf44f5e70c7c29208e95fffa6451ae237a2b7380a00a8c9154.jpg",
         "asset_attributes": []
     },
-    "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/theme-tabler/resources/assets/css/skins/glass.css": {
-        "asset_name": "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/theme-tabler/resources/assets/css/skins/glass.css",
-        "asset_path": "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/theme-tabler/resources/assets/css/skins/glass.css",
-        "asset_disk_path": "basset/vendor/backpack/theme-tabler/resources/assets/css/skins/glass.css",
+    "https://www.gravatar.com/avatar/6c3c68a26a96ccb9cc9ee33672c87be3e4bf09e9a456661ab17ced059196a45e.jpg?s=80&d=blank&r=g": {
+        "asset_name": "https://www.gravatar.com/avatar/6c3c68a26a96ccb9cc9ee33672c87be3e4bf09e9a456661ab17ced059196a45e.jpg?s=80&d=blank&r=g",
+        "asset_path": "https://www.gravatar.com/avatar/6c3c68a26a96ccb9cc9ee33672c87be3e4bf09e9a456661ab17ced059196a45e.jpg?s=80&d=blank&r=g",
+        "asset_disk_path": "basset/www.gravatar.com/avatar/6c3c68a26a96ccb9cc9ee33672c87be3e4bf09e9a456661ab17ced059196a45e.jpg",
         "asset_attributes": []
     },
-    "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/theme-tabler/resources/assets/css/skins/fuzzy-background.css": {
-        "asset_name": "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/theme-tabler/resources/assets/css/skins/fuzzy-background.css",
-        "asset_path": "C:\\Users\\anemb\\Desktop\\springcare-academy\\vendor/backpack/theme-tabler/resources/assets/css/skins/fuzzy-background.css",
-        "asset_disk_path": "basset/vendor/backpack/theme-tabler/resources/assets/css/skins/fuzzy-background.css",
+    "https://www.gravatar.com/avatar/1789f3e152251e402125894c85ee7e1c6584d84191d92e086bb3e868472c30e6.jpg?s=80&d=blank&r=g": {
+        "asset_name": "https://www.gravatar.com/avatar/1789f3e152251e402125894c85ee7e1c6584d84191d92e086bb3e868472c30e6.jpg?s=80&d=blank&r=g",
+        "asset_path": "https://www.gravatar.com/avatar/1789f3e152251e402125894c85ee7e1c6584d84191d92e086bb3e868472c30e6.jpg?s=80&d=blank&r=g",
+        "asset_disk_path": "basset/www.gravatar.com/avatar/1789f3e152251e402125894c85ee7e1c6584d84191d92e086bb3e868472c30e6.jpg",
         "asset_attributes": []
     },
-    "https://www.gravatar.com/avatar/004d9f4343b55091de6782c24d29532e1cb4e7c9d7bf61244cc4be8e10e54ce1.jpg?s=80&d=blank&r=g": {
-        "asset_name": "https://www.gravatar.com/avatar/004d9f4343b55091de6782c24d29532e1cb4e7c9d7bf61244cc4be8e10e54ce1.jpg?s=80&d=blank&r=g",
-        "asset_path": "https://www.gravatar.com/avatar/004d9f4343b55091de6782c24d29532e1cb4e7c9d7bf61244cc4be8e10e54ce1.jpg?s=80&d=blank&r=g",
-        "asset_disk_path": "basset/www.gravatar.com/avatar/004d9f4343b55091de6782c24d29532e1cb4e7c9d7bf61244cc4be8e10e54ce1.jpg",
+    "https://www.gravatar.com/avatar/50aa91b8b3413158c99b6668ca45cd462a362c21594782f592b8a9b0d6a1a33c.jpg?s=80&d=blank&r=g": {
+        "asset_name": "https://www.gravatar.com/avatar/50aa91b8b3413158c99b6668ca45cd462a362c21594782f592b8a9b0d6a1a33c.jpg?s=80&d=blank&r=g",
+        "asset_path": "https://www.gravatar.com/avatar/50aa91b8b3413158c99b6668ca45cd462a362c21594782f592b8a9b0d6a1a33c.jpg?s=80&d=blank&r=g",
+        "asset_disk_path": "basset/www.gravatar.com/avatar/50aa91b8b3413158c99b6668ca45cd462a362c21594782f592b8a9b0d6a1a33c.jpg",
         "asset_attributes": []
     },
-    "C:\\Users\\anemb\\Desktop\\springcare-academy\\resources/css/backpack-color-palette.css": {
-        "asset_name": "C:\\Users\\anemb\\Desktop\\springcare-academy\\resources/css/backpack-color-palette.css",
-        "asset_path": "C:\\Users\\anemb\\Desktop\\springcare-academy\\resources/css/backpack-color-palette.css",
-        "asset_disk_path": "basset/resources/css/backpack-color-palette.css",
+    "https://www.gravatar.com/avatar/39f2e9d1f9b536f64ef0a0857a2a91b5d147032333d802dfad96c7c85534d224.jpg?s=80&d=blank&r=g": {
+        "asset_name": "https://www.gravatar.com/avatar/39f2e9d1f9b536f64ef0a0857a2a91b5d147032333d802dfad96c7c85534d224.jpg?s=80&d=blank&r=g",
+        "asset_path": "https://www.gravatar.com/avatar/39f2e9d1f9b536f64ef0a0857a2a91b5d147032333d802dfad96c7c85534d224.jpg?s=80&d=blank&r=g",
+        "asset_disk_path": "basset/www.gravatar.com/avatar/39f2e9d1f9b536f64ef0a0857a2a91b5d147032333d802dfad96c7c85534d224.jpg",
         "asset_attributes": []
     },
-    "https://www.gravatar.com/avatar/29feb527fde20e9df73a98b5cc2d61bc991559c0699a5c9f07d32f02392ae1f1.jpg?s=80&d=blank&r=g": {
-        "asset_name": "https://www.gravatar.com/avatar/29feb527fde20e9df73a98b5cc2d61bc991559c0699a5c9f07d32f02392ae1f1.jpg?s=80&d=blank&r=g",
-        "asset_path": "https://www.gravatar.com/avatar/29feb527fde20e9df73a98b5cc2d61bc991559c0699a5c9f07d32f02392ae1f1.jpg?s=80&d=blank&r=g",
-        "asset_disk_path": "basset/www.gravatar.com/avatar/29feb527fde20e9df73a98b5cc2d61bc991559c0699a5c9f07d32f02392ae1f1.jpg",
+    "https://www.gravatar.com/avatar/7c2711864c6bdafb3b16bc75b9e5f1dfc1ad8ee6f123fcad2fd4df96fb9dd5a5.jpg?s=80&d=blank&r=g": {
+        "asset_name": "https://www.gravatar.com/avatar/7c2711864c6bdafb3b16bc75b9e5f1dfc1ad8ee6f123fcad2fd4df96fb9dd5a5.jpg?s=80&d=blank&r=g",
+        "asset_path": "https://www.gravatar.com/avatar/7c2711864c6bdafb3b16bc75b9e5f1dfc1ad8ee6f123fcad2fd4df96fb9dd5a5.jpg?s=80&d=blank&r=g",
+        "asset_disk_path": "basset/www.gravatar.com/avatar/7c2711864c6bdafb3b16bc75b9e5f1dfc1ad8ee6f123fcad2fd4df96fb9dd5a5.jpg",
+        "asset_attributes": []
+    },
+    "https://www.gravatar.com/avatar/c69330b6230c83caf28d1b44f0177b0cf3fb1fd4b37c3636c1de7485b0d4a9fe.jpg?s=80&d=blank&r=g": {
+        "asset_name": "https://www.gravatar.com/avatar/c69330b6230c83caf28d1b44f0177b0cf3fb1fd4b37c3636c1de7485b0d4a9fe.jpg?s=80&d=blank&r=g",
+        "asset_path": "https://www.gravatar.com/avatar/c69330b6230c83caf28d1b44f0177b0cf3fb1fd4b37c3636c1de7485b0d4a9fe.jpg?s=80&d=blank&r=g",
+        "asset_disk_path": "basset/www.gravatar.com/avatar/c69330b6230c83caf28d1b44f0177b0cf3fb1fd4b37c3636c1de7485b0d4a9fe.jpg",
+        "asset_attributes": []
+    },
+    "https://www.gravatar.com/avatar/5513da93fa15d9a109cc810aee53479c8394dc86de45bc219801115655feb5a2.jpg?s=80&d=blank&r=g": {
+        "asset_name": "https://www.gravatar.com/avatar/5513da93fa15d9a109cc810aee53479c8394dc86de45bc219801115655feb5a2.jpg?s=80&d=blank&r=g",
+        "asset_path": "https://www.gravatar.com/avatar/5513da93fa15d9a109cc810aee53479c8394dc86de45bc219801115655feb5a2.jpg?s=80&d=blank&r=g",
+        "asset_disk_path": "basset/www.gravatar.com/avatar/5513da93fa15d9a109cc810aee53479c8394dc86de45bc219801115655feb5a2.jpg",
+        "asset_attributes": []
+    },
+    "https://www.gravatar.com/avatar/e1aa3b90ba17ecf8fafeade93f8768c8e6981970c3a66bb168c386428553ccd6.jpg?s=80&d=blank&r=g": {
+        "asset_name": "https://www.gravatar.com/avatar/e1aa3b90ba17ecf8fafeade93f8768c8e6981970c3a66bb168c386428553ccd6.jpg?s=80&d=blank&r=g",
+        "asset_path": "https://www.gravatar.com/avatar/e1aa3b90ba17ecf8fafeade93f8768c8e6981970c3a66bb168c386428553ccd6.jpg?s=80&d=blank&r=g",
+        "asset_disk_path": "basset/www.gravatar.com/avatar/e1aa3b90ba17ecf8fafeade93f8768c8e6981970c3a66bb168c386428553ccd6.jpg",
+        "asset_attributes": []
+    },
+    "https://www.gravatar.com/avatar/9129cd4b6363228c2c7c153f64b9cb69863a7f7f8e289db6b8f1677c2bf05351.jpg?s=80&d=blank&r=g": {
+        "asset_name": "https://www.gravatar.com/avatar/9129cd4b6363228c2c7c153f64b9cb69863a7f7f8e289db6b8f1677c2bf05351.jpg?s=80&d=blank&r=g",
+        "asset_path": "https://www.gravatar.com/avatar/9129cd4b6363228c2c7c153f64b9cb69863a7f7f8e289db6b8f1677c2bf05351.jpg?s=80&d=blank&r=g",
+        "asset_disk_path": "basset/www.gravatar.com/avatar/9129cd4b6363228c2c7c153f64b9cb69863a7f7f8e289db6b8f1677c2bf05351.jpg",
+        "asset_attributes": []
+    },
+    "https://www.gravatar.com/avatar/7a31e6827aea7141d0d37342481c8381d0e5ca122b604b9f42fec175a76f2ba9.jpg?s=80&d=blank&r=g": {
+        "asset_name": "https://www.gravatar.com/avatar/7a31e6827aea7141d0d37342481c8381d0e5ca122b604b9f42fec175a76f2ba9.jpg?s=80&d=blank&r=g",
+        "asset_path": "https://www.gravatar.com/avatar/7a31e6827aea7141d0d37342481c8381d0e5ca122b604b9f42fec175a76f2ba9.jpg?s=80&d=blank&r=g",
+        "asset_disk_path": "basset/www.gravatar.com/avatar/7a31e6827aea7141d0d37342481c8381d0e5ca122b604b9f42fec175a76f2ba9.jpg",
+        "asset_attributes": []
+    },
+    "https://www.gravatar.com/avatar/904dcfae7babcf2e01e272e5b52c0eb87dd73e8200ec8d678cc75b08f6ddf1f1.jpg?s=80&d=blank&r=g": {
+        "asset_name": "https://www.gravatar.com/avatar/904dcfae7babcf2e01e272e5b52c0eb87dd73e8200ec8d678cc75b08f6ddf1f1.jpg?s=80&d=blank&r=g",
+        "asset_path": "https://www.gravatar.com/avatar/904dcfae7babcf2e01e272e5b52c0eb87dd73e8200ec8d678cc75b08f6ddf1f1.jpg?s=80&d=blank&r=g",
+        "asset_disk_path": "basset/www.gravatar.com/avatar/904dcfae7babcf2e01e272e5b52c0eb87dd73e8200ec8d678cc75b08f6ddf1f1.jpg",
+        "asset_attributes": []
+    },
+    "https://www.gravatar.com/avatar/4a3b2c352595e09ef785ab7b37769752fafd4b7d8324fb7f48454f044833a1a4.jpg?s=80&d=blank&r=g": {
+        "asset_name": "https://www.gravatar.com/avatar/4a3b2c352595e09ef785ab7b37769752fafd4b7d8324fb7f48454f044833a1a4.jpg?s=80&d=blank&r=g",
+        "asset_path": "https://www.gravatar.com/avatar/4a3b2c352595e09ef785ab7b37769752fafd4b7d8324fb7f48454f044833a1a4.jpg?s=80&d=blank&r=g",
+        "asset_disk_path": "basset/www.gravatar.com/avatar/4a3b2c352595e09ef785ab7b37769752fafd4b7d8324fb7f48454f044833a1a4.jpg",
+        "asset_attributes": []
+    },
+    "https://www.gravatar.com/avatar/f1149defff5b44750b56b34c282d6f9dcc0514fd5d07a92a8b35863dd456ca69.jpg?s=80&d=blank&r=g": {
+        "asset_name": "https://www.gravatar.com/avatar/f1149defff5b44750b56b34c282d6f9dcc0514fd5d07a92a8b35863dd456ca69.jpg?s=80&d=blank&r=g",
+        "asset_path": "https://www.gravatar.com/avatar/f1149defff5b44750b56b34c282d6f9dcc0514fd5d07a92a8b35863dd456ca69.jpg?s=80&d=blank&r=g",
+        "asset_disk_path": "basset/www.gravatar.com/avatar/f1149defff5b44750b56b34c282d6f9dcc0514fd5d07a92a8b35863dd456ca69.jpg",
+        "asset_attributes": []
+    },
+    "https://www.gravatar.com/avatar/88fe44139a6f6d0283e4a01f1b5185feae16959fa8a97f6b48b80af70def23b2.jpg?s=80&d=blank&r=g": {
+        "asset_name": "https://www.gravatar.com/avatar/88fe44139a6f6d0283e4a01f1b5185feae16959fa8a97f6b48b80af70def23b2.jpg?s=80&d=blank&r=g",
+        "asset_path": "https://www.gravatar.com/avatar/88fe44139a6f6d0283e4a01f1b5185feae16959fa8a97f6b48b80af70def23b2.jpg?s=80&d=blank&r=g",
+        "asset_disk_path": "basset/www.gravatar.com/avatar/88fe44139a6f6d0283e4a01f1b5185feae16959fa8a97f6b48b80af70def23b2.jpg",
         "asset_attributes": []
     },
     "https://www.gravatar.com/avatar/67385a023ed5c145845a65027c4cab16f8a41a8d714649bcfbc97764542db027.jpg?s=80&d=blank&r=g": {

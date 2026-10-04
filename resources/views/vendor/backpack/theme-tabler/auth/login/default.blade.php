@@ -12,10 +12,10 @@
                 <p class="sc-form-eyebrow">SCHOOL PORTAL</p>
                 @include(backpack_view('auth.login.inc.form'))
                 @if (config('backpack.base.registration_open'))
-                    <p class="sc-register-link">
+                    {{-- <p class="sc-register-link">
                         New to the portal?
                         <a tabindex="6" href="{{ route('backpack.auth.register') }}">Create an account</a>
-                    </p>
+                    </p> --}}
                 @endif
                 </div>
                 <p class="sc-form-footer">SpringCare Academy <span aria-hidden="true">/</span> Secure staff access</p>

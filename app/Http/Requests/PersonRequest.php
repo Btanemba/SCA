@@ -26,7 +26,7 @@ class PersonRequest extends FormRequest
             'guardian_relationships.*.relationship' => ['nullable', 'string', 'max:100'],
             'guardian_relationships.*.is_primary_contact' => ['sometimes', 'boolean'],
             'email' => ['nullable', 'email', 'max:255'],
-            'pickup_contacts' => ['sometimes', 'array', 'max:3'],
+            'pickup_contacts' => ['sometimes', 'array', 'max:2'],
             'pickup_contacts.*' => ['array'],
             'pickup_contacts.*.first_name' => ['nullable', 'string', 'max:255', 'required_with:pickup_contacts.*.last_name'],
             'pickup_contacts.*.last_name' => ['nullable', 'string', 'max:255', 'required_with:pickup_contacts.*.first_name'],
@@ -35,12 +35,16 @@ class PersonRequest extends FormRequest
             'pickup_contacts.*.phone' => ['nullable', 'string', 'max:50'],
             'pickup_contacts.*.address' => ['nullable', 'string', 'max:255'],
             'pickup_contacts.*.image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'max:2048'],
+            'pickup_contacts.*.remove_image' => ['sometimes', 'boolean'],
             'pickup_contacts.*.can_pick_up' => ['sometimes', 'boolean'],
             'pickup_contacts.*.can_drop_off' => ['sometimes', 'boolean'],
             'phone' => ['nullable', 'string', 'max:50'],
             'alt_email' => ['nullable', 'email', 'max:255'],
             'alt_phone' => ['nullable', 'string', 'max:50'],
             'Occupation' => ['nullable', 'string', 'max:255'],
+            'bank_name' => ['nullable', 'string', 'max:255'],
+            'account_name' => ['nullable', 'string', 'max:255'],
+            'account_number' => ['nullable', 'regex:/^\d{10}$/D'],
             'address_line_1' => ['nullable', 'string', 'max:255'],
             'address_line_2' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:100'],
@@ -50,7 +54,7 @@ class PersonRequest extends FormRequest
             'nationality' => ['nullable', 'string', 'max:100'],
             'state_of_origin' => ['nullable', 'string', 'max:100'],
             'lga' => ['nullable', 'string', 'max:100'],
-            'image_path' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'max:2048'],
+            'image_path' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'max:5120'],
         ];
     }
 
@@ -58,6 +62,14 @@ class PersonRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $role = SacRole::find($this->input('sac_role_id'));
+
+            if (in_array($role?->code, [Person::ROLE_STAFF, Person::ROLE_ADMIN, Person::ROLE_ACCOUNTANT, Person::ROLE_SECURITY], true)) {
+                foreach (['bank_name' => 'Bank name', 'account_name' => 'Account name', 'account_number' => 'Account number'] as $field => $label) {
+                    if (! filled($this->input($field))) {
+                        $validator->errors()->add($field, $label.' is required for payroll-eligible people.');
+                    }
+                }
+            }
 
             if ($role?->code !== Person::ROLE_STUDENT) {
                 return;
