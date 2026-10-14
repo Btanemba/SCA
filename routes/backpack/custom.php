@@ -28,6 +28,9 @@ Route::group([
     Route::get('academy-settings', [\App\Http\Controllers\Admin\AcademySettingsController::class, 'edit'])->name('academy.settings');
     Route::put('academy-settings', [\App\Http\Controllers\Admin\AcademySettingsController::class, 'update'])->name('academy.settings.update');
     Route::get('academy-settings/assets/{asset}', [\App\Http\Controllers\Admin\AcademySettingsController::class, 'asset'])->name('academy.settings.asset');
+    Route::post('academy-settings/documents', [\App\Http\Controllers\Admin\AcademySettingsController::class, 'storeDocument'])->name('academy.settings.documents.store');
+    Route::get('academy-settings/documents/{document}', [\App\Http\Controllers\Admin\AcademySettingsController::class, 'downloadDocument'])->name('academy.settings.documents.download');
+    Route::delete('academy-settings/documents/{document}', [\App\Http\Controllers\Admin\AcademySettingsController::class, 'deleteDocument'])->name('academy.settings.documents.delete');
     Route::get('my-payslips', [\App\Http\Controllers\Admin\PayrollController::class, 'myPayslips'])->name('payroll.mine');
     Route::get('payslips/{entry}', [\App\Http\Controllers\Admin\PayrollController::class, 'payslip'])->name('payroll.payslip');
     Route::get('payroll', [\App\Http\Controllers\Admin\PayrollController::class, 'index'])->name('payroll.index');
@@ -59,6 +62,9 @@ Route::group([
         \App\Http\Middleware\BlockSecurityRole::class,
         \App\Http\Middleware\RestrictAccountantRole::class,
     ])->group(function () {
+        Route::middleware(\App\Http\Middleware\EnsureAdminOrFounder::class)->group(function () {
+            Route::crud('academy-fee', 'AcademyFeeCrudController');
+        });
         Route::crud('sac-role', 'SacRoleCrudController');
         Route::get('person/students/search', 'PersonCrudController@searchStudents')->name('person.students.search');        Route::get('person/students/{student}/details', 'PersonCrudController@showStudentDetails')->name('person.students.details');
         Route::post('person/{id}/send-registration-invite', 'PersonCrudController@sendRegistrationInvite')
@@ -66,6 +72,7 @@ Route::group([
             ->name('person.registration.invite');
         Route::crud('person', 'PersonCrudController');
         Route::crud('management-member', 'ManagementMemberCrudController');
+        Route::crud('staff-member', 'StaffMemberCrudController');
         Route::crud('job-opening', 'JobOpeningCrudController');
         Route::get('job-application/{id}/resume', 'JobApplicationCrudController@downloadResume')->name('job-application.resume');
         Route::crud('job-application', 'JobApplicationCrudController');

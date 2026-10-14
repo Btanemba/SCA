@@ -479,6 +479,17 @@ h1 {
 }
 .fees-lede { max-width: 700px; margin: 0; color: var(--muted); font-size: 17px; line-height: 1.7; }
 .fees-content { padding: 58px 28px 84px; }
+.fees-brochure-link {
+    display: inline-block;
+    margin: 0 0 24px;
+    padding: 12px 18px;
+    background: var(--green);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+}
+.fees-brochure-link:hover, .fees-brochure-link:focus-visible { background: #174d3e; color: #fff; }
 .fees-note {
     margin-bottom: 56px;
     padding: 22px 24px;
@@ -488,6 +499,23 @@ h1 {
     line-height: 1.7;
 }
 .fees-note p { margin: 0; }
+.fees-table-wrap { margin: 0 0 56px; }
+.fees-table { width: 100%; border-collapse: collapse; color: var(--ink); font-size: 14px; }
+.fees-table th { padding: 15px 18px; background: var(--green); color: #fff; font-size: 12px; font-weight: 700; text-align: left; }
+.fees-table td { padding: 16px 18px; border-bottom: 1px solid var(--line); line-height: 1.5; vertical-align: top; }
+.fees-table tbody tr:nth-child(even) { background: #f7f7f2; }
+.fees-table td:nth-child(3) { font-weight: 700; white-space: nowrap; }
+.fees-payment-warning {
+    margin: 0 0 56px;
+    padding: 22px 24px;
+    border-left: 4px solid #b65e2b;
+    background: #fff4e5;
+    color: var(--ink);
+    line-height: 1.7;
+}
+.fees-payment-warning h2 { margin: 0 0 10px; font-size: 18px; font-weight: 700; }
+.fees-payment-warning p { margin: 0; }
+.fees-payment-warning p + p { margin-top: 8px; }
 .fees-content h2 {
     margin-bottom: 26px;
     font-family: 'Fraunces', Georgia, serif;
@@ -674,6 +702,14 @@ h1 {
     .fees-hero { padding: 62px 24px 48px; }
     .fees-hero h1 { font-size: 42px; }
     .fees-content { padding: 42px 24px 64px; }
+    .fees-table-wrap { margin-bottom: 44px; }
+    .fees-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+    .fees-table, .fees-table tbody, .fees-table tr, .fees-table td { display: block; }
+    .fees-table tbody { display: grid; gap: 12px; }
+    .fees-table tr { padding: 8px 16px; border: 1px solid var(--line); }
+    .fees-table td { display: grid; grid-template-columns: minmax(105px, .7fr) minmax(0, 1.3fr); gap: 12px; padding: 10px 0; }
+    .fees-table td::before { color: var(--ink); content: attr(data-label); font-weight: 700; }
+    .fees-table td:nth-child(3) { white-space: normal; }
     .fees-checklist { grid-template-columns: 1fr; gap: 0; }
     .admissions-overview-hero { padding: 62px 24px 48px; }
     .admissions-overview h1 { font-size: 42px; }

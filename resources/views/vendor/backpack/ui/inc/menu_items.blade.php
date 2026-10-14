@@ -42,6 +42,7 @@
 	</x-backpack::menu-dropdown>
     @if (in_array($currentRoleCode, [\App\Models\Person::ROLE_ADMIN, \App\Models\Person::ROLE_FOUNDER], true))
 	    <li class="nav-item"><a class="nav-link" href="{{ backpack_url('management-member') }}"><i class="la la-users-cog nav-icon"></i> Management</a></li>
+		<li class="nav-item"><a class="nav-link" href="{{ backpack_url('staff-member') }}"><i class="la la-user-friends nav-icon"></i> Staff Profiles</a></li>
     @endif
     <li class="nav-item"><a class="nav-link" href="{{ backpack_url('attendance') }}"><i class="la la-clipboard-check nav-icon"></i> Attendance</a></li>
 @endif
@@ -55,6 +56,7 @@
 	</x-backpack::menu-dropdown>
 @endif
 @if (in_array($currentRoleCode, [\App\Models\Person::ROLE_ADMIN, \App\Models\Person::ROLE_FOUNDER], true))
+	<li class="nav-item"><a class="nav-link" href="{{ backpack_url('academy-fee') }}"><i class="la la-money-bill-wave nav-icon"></i> Fees</a></li>
 	<li class="nav-item"><a class="nav-link" href="{{ route('academy.settings') }}"><i class="la la-school nav-icon"></i> Academy Settings</a></li>
 @endif
 @if ($hasPayslips && ! in_array($currentRoleCode, [\App\Models\Person::ROLE_ACCOUNTANT, \App\Models\Person::ROLE_FOUNDER], true))

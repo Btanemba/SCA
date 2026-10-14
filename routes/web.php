@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\CompleteRegistrationController;
+use App\Http\Controllers\AdmissionFeesController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\ManagementController;
+use App\Http\Controllers\StaffController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -10,9 +12,11 @@ Route::get('/', function () {
 });
 
 Route::view('/admissions', 'admissions.overview')->name('admissions.overview');
-Route::view('/admissions/fees', 'admissions.fees')->name('admissions.fees');
+Route::get('/admissions/fees', [AdmissionFeesController::class, 'index'])->name('admissions.fees');
+Route::get('/admissions/fees/brochure', [AdmissionFeesController::class, 'brochure'])->name('admissions.fees.brochure');
 
 Route::get('/management', [ManagementController::class, 'index'])->name('management.index');
+Route::get('/staffs', [StaffController::class, 'index'])->name('staffs.index');
 
 Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');
 Route::get('/jobs/{jobOpening}', [JobController::class, 'show'])->name('jobs.show');

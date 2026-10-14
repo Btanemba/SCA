@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f5f4ed">
     <title>Fees &amp; Tuition | Springcare Academy</title>
-    <meta name="description" content="Learn what to discuss with Springcare Academy when planning childcare tuition and fees.">
+    <meta name="description" content="View Springcare Academy's current tuition, feeding, and admission fees.">
     <link rel="stylesheet" href="{{ asset('css/home.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,14 +19,45 @@
             <div class="fees-hero-inner">
                 <p class="fees-eyebrow">Admissions</p>
                 <h1 id="fees-title">Fees &amp; Tuition</h1>
-                <p class="fees-lede">Clear information helps families plan with confidence. Contact Springcare Academy for current tuition details and a fee breakdown suited to your child's care needs.</p>
+                <p class="fees-lede">Explore Springcare Academy's current fees and charges. Contact the academy if you have questions about a fee.</p>
             </div>
         </section>
 
-        <section class="fees-content" aria-labelledby="planning-title">
-            <div class="fees-note">
-                <p>Tuition amounts and payment arrangements are not listed here because current rates have not been provided. Please confirm all costs directly with the academy before enrollment.</p>
+        <section class="fees-content" aria-labelledby="fees-schedule-title">
+            <h2 id="fees-schedule-title">Current Fee Schedule</h2>
+            <a class="fees-brochure-link" href="{{ route('admissions.fees.brochure') }}">Download Fee Brochure (PDF)</a>
+            <div class="fees-table-wrap">
+            <table class="fees-table" aria-label="Springcare Academy fees">
+                <thead>
+                    <tr>
+                        <th scope="col">Fees</th>
+                        <th scope="col">Age or Level</th>
+                        <th scope="col">Amount</th>
+                        <th scope="col">Schedule</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($fees as $fee)
+                        <tr>
+                            <td data-label="Fee">{{ $fee->fee_name }}</td>
+                            <td data-label="Age or Level">{{ $fee->age_or_level }}</td>
+                            <td data-label="Amount">{{ $fee->amount === null ? 'Coming soon' : 'N'.number_format($fee->amount) }}</td>
+                            <td data-label="Schedule">{{ $fee->schedule }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4">Fee information is currently being updated. Please contact the academy.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
             </div>
+
+            <aside class="fees-payment-warning" role="note" aria-labelledby="fees-payment-warning-title">
+                <h2 id="fees-payment-warning-title">Payment Warning</h2>
+                <p>All payments must be made only to the school's official bank account. Cash payments are not accepted.</p>
+                <p>Send proof of payment by email or to the school's WhatsApp number. Include your child's name and ID number with the proof of payment.</p>
+            </aside>
 
             <h2 id="planning-title">What to confirm with our team</h2>
             <ul class="fees-checklist">
@@ -36,7 +67,7 @@
                 </li>
                 <li>
                     <strong>Enrollment costs</strong>
-                    Confirm whether there are registration, deposit, or other one-time fees.
+                    Confirm the admission form, registration, and any other one-time charges listed above.
                 </li>
                 <li>
                     <strong>Payment arrangements</strong>

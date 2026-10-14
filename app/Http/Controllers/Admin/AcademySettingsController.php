@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AcademyDocument;
 use App\Models\AcademySetting;
 use App\Models\Person;
 use Illuminate\Http\Request;
@@ -20,7 +21,58 @@ class AcademySettingsController extends Controller
     {
         $this->authorizeSettings();
 
-        return view('payroll.settings', ['settings' => AcademySetting::find(1)]);
+        return view('payroll.settings', [
+            'settings' => AcademySetting::find(1),
+            'documents' => AcademyDocument::query()->latest()->get(),
+        ]);
+    }
+
+    public function storeDocument(Request $request)
+    {
+        $this->authorizeSettings();
+        $data = $request->validate([
+            'title' => 'required|string|max:255',
+            'document' => 'required|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,txt|max:20480',
+        ]);
+
+        $file = $request->file('document');
+        $path = $file->store('academy/documents', 'local');
+        abort_unless($path, 500, 'Unable to store document.');
+
+        try {
+            AcademyDocument::create([
+                'title' => $data['title'],
+                'original_name' => $file->getClientOriginalName(),
+                'file_path' => $path,
+            ]);
+        } catch (\Throwable $exception) {
+            Storage::disk('local')->delete($path);
+            throw $exception;
+        }
+
+        return back()->with('success', 'School document uploaded.');
+    }
+
+    public function downloadDocument(AcademyDocument $document)
+    {
+        $this->authorizeSettings();
+        $disk = Storage::disk('local');
+        abort_unless($disk->exists($document->file_path), 404);
+
+        return response()->download($disk->path($document->file_path), $document->original_name, [
+            'Cache-Control' => 'private, no-store',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
+
+    public function deleteDocument(AcademyDocument $document)
+    {
+        $this->authorizeSettings();
+        $path = $document->file_path;
+        $document->delete();
+        Storage::disk('local')->delete($path);
+
+        return back()->with('success', 'School document deleted.');
     }
 
     public function update(Request $request)

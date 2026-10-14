@@ -24,7 +24,7 @@
             <summary>Teams</summary>
             <div class="site-nav-dropdown-menu">
                 <a href="{{ route('management.index') }}">Management</a>
-                <a href="{{ url('/#staffs') }}">Staffs</a>
+                <a href="{{ route('staffs.index') }}">Staffs</a>
             </div>
         </details>
         <a href="{{ route('jobs.index') }}">Jobs</a>
@@ -44,7 +44,7 @@
             <a href="#book-a-visit">Book a Visit</a>
             <a href="#apply-now">Apply Now</a>
             <a href="{{ route('management.index') }}">Management</a>
-            <a href="{{ url('/#staffs') }}">Staffs</a>
+            <a href="{{ route('staffs.index') }}">Staffs</a>
             <a href="{{ route('jobs.index') }}">Jobs</a>
             <a class="mobile-menu-portal" href="{{ backpack_url('login') }}">School portal</a>
         </nav>

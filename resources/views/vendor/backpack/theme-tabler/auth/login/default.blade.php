@@ -444,5 +444,112 @@
                 padding: 32px 24px 28px;
             }
         }
+
+        .sc-login-page {
+            box-sizing: border-box;
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+            min-height: 0;
+            padding: clamp(8px, 4vh, 48px) clamp(16px, 4vw, 24px);
+            overflow: hidden;
+        }
+
+        .sc-login-shell {
+            display: flex;
+            height: 100%;
+            max-height: 100%;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .sc-form-panel {
+            height: 100%;
+            min-height: 0;
+        }
+
+        .sc-brand {
+            flex-shrink: 0;
+            margin-bottom: clamp(10px, 3.5vh, 30px);
+        }
+
+        .sc-brand img {
+            width: clamp(58px, 15vh, 116px);
+            height: clamp(58px, 15vh, 116px);
+            padding: clamp(6px, 1.5vh, 11px);
+        }
+
+        .sc-form-wrap {
+            flex: 0 1 auto;
+            padding: clamp(14px, 5vh, 46px) clamp(20px, 5vw, 52px);
+        }
+
+        .sc-form-wrap .h2 {
+            margin-bottom: clamp(12px, 4vh, 30px) !important;
+            font-size: clamp(28px, 4.7vh, 36px);
+        }
+
+        .sc-form-wrap .form-control,
+        .sc-form-wrap .btn-primary {
+            min-height: clamp(40px, 6.6vh, 50px);
+        }
+
+        .sc-form-wrap .mb-3 {
+            margin-bottom: clamp(10px, 2.8vh, 22px) !important;
+        }
+
+        .sc-form-wrap .mb-2 {
+            margin-bottom: clamp(8px, 1.8vh, 14px) !important;
+        }
+
+        .sc-form-footer {
+            flex-shrink: 0;
+            margin-top: clamp(8px, 2.5vh, 22px);
+        }
+
+        @media (max-height: 560px) {
+            .sc-login-page {
+                padding: 6px 16px;
+            }
+
+            .sc-brand {
+                margin-bottom: 8px;
+            }
+
+            .sc-brand img {
+                width: 48px;
+                height: 48px;
+                padding: 5px;
+            }
+
+            .sc-form-wrap {
+                padding: 12px 24px;
+            }
+
+            .sc-form-eyebrow {
+                margin-bottom: 6px;
+            }
+
+            .sc-form-wrap .h2 {
+                margin-bottom: 10px !important;
+            }
+
+            .sc-form-wrap .form-label {
+                margin-bottom: 4px;
+            }
+
+            .sc-form-wrap .form-control,
+            .sc-form-wrap .btn-primary {
+                min-height: 36px;
+            }
+
+            .sc-form-wrap .mb-3 {
+                margin-bottom: 8px !important;
+            }
+
+            .sc-form-footer {
+                margin-top: 6px;
+            }
+        }
     </style>
 @endsection
