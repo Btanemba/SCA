@@ -422,6 +422,10 @@ class PersonCrudController extends CrudController
 
         if (is_string($roleCode) && SacRole::query()->where('code', $roleCode)->exists()) {
             CRUD::addClause('whereHas', 'sacRole', fn ($query) => $query->where('code', $roleCode));
+            CRUD::setOperationSetting(
+                'backToAllEntriesUrl',
+                backpack_url('person?'.http_build_query(['role' => $roleCode]))
+            );
         }
 
         CRUD::removeButton('create');
@@ -439,7 +443,9 @@ class PersonCrudController extends CrudController
             'searchable' => false,
             'visibleInExport' => false,
         ]);
-        CRUD::column('student_id')->label('Student ID');
+        if (! is_string($roleCode) || $roleCode === Person::ROLE_STUDENT) {
+            CRUD::column('student_id')->label('Student ID');
+        }
         CRUD::column('first_name')->label('First name');
         CRUD::column('last_name')->label('Last name');
         CRUD::addColumn([

@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#f5f4ed">
     <title>Springcare Academy</title>
     <meta name="description" content="Springcare Academy">
-    <link rel="stylesheet" href="{{ asset('css/home.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/home.css') }}?v={{ filemtime(public_path('css/home.css')) }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
@@ -90,6 +90,32 @@
                     <p>And when families and caregivers share encouragement and understanding, children have a stronger sense of belonging as they grow.</p>
                     <p class="early-years-signoff"><span>Their first steps.</span><strong>Their own pace.</strong><span>A bright beginning.</span></p>
                 </div>
+            </div>
+        </section>
+
+        <section class="events" id="events" aria-labelledby="events-title">
+            <div class="events-heading">
+                <p class="eyebrow">Gather, learn, and celebrate</p>
+                <h2 id="events-title">Events at Springcare</h2>
+                <p>Keep up with what's coming up and look back at moments we've shared.</p>
+            </div>
+
+            <div class="events-groups">
+                <section class="events-group" aria-labelledby="upcoming-events-title">
+                    <div class="events-group-heading">
+                        <h3 id="upcoming-events-title">Upcoming events</h3>
+                        <span>Coming up</span>
+                    </div>
+                    <p class="events-empty">Upcoming event details will be shared here soon.</p>
+                </section>
+
+                <section class="events-group" aria-labelledby="past-events-title">
+                    <div class="events-group-heading">
+                        <h3 id="past-events-title">Past events</h3>
+                        <span>From our archive</span>
+                    </div>
+                    <p class="events-empty">Past event highlights will appear here.</p>
+                </section>
             </div>
         </section>
 
