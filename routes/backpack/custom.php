@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\SecurityAttendanceController;
+use App\Http\Middleware\EnsureEventAccess;
 use Illuminate\Support\Facades\Route;
 
 // --------------------------
@@ -74,6 +75,9 @@ Route::group([
         Route::crud('management-member', 'ManagementMemberCrudController');
         Route::crud('staff-member', 'StaffMemberCrudController');
         Route::crud('job-opening', 'JobOpeningCrudController');
+        Route::middleware(EnsureEventAccess::class)->group(function () {
+            Route::crud('event', 'EventCrudController');
+        });
         Route::get('job-application/{id}/resume', 'JobApplicationCrudController@downloadResume')->name('job-application.resume');
         Route::crud('job-application', 'JobApplicationCrudController');
         Route::crud('attendance', 'AttendanceCrudController');
@@ -83,3 +87,4 @@ Route::group([
 /**
  * DO NOT ADD ANYTHING HERE.
  */
+

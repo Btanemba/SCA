@@ -31,3 +31,34 @@ body {
 [data-bs-theme="light"] .page {
     background: transparent;
 }
+
+.form-group.required > label::after,
+.form-label:has(+ :required)::after,
+.form-label:has(+ .input-group :required)::after,
+.form-check:has(input:required) .form-check-label::after {
+    content: " *";
+    color: #d63939;
+}
+
+.form-group.required .form-control,
+.form-group.required .form-select,
+input:required,
+select:required,
+textarea:required {
+    border-color: #d63939;
+}
+
+.form-group.required .form-control:focus,
+.form-group.required .form-select:focus,
+input:required:focus,
+select:required:focus,
+textarea:required:focus {
+    border-color: #b02a37;
+    box-shadow: 0 0 0 0.2rem rgba(214, 57, 57, 0.15);
+}
+
+input[type="checkbox"]:required,
+input[type="radio"]:required {
+    accent-color: #d63939;
+    outline: 1px solid #d63939;
+}

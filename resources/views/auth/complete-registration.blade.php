@@ -381,7 +381,7 @@
                 </div>
 
                 <div class="reg-field">
-                    <label for="password">Create password</label>
+                    <label for="password">Create password <span class="required-marker" aria-hidden="true">*</span></label>
                     <div class="reg-input-wrap has-toggle">
                         <input id="password" type="password" name="password" autocomplete="new-password" required autofocus>
                         <button type="button" class="reg-toggle" data-target="password" aria-label="Show password">Show</button>
@@ -391,7 +391,7 @@
                 </div>
 
                 <div class="reg-field">
-                    <label for="password_confirmation">Confirm password</label>
+                    <label for="password_confirmation">Confirm password <span class="required-marker" aria-hidden="true">*</span></label>
                     <div class="reg-input-wrap has-toggle">
                         <input id="password_confirmation" type="password" name="password_confirmation" autocomplete="new-password" required>
                         <button type="button" class="reg-toggle" data-target="password_confirmation" aria-label="Show password">Show</button>

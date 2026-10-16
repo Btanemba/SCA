@@ -106,7 +106,41 @@
                         <h3 id="upcoming-events-title">Upcoming events</h3>
                         <span>Coming up</span>
                     </div>
-                    <p class="events-empty">Upcoming event details will be shared here soon.</p>
+                    @forelse ($upcomingEvents as $event)
+                        <article class="event-item">
+                            @if ($event->images)
+                                <div class="event-images" role="group" aria-label="Photos from {{ $event->title }}">
+                                    @foreach ($event->images as $image)
+                                        <img src="{{ asset('storage/' . $image) }}" alt="{{ $event->title }} photo {{ $loop->iteration }}" loading="lazy">
+                                    @endforeach
+                                </div>
+                            @endif
+                            <div class="event-item-details">
+                                <time class="event-date" datetime="{{ $event->starts_at->toDateString() }}">
+                                    <span>{{ $event->starts_at->format('M') }}</span>
+                                    <strong>{{ $event->starts_at->format('j') }}</strong>
+                                    <small>{{ $event->starts_at->format('Y') }}</small>
+                                </time>
+                                <div class="event-item-copy">
+                                    <h4>{{ $event->title }}</h4>
+                                    <p class="event-item-meta">
+                                        <time datetime="{{ $event->starts_at->toIso8601String() }}">{{ $event->starts_at->format('l, F j, Y') }} at {{ $event->starts_at->format('g:i A') }}</time>
+                                        @if ($event->ends_at)
+                                            <span> to {{ $event->ends_at->format('g:i A') }}</span>
+                                        @endif
+                                        @if ($event->location)
+                                            <span class="event-item-location">{{ $event->location }}</span>
+                                        @endif
+                                    </p>
+                                    @if ($event->description)
+                                        <p class="event-item-description">{{ $event->description }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                        </article>
+                    @empty
+                        <p class="events-empty">Details of upcoming events will be shared here soon.</p>
+                    @endforelse
                 </section>
 
                 <section class="events-group" aria-labelledby="past-events-title">
@@ -114,7 +148,41 @@
                         <h3 id="past-events-title">Past events</h3>
                         <span>From our archive</span>
                     </div>
-                    <p class="events-empty">Past event highlights will appear here.</p>
+                    @forelse ($pastEvents as $event)
+                        <article class="event-item">
+                            @if ($event->images)
+                                <div class="event-images" role="group" aria-label="Photos from {{ $event->title }}">
+                                    @foreach ($event->images as $image)
+                                        <img src="{{ asset('storage/' . $image) }}" alt="{{ $event->title }} photo {{ $loop->iteration }}" loading="lazy">
+                                    @endforeach
+                                </div>
+                            @endif
+                            <div class="event-item-details">
+                                <time class="event-date" datetime="{{ $event->starts_at->toDateString() }}">
+                                    <span>{{ $event->starts_at->format('M') }}</span>
+                                    <strong>{{ $event->starts_at->format('j') }}</strong>
+                                    <small>{{ $event->starts_at->format('Y') }}</small>
+                                </time>
+                                <div class="event-item-copy">
+                                    <h4>{{ $event->title }}</h4>
+                                    <p class="event-item-meta">
+                                        <time datetime="{{ $event->starts_at->toIso8601String() }}">{{ $event->starts_at->format('l, F j, Y') }} at {{ $event->starts_at->format('g:i A') }}</time>
+                                        @if ($event->ends_at)
+                                            <span> to {{ $event->ends_at->format('g:i A') }}</span>
+                                        @endif
+                                        @if ($event->location)
+                                            <span class="event-item-location">{{ $event->location }}</span>
+                                        @endif
+                                    </p>
+                                    @if ($event->description)
+                                        <p class="event-item-description">{{ $event->description }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                        </article>
+                    @empty
+                        <p class="events-empty">Past event highlights will appear here.</p>
+                    @endforelse
                 </section>
             </div>
         </section>

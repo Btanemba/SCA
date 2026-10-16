@@ -42,9 +42,21 @@
 
     <input type="hidden" value='@json($field['value'])' name="{{ $field['name'] }}">
 
-    <div class="d-flex justify-content-end mb-2">
-        <button type="button" class="btn btn-sm btn-outline-primary student-picker-toggle">Add student</button>
+    <div class="d-flex justify-content-end flex-wrap gap-2 mb-2">
+        <button type="button" class="btn btn-sm btn-outline-primary student-picker-toggle" aria-expanded="false"><i class="la la-search" aria-hidden="true"></i> Search to add</button>
+        <button type="button" class="btn btn-sm btn-primary student-picker-create"><i class="la la-plus" aria-hidden="true"></i> Add student</button>
     </div>
+
+    <dialog class="student-picker-create-dialog p-0" aria-label="Add student" style="width: min(1100px, 95vw); height: 90vh; max-height: 90vh; border: 1px solid #ccc; border-radius: 6px;">
+        <div class="d-flex flex-column h-100">
+            <div class="d-flex align-items-center justify-content-between border-bottom p-3">
+                <h2 class="h5 mb-0">Add student</h2>
+                <button type="button" class="btn btn-sm btn-outline-secondary student-picker-create-close" aria-label="Close" title="Close"><i class="la la-times" aria-hidden="true"></i></button>
+            </div>
+            <div class="student-picker-create-status px-3 pt-2" role="status" aria-live="polite"></div>
+            <iframe class="student-picker-create-frame border-0 flex-grow-1 w-100" style="min-height: 0;" title="Create student" data-create-url="{{ $field['create_url'] }}"></iframe>
+        </div>
+    </dialog>
 
     <div class="student-picker-search-panel mb-3" hidden>
         <input type="search" class="form-control student-picker-search" placeholder="Search by student ID or name" autocomplete="off" data-search-url="{{ $field['search_url'] }}" data-parent-id="{{ $field['parent_id'] ?? '' }}">
@@ -126,8 +138,121 @@
         const searchStatus = element.find('.student-picker-search-status');
         const searchResults = element.find('.student-picker-search-results');
         const relationshipOptions = @json($field['relationship_options']);
+        const createDialog = element.find('.student-picker-create-dialog')[0];
+        const createFrame = element.find('.student-picker-create-frame')[0];
+        const createStatus = element.find('.student-picker-create-status');
+        let creating = false;
         let searchTimer;
         let searchSequence = 0;
+
+        element.find('.student-picker-create').on('click', function () {
+            createDialog.showModal();
+            if (!createFrame.getAttribute('src')) {
+                createStatus.text('Loading student form...');
+                createFrame.src = createFrame.dataset.createUrl;
+            }
+        });
+
+        element.find('.student-picker-create-close').on('click', function () {
+            if (!creating) {
+                createDialog.close();
+            }
+        });
+
+        createDialog.addEventListener('cancel', function (event) {
+            if (creating) {
+                event.preventDefault();
+            }
+        });
+
+        createFrame.addEventListener('load', function () {
+            const frameDocument = createFrame.contentDocument;
+            const form = frameDocument?.querySelector('input[name="first_name"]')?.closest('form');
+            if (!form) {
+                createStatus.text('Unable to load the student form. Check that you are still signed in.');
+                return;
+            }
+
+            createStatus.empty();
+            const frameStyle = frameDocument.createElement('style');
+            frameStyle.textContent = '.sidebar, #sidebar, .navbar, .app-footer, footer { display: none !important; } .page-wrapper { margin-left: 0 !important; }';
+            frameDocument.head.appendChild(frameStyle);
+            form.querySelectorAll('button[type="submit"]').forEach(function (button) {
+                button.textContent = 'Create and link student';
+            });
+            frameDocument.querySelectorAll('a').forEach(function (link) {
+                if (link.href === new URL(form.action).href) {
+                    link.addEventListener('click', function (event) {
+                        event.preventDefault();
+                        if (!creating) {
+                            createDialog.close();
+                        }
+                    });
+                }
+            });
+
+            frameDocument.addEventListener('submit', async function (event) {
+                if (event.target !== form) {
+                    return;
+                }
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                if (creating) {
+                    return;
+                }
+
+                const payload = new FormData(form);
+                payload.set('_student_picker', '1');
+                payload.set('_save_action', 'save_and_back');
+                creating = true;
+                element.find('.student-picker-create-close').prop('disabled', true);
+                const submitButtons = form.querySelectorAll('button[type="submit"], input[type="submit"]');
+                submitButtons.forEach(function (button) { button.disabled = true; });
+                createStatus.text('Creating student...');
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        body: payload,
+                        headers: { Accept: 'application/json' },
+                    });
+                    const result = await response.json();
+                    if (!response.ok) {
+                        createStatus.empty();
+                        const errors = document.createElement('ul');
+                        errors.className = 'alert alert-danger mb-2';
+                        errors.setAttribute('role', 'alert');
+                        Object.values(result.errors || { error: [result.message || 'Unable to create student. Please try again.'] }).flat().forEach(function (message) {
+                            const item = document.createElement('li');
+                            item.textContent = message;
+                            errors.appendChild(item);
+                        });
+                        createStatus.append(errors);
+                        return;
+                    }
+                    if (!result.id || !result.details_url) {
+                        throw new Error('Unexpected student response');
+                    }
+
+                    addStudent(result);
+                    ++searchSequence;
+                    clearTimeout(searchTimer);
+                    searchResults.empty();
+                    searchInput.val('');
+                    searchStatus.text('Enter at least 2 characters to search.');
+                    createDialog.close();
+                    createFrame.removeAttribute('src');
+                    createStatus.empty();
+                    element.find('.student-picker-create').trigger('focus');
+                } catch (error) {
+                    createStatus.text('Unable to confirm student creation. Search for the student before retrying.');
+                } finally {
+                    creating = false;
+                    element.find('.student-picker-create-close').prop('disabled', false);
+                    submitButtons.forEach(function (button) { button.disabled = false; });
+                }
+            }, true);
+        });
 
         function syncValue() {
             const selected = [];
@@ -269,6 +394,7 @@
 
         element.find('.student-picker-toggle').on('click', function () {
             searchPanel.prop('hidden', !searchPanel.prop('hidden'));
+            $(this).attr('aria-expanded', String(!searchPanel.prop('hidden')));
             if (!searchPanel.prop('hidden')) {
                 searchInput.trigger('focus');
             }

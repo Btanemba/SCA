@@ -7,8 +7,12 @@
 
     $oldContacts = old('pickup_contacts', []);
     $relationshipOptions = $field['relationship_options'] ?? [];
-    $highestSavedSlot = (int) $contacts->keys()->max();
-    $visibleSlots = max(1, min(2, max($highestSavedSlot, count($oldContacts))));
+    $contactFields = ['first_name', 'last_name', 'relationship', 'email', 'phone', 'address'];
+    $highestSavedSlot = session()->hasOldInput('pickup_contacts') ? 0 : (int) $contacts->keys()->max();
+    $highestOldSlot = collect($oldContacts)
+        ->filter(fn ($contact) => is_array($contact) && collect($contact)->only($contactFields)->contains(fn ($value) => filled($value)))
+        ->keys()->map(fn ($index) => (int) $index + 1)->max();
+    $visibleSlots = max(1, min(2, max($highestSavedSlot, (int) $highestOldSlot)));
 @endphp
 
 @include('crud::fields.inc.wrapper_start')
@@ -26,7 +30,9 @@
                 $value = fn (string $key) => array_key_exists($key, $oldContact)
                     ? $oldContact[$key]
                     : $contact?->{$key};
-                $relationshipValue = $value('relationship');
+                $relationshipValue = array_key_exists('relationship', $oldContact)
+                    ? $oldContact['relationship']
+                    : $link?->relationship;
                 $canPickUp = array_key_exists('can_pick_up', $oldContact)
                     ? filter_var($oldContact['can_pick_up'], FILTER_VALIDATE_BOOLEAN)
                     : ($link?->can_pick_up ?? true);
@@ -115,6 +121,33 @@
 @include('crud::fields.inc.wrapper_end')
 
 <script>
+    function updatePickupContactRequirements(field) {
+        const slots = [...field.querySelectorAll('.pickup-contact-slot')];
+        const activeSlots = slots.filter((slot) => !slot.classList.contains('d-none')
+            && [...slot.querySelectorAll('[data-required-when-visible]')].some((input) => input.value.trim() !== ''));
+        const fallbackSlot = slots.find((slot) => !slot.classList.contains('d-none'));
+
+        slots.forEach((slot) => {
+            const required = activeSlots.includes(slot) || (activeSlots.length === 0 && slot === fallbackSlot);
+            slot.querySelectorAll('[data-required-when-visible]').forEach((input) => {
+                input.required = required;
+            });
+            slot.querySelectorAll('.pickup-required-marker').forEach((marker) => {
+                marker.classList.toggle('d-none', !required);
+            });
+        });
+    }
+
+    document.querySelectorAll('.pickup-contact-add').forEach((button) => {
+        const field = button.closest('.form-group');
+        if (!field) {
+            return;
+        }
+        updatePickupContactRequirements(field);
+        field.addEventListener('input', () => updatePickupContactRequirements(field));
+        field.addEventListener('change', () => updatePickupContactRequirements(field));
+    });
+
     document.querySelectorAll('.pickup-contact-add').forEach((button) => {
         button.addEventListener('click', () => {
             const field = button.closest('.form-group');
@@ -126,12 +159,7 @@
             }
 
             nextSlot.classList.remove('d-none');
-            nextSlot.querySelectorAll('[data-required-when-visible]').forEach((input) => {
-                input.required = true;
-            });
-            nextSlot.querySelectorAll('.pickup-required-marker').forEach((marker) => {
-                marker.classList.remove('d-none');
-            });
+            updatePickupContactRequirements(field);
 
             if (!field.querySelector('.pickup-contact-slot.d-none')) {
                 button.classList.add('d-none');
@@ -187,7 +215,11 @@
                 }
 
                 slot.classList.add('d-none');
-                slot.closest('.form-group')?.querySelector('.pickup-contact-add')?.classList.remove('d-none');
+                const field = slot.closest('.form-group');
+                if (field) {
+                    field.querySelector('.pickup-contact-add')?.classList.remove('d-none');
+                    updatePickupContactRequirements(field);
+                }
             };
 
             swal({

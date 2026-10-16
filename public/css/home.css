@@ -15,6 +15,16 @@
 html { scroll-behavior: smooth; }
 body { margin: 0; min-width: 320px; }
 a { color: inherit; }
+.required-marker { color: #d63939; font-weight: 700; }
+input:required,
+select:required,
+textarea:required { border-color: #d63939; }
+input:required:focus,
+select:required:focus,
+textarea:required:focus {
+    border-color: #b02a37;
+    box-shadow: 0 0 0 3px rgba(214, 57, 57, .15);
+}
 
 .site-header {
     position: sticky;
@@ -312,7 +322,7 @@ h1 {
 .principle p { margin-bottom: 0; color: var(--muted); font-size: 13px; line-height: 1.65; }
 
 .early-years {
-    padding: 94px 8% 108px;
+    padding: 94px 8% 76px;
     background: #fff;
 }
 
@@ -363,6 +373,126 @@ h1 {
 .early-years-signoff strong {
     color: var(--green);
     font-weight: 600;
+}
+
+.events {
+    padding: 76px 8% 84px;
+    background: var(--paper);
+}
+
+.events-heading,
+.events-groups {
+    max-width: 1180px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.events-heading { margin-bottom: 38px; }
+.events-heading .eyebrow { margin-bottom: 14px; color: var(--green); }
+.events-heading h2 {
+    margin: 0;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 42px;
+    font-weight: 500;
+    line-height: 1.1;
+}
+.events-heading > p:last-child {
+    max-width: 650px;
+    margin: 14px 0 0;
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+.events-groups {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 36px;
+}
+
+.events-group { padding-top: 18px; border-top: 1px solid var(--line); }
+.events-group-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+}
+.events-group-heading h3 {
+    margin: 0;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 23px;
+    font-weight: 500;
+}
+.events-group-heading span {
+    color: var(--green);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.event-item {
+    padding: 18px 0;
+    display: grid;
+    gap: 16px;
+    border-top: 1px solid var(--line);
+}
+.events-group-heading + .event-item { margin-top: 18px; }
+.event-item-details {
+    display: grid;
+    grid-template-columns: 54px minmax(0, 1fr);
+    gap: 18px;
+}
+.event-date {
+    width: 54px;
+    min-height: 64px;
+    padding: 7px 4px;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    border: 1px solid var(--line);
+    color: var(--green);
+    line-height: 1;
+}
+.event-date span,
+.event-date small { font-size: 10px; font-weight: 700; text-transform: uppercase; }
+.event-date strong { margin: 4px 0; font-family: 'Fraunces', Georgia, serif; font-size: 22px; font-weight: 500; }
+.event-item-copy h4 {
+    margin: 0;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 19px;
+    font-weight: 500;
+}
+.event-item-meta,
+.event-item-description {
+    margin: 7px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+.event-item-location::before { content: ' | '; color: var(--green); }
+.event-item-description { margin-top: 9px; }
+.event-images {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+    gap: 8px;
+}
+.event-images img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1.4;
+    object-fit: cover;
+}
+.event-images img:first-child {
+    grid-column: 1 / -1;
+    aspect-ratio: 1.9;
+    max-height: 300px;
+}
+.events-empty {
+    margin: 18px 0 0;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.65;
 }
 
 .care-reasons {
@@ -690,6 +820,12 @@ h1 {
     .early-years-layout { grid-template-columns: 1fr; gap: 28px; }
     .early-years-image { aspect-ratio: 1.3; }
     .early-years-signoff { font-size: 25px; }
+    .events { padding: 64px 24px 68px; }
+    .events-heading { margin-bottom: 30px; }
+    .events-heading h2 { font-size: 36px; }
+    .events-groups { grid-template-columns: 1fr; gap: 28px; }
+    .event-item-details { grid-template-columns: 48px minmax(0, 1fr); gap: 14px; }
+    .event-date { width: 48px; }
     .care-reasons { padding: 72px 24px 78px; }
     .care-reasons-heading { margin-bottom: 32px; }
     .care-reasons h2 { font-size: 36px; }

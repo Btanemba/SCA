@@ -40,6 +40,9 @@
 		<x-backpack::menu-dropdown-item title="Job openings" :link="backpack_url('job-opening')" icon="la la-bullhorn" />
 		<x-backpack::menu-dropdown-item title="Applications" :link="backpack_url('job-application')" icon="la la-inbox" />
 	</x-backpack::menu-dropdown>
+	@if (in_array($currentRoleCode, [\App\Models\Person::ROLE_STAFF, \App\Models\Person::ROLE_ADMIN, \App\Models\Person::ROLE_FOUNDER], true))
+		<li class="nav-item"><a class="nav-link" href="{{ backpack_url('event') }}"><i class="la la-calendar nav-icon"></i> Events</a></li>
+	@endif
     @if (in_array($currentRoleCode, [\App\Models\Person::ROLE_ADMIN, \App\Models\Person::ROLE_FOUNDER], true))
 	    <li class="nav-item"><a class="nav-link" href="{{ backpack_url('management-member') }}"><i class="la la-users-cog nav-icon"></i> Management</a></li>
 		<li class="nav-item"><a class="nav-link" href="{{ backpack_url('staff-member') }}"><i class="la la-user-friends nav-icon"></i> Staff Profiles</a></li>

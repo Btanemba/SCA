@@ -15,6 +15,12 @@ class PersonRequest extends FormRequest
 
     public function rules(): array
     {
+        $detailsPresence = in_array(
+            SacRole::find($this->input('sac_role_id'))?->code,
+            [Person::ROLE_PARENT, Person::ROLE_STAFF],
+            true
+        ) ? 'required' : 'nullable';
+
         return [
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
@@ -25,7 +31,7 @@ class PersonRequest extends FormRequest
             'guardian_relationships.*' => ['array'],
             'guardian_relationships.*.relationship' => ['nullable', 'string', 'max:100'],
             'guardian_relationships.*.is_primary_contact' => ['sometimes', 'boolean'],
-            'email' => ['nullable', 'email', 'max:255'],
+            'email' => [$detailsPresence, 'email', 'max:255'],
             'pickup_contacts' => ['sometimes', 'array', 'max:2'],
             'pickup_contacts.*' => ['array'],
             'pickup_contacts.*.first_name' => ['nullable', 'string', 'max:255', 'required_with:pickup_contacts.*.last_name'],
@@ -38,20 +44,20 @@ class PersonRequest extends FormRequest
             'pickup_contacts.*.remove_image' => ['sometimes', 'boolean'],
             'pickup_contacts.*.can_pick_up' => ['sometimes', 'boolean'],
             'pickup_contacts.*.can_drop_off' => ['sometimes', 'boolean'],
-            'phone' => ['nullable', 'string', 'max:50'],
+            'phone' => [$detailsPresence, 'string', 'max:50'],
             'alt_email' => ['nullable', 'email', 'max:255'],
             'alt_phone' => ['nullable', 'string', 'max:50'],
-            'Occupation' => ['nullable', 'string', 'max:255'],
+            'Occupation' => [$detailsPresence, 'string', 'max:255'],
             'bank_name' => ['nullable', 'string', 'max:255'],
             'account_name' => ['nullable', 'string', 'max:255'],
             'account_number' => ['nullable', 'regex:/^\d{10}$/D'],
             'address_line_1' => ['nullable', 'string', 'max:255'],
             'address_line_2' => ['nullable', 'string', 'max:255'],
-            'city' => ['nullable', 'string', 'max:100'],
-            'state' => ['nullable', 'string', 'max:100'],
+            'city' => [$detailsPresence, 'string', 'max:100'],
+            'state' => [$detailsPresence, 'string', 'max:100'],
             'postal_code' => ['nullable', 'string', 'max:30'],
             'country' => ['nullable', 'string', 'max:100'],
-            'nationality' => ['nullable', 'string', 'max:100'],
+            'nationality' => [$detailsPresence, 'string', 'max:100'],
             'state_of_origin' => ['nullable', 'string', 'max:100'],
             'lga' => ['nullable', 'string', 'max:100'],
             'image_path' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'max:5120'],
@@ -93,7 +99,7 @@ class PersonRequest extends FormRequest
                 }
 
                 $hasAnyValue = collect($contact)
-                    ->except(['can_pick_up', 'can_drop_off', 'image'])
+                    ->except(['can_pick_up', 'can_drop_off', 'image', 'remove_image'])
                     ->contains(fn ($value) => filled($value));
 
                 if (! $hasAnyValue) {

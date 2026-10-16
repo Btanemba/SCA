@@ -58,15 +58,15 @@
 
                         <div class="job-apply-grid">
                             <label>
-                                First name
+                                First name <span class="required-marker" aria-hidden="true">*</span>
                                 <input type="text" name="first_name" value="{{ old('first_name') }}" required maxlength="255">
                             </label>
                             <label>
-                                Last name
+                                Last name <span class="required-marker" aria-hidden="true">*</span>
                                 <input type="text" name="last_name" value="{{ old('last_name') }}" required maxlength="255">
                             </label>
                             <label>
-                                Email
+                                Email <span class="required-marker" aria-hidden="true">*</span>
                                 <input type="email" name="email" value="{{ old('email') }}" required maxlength="255">
                             </label>
                             <label>
@@ -76,7 +76,7 @@
                         </div>
 
                         <label class="job-apply-block">
-                            CV / resume (PDF or Word, max 5 MB)
+                            CV / resume (PDF or Word, max 5 MB) <span class="required-marker" aria-hidden="true">*</span>
                             <input type="file" name="resume" accept=".pdf,.doc,.docx" required>
                         </label>
 

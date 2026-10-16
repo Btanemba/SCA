@@ -69,12 +69,27 @@ class PersonCrudController extends CrudController
     public function store()
     {
         CRUD::hasAccessOrFail('create');
+        if (request()->boolean('_student_picker')) {
+            request()->merge([
+                'sac_role_id' => SacRole::where('code', Person::ROLE_STUDENT)->firstOrFail()->getKey(),
+            ]);
+        }
         $this->syncUserFromRequest();
 
         $response = $this->traitStore();
         $entry = $this->data['entry'] ?? null;
         $this->syncGuardianRelationshipsFromRequest($entry);
         $this->syncPickupContactsFromRequest($entry);
+
+        if (request()->boolean('_student_picker') && request()->expectsJson()) {
+            return response()->json([
+                'id' => $entry->id,
+                'student_id' => $entry->student_id,
+                'first_name' => $entry->first_name,
+                'last_name' => $entry->last_name,
+                'details_url' => route('person.students.details', $entry->getKey()),
+            ], 201);
+        }
 
         return $response;
     }
@@ -476,6 +491,12 @@ class PersonCrudController extends CrudController
         $entry = CRUD::getCurrentEntry() ?: null;
         $selectedRoleId = request()->input('sac_role_id') ?? ($entry ? $entry->sac_role_id : null);
         $selectedRole = $selectedRoleId ? SacRole::find($selectedRoleId) : null;
+        $detailsAttributes = in_array($selectedRole?->code, [Person::ROLE_PARENT, Person::ROLE_STAFF], true)
+            ? ['required' => 'required'] : [];
+
+        if ($detailsAttributes) {
+            CRUD::setRequiredFields(array_fill_keys(['email', 'phone', 'Occupation', 'city', 'state', 'nationality'], 'required'));
+        }
 
         if ($entry && $entry->user_id === backpack_user()?->id) {
             CRUD::addField([
@@ -552,10 +573,10 @@ class PersonCrudController extends CrudController
                 'label' => 'Email',
                 'type' => 'text',
                 'hint' => $lockedEmail ? 'The sign-in email cannot be changed once the account exists.' : null,
-                'attributes' => $lockedEmail ? [
+                'attributes' => array_merge($detailsAttributes, $lockedEmail ? [
                     'readonly' => 'readonly',
                     'style' => 'background-color: #e5e5e5;',
-                ] : [],
+                ] : []),
                 'wrapper' => ['class' => 'form-group col-md-6'],
                 'tab' => 'General',
             ]);
@@ -571,6 +592,7 @@ class PersonCrudController extends CrudController
             ]);
             CRUD::field('phone')
             ->type('text')
+            ->attributes($detailsAttributes)
             ->wrapper(['class' => 'form-group col-md-6'])
             ->tab('General');
 
@@ -582,6 +604,7 @@ class PersonCrudController extends CrudController
 
             CRUD::field('Occupation')
             ->type('text')
+            ->attributes($detailsAttributes)
             ->wrapper(['class' => 'form-group col-md-6'])
             ->tab('General');
         }
@@ -617,12 +640,14 @@ class PersonCrudController extends CrudController
 
         CRUD::field('city')
         ->type('text')
+        ->attributes($detailsAttributes)
         ->wrapper(['class' => 'form-group col-md-4'])
         ->tab('General');
 
         CRUD::field('state')
         ->type('text')
         ->label('State / province')
+        ->attributes($detailsAttributes)
         ->wrapper(['class' => 'form-group col-md-4'])
         ->tab('General');
 
@@ -638,6 +663,7 @@ class PersonCrudController extends CrudController
 
         CRUD::field('nationality')
         ->type('text')
+        ->attributes($detailsAttributes)
         ->wrapper(['class' => 'form-group col-md-4'])
         ->tab('General');
 
@@ -690,6 +716,9 @@ class PersonCrudController extends CrudController
                 'attribute' => 'full_name',
                 'pivot' => true,
                 'search_url' => route('person.students.search'),
+                'create_url' => backpack_url('person/create').'?'.http_build_query([
+                    'sac_role_id' => SacRole::where('code', Person::ROLE_STUDENT)->value('id'),
+                ]),
                 'parent_id' => $entry instanceof Person ? $entry->getKey() : null,
                 'relationship_options' => self::GUARDIAN_RELATIONSHIP_OPTIONS,
                 'options' => (function ($query) {

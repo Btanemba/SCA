@@ -5,10 +5,30 @@ use App\Http\Controllers\AdmissionFeesController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\ManagementController;
 use App\Http\Controllers\StaffController;
+use App\Models\Event;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('home');
+    $now = now();
+    $publishedEvents = Event::query()->where('is_published', true);
+
+    $upcomingEvents = (clone $publishedEvents)
+        ->where(function ($query) use ($now) {
+            $query->where('ends_at', '>=', $now)
+                ->orWhere(fn ($query) => $query->whereNull('ends_at')->where('starts_at', '>=', $now));
+        })
+        ->orderBy('starts_at')
+        ->get();
+
+    $pastEvents = (clone $publishedEvents)
+        ->where(function ($query) use ($now) {
+            $query->where('ends_at', '<', $now)
+                ->orWhere(fn ($query) => $query->whereNull('ends_at')->where('starts_at', '<', $now));
+        })
+        ->orderByDesc('starts_at')
+        ->get();
+
+    return view('home', compact('upcomingEvents', 'pastEvents'));
 });
 
 Route::view('/admissions', 'admissions.overview')->name('admissions.overview');
