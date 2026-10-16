@@ -9,6 +9,7 @@
     <nav class="main-nav" aria-label="Main navigation">
         <a href="{{ url('/#approach') }}">Our care</a>
         <a href="{{ url('/#early-years') }}">Early years</a>
+        <a href="{{ route('events.index') }}">Events</a>
         <details class="site-nav-dropdown">
             <summary>Admissions</summary>
             <div class="site-nav-dropdown-menu">
@@ -37,6 +38,7 @@
         <nav class="mobile-menu-panel" aria-label="Mobile navigation">
             <a href="{{ url('/#approach') }}">Our care</a>
             <a href="{{ url('/#early-years') }}">Early years</a>
+            <a href="{{ route('events.index') }}">Events</a>
             <a href="{{ route('admissions.overview') }}">Admissions Overview</a>
             <a href="#how-to-apply">How to Apply</a>
             <a href="{{ route('admissions.fees') }}">Fees &amp; Tuition</a>

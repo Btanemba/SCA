@@ -2,34 +2,14 @@
 
 use App\Http\Controllers\CompleteRegistrationController;
 use App\Http\Controllers\AdmissionFeesController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\ManagementController;
 use App\Http\Controllers\StaffController;
-use App\Models\Event;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    $now = now();
-    $publishedEvents = Event::query()->where('is_published', true);
-
-    $upcomingEvents = (clone $publishedEvents)
-        ->where(function ($query) use ($now) {
-            $query->where('ends_at', '>=', $now)
-                ->orWhere(fn ($query) => $query->whereNull('ends_at')->where('starts_at', '>=', $now));
-        })
-        ->orderBy('starts_at')
-        ->get();
-
-    $pastEvents = (clone $publishedEvents)
-        ->where(function ($query) use ($now) {
-            $query->where('ends_at', '<', $now)
-                ->orWhere(fn ($query) => $query->whereNull('ends_at')->where('starts_at', '<', $now));
-        })
-        ->orderByDesc('starts_at')
-        ->get();
-
-    return view('home', compact('upcomingEvents', 'pastEvents'));
-});
+Route::get('/', [EventController::class, 'home'])->name('home');
+Route::get('/events', [EventController::class, 'index'])->name('events.index');
 
 Route::view('/admissions', 'admissions.overview')->name('admissions.overview');
 Route::get('/admissions/fees', [AdmissionFeesController::class, 'index'])->name('admissions.fees');
