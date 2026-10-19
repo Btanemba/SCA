@@ -194,7 +194,7 @@
             <img
                 class="school-life-image"
                 src="https://images.unsplash.com/photo-1472162072942-cd5147eb3902?auto=format&fit=crop&w=1400&q=85"
-                alt="Children spending time together during a playful activity"
+                alt="Children"
                 loading="lazy"
             >
             <div class="school-life-copy">

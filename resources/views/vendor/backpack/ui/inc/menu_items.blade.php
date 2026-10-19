@@ -44,23 +44,33 @@
 		<li class="nav-item"><a class="nav-link" href="{{ backpack_url('event') }}"><i class="la la-calendar nav-icon"></i> Events</a></li>
 	@endif
     @if (in_array($currentRoleCode, [\App\Models\Person::ROLE_ADMIN, \App\Models\Person::ROLE_FOUNDER], true))
-	    <li class="nav-item"><a class="nav-link" href="{{ backpack_url('management-member') }}"><i class="la la-users-cog nav-icon"></i> Management</a></li>
-		<li class="nav-item"><a class="nav-link" href="{{ backpack_url('staff-member') }}"><i class="la la-user-friends nav-icon"></i> Staff Profiles</a></li>
+	    <x-backpack::menu-dropdown title="Academy" icon="la la-school" :open="request()->routeIs('management-member.*') || request()->routeIs('staff-member.*') || request()->routeIs('academy.settings*') || request()->routeIs('staff-documents.*')">
+			<x-backpack::menu-dropdown-item title="Management" :link="backpack_url('management-member')" icon="la la-users-cog" />
+			<x-backpack::menu-dropdown-item title="Staff Profiles" :link="backpack_url('staff-member')" icon="la la-user-friends" />
+			<x-backpack::menu-dropdown-item title="Academy Settings" :link="route('academy.settings')" icon="la la-school" />
+			@if ($currentRoleCode === \App\Models\Person::ROLE_FOUNDER)
+				<x-backpack::menu-dropdown-item title="Staff Documents" :link="route('staff-documents.index')" icon="la la-file-signature" />
+			@endif
+		</x-backpack::menu-dropdown>
     @endif
     <li class="nav-item"><a class="nav-link" href="{{ backpack_url('attendance') }}"><i class="la la-clipboard-check nav-icon"></i> Attendance</a></li>
 @endif
-@if (in_array($currentRoleCode, [\App\Models\Person::ROLE_ACCOUNTANT, \App\Models\Person::ROLE_FOUNDER], true))
-	<x-backpack::menu-dropdown title="Finance" icon="la la-calculator" :open="request()->routeIs('payroll.*') || request()->routeIs('expenses.*')">
-		<x-backpack::menu-dropdown-item title="Payroll" :link="route('payroll.index')" icon="la la-money-bill" />
-		<x-backpack::menu-dropdown-item title="Expenses" :link="route('expenses.index')" icon="la la-file-invoice-dollar" />
-		@if ($hasPayslips)
-			<x-backpack::menu-dropdown-item title="My Payslips" :link="route('payroll.mine')" icon="la la-file-invoice-dollar" />
+@if (in_array($currentRoleCode, [\App\Models\Person::ROLE_ADMIN, \App\Models\Person::ROLE_ACCOUNTANT, \App\Models\Person::ROLE_FOUNDER], true))
+	<x-backpack::menu-dropdown title="Finance" icon="la la-calculator" :open="request()->routeIs('payroll.*') || request()->routeIs('expenses.*') || request()->routeIs('academy-fee.*')">
+		@if (in_array($currentRoleCode, [\App\Models\Person::ROLE_ACCOUNTANT, \App\Models\Person::ROLE_FOUNDER], true))
+			<x-backpack::menu-dropdown-item title="Payroll" :link="route('payroll.index')" icon="la la-money-bill" />
+			<x-backpack::menu-dropdown-item title="Expenses" :link="route('expenses.index')" icon="la la-file-invoice-dollar" />
+			@if ($hasPayslips)
+				<x-backpack::menu-dropdown-item title="My Payslips" :link="route('payroll.mine')" icon="la la-file-invoice-dollar" />
+			@endif
+		@endif
+		@if (in_array($currentRoleCode, [\App\Models\Person::ROLE_ADMIN, \App\Models\Person::ROLE_FOUNDER], true))
+			<x-backpack::menu-dropdown-item title="Fees" :link="backpack_url('academy-fee')" icon="la la-money-bill-wave" />
 		@endif
 	</x-backpack::menu-dropdown>
 @endif
-@if (in_array($currentRoleCode, [\App\Models\Person::ROLE_ADMIN, \App\Models\Person::ROLE_FOUNDER], true))
-	<li class="nav-item"><a class="nav-link" href="{{ backpack_url('academy-fee') }}"><i class="la la-money-bill-wave nav-icon"></i> Fees</a></li>
-	<li class="nav-item"><a class="nav-link" href="{{ route('academy.settings') }}"><i class="la la-school nav-icon"></i> Academy Settings</a></li>
+@if ($currentPerson && $currentRoleCode && ! in_array($currentRoleCode, [\App\Models\Person::ROLE_STUDENT, \App\Models\Person::ROLE_FOUNDER], true))
+	<li class="nav-item"><a class="nav-link" href="{{ route('staff-documents.mine') }}"><i class="la la-file-alt nav-icon"></i> My Documents</a></li>
 @endif
 @if ($hasPayslips && ! in_array($currentRoleCode, [\App\Models\Person::ROLE_ACCOUNTANT, \App\Models\Person::ROLE_FOUNDER], true))
 	<li class="nav-item"><a class="nav-link" href="{{ route('payroll.mine') }}"><i class="la la-file-invoice-dollar nav-icon"></i> My Payslips</a></li>

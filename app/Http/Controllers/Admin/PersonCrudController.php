@@ -498,15 +498,6 @@ class PersonCrudController extends CrudController
             CRUD::setRequiredFields(array_fill_keys(['email', 'phone', 'Occupation', 'city', 'state', 'nationality'], 'required'));
         }
 
-        if ($entry && $entry->user_id === backpack_user()?->id) {
-            CRUD::addField([
-                'name' => 'my_payslips_link',
-                'type' => 'custom_html',
-                'value' => '<a class="btn btn-outline-primary" href="'.e(route('payroll.mine')).'"><i class="la la-file-invoice-dollar"></i> My Payslips</a>',
-                'tab' => 'General',
-            ]);
-        }
-
         if ($entry && $entry->student_id) {
             CRUD::addField([
                 'name' => 'student_id',

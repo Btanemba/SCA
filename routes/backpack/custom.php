@@ -34,6 +34,15 @@ Route::group([
     Route::delete('academy-settings/documents/{document}', [\App\Http\Controllers\Admin\AcademySettingsController::class, 'deleteDocument'])->name('academy.settings.documents.delete');
     Route::get('my-payslips', [\App\Http\Controllers\Admin\PayrollController::class, 'myPayslips'])->name('payroll.mine');
     Route::get('payslips/{entry}', [\App\Http\Controllers\Admin\PayrollController::class, 'payslip'])->name('payroll.payslip');
+    Route::get('my-documents', [\App\Http\Controllers\Admin\StaffDocumentController::class, 'mine'])->name('staff-documents.mine');
+    Route::get('my-documents/{document}/download', [\App\Http\Controllers\Admin\StaffDocumentController::class, 'download'])->name('staff-documents.download');
+    Route::get('staff-documents', [\App\Http\Controllers\Admin\StaffDocumentController::class, 'index'])->name('staff-documents.index');
+    Route::get('staff-documents/create', [\App\Http\Controllers\Admin\StaffDocumentController::class, 'create'])->name('staff-documents.create');
+    Route::post('staff-documents', [\App\Http\Controllers\Admin\StaffDocumentController::class, 'store'])->name('staff-documents.store');
+    Route::get('staff-documents/{document}/edit', [\App\Http\Controllers\Admin\StaffDocumentController::class, 'edit'])->name('staff-documents.edit');
+    Route::put('staff-documents/{document}', [\App\Http\Controllers\Admin\StaffDocumentController::class, 'update'])->name('staff-documents.update');
+    Route::get('staff-documents/{document}/preview', [\App\Http\Controllers\Admin\StaffDocumentController::class, 'preview'])->name('staff-documents.preview');
+    Route::post('staff-documents/{document}/publish', [\App\Http\Controllers\Admin\StaffDocumentController::class, 'publish'])->name('staff-documents.publish');
     Route::get('payroll', [\App\Http\Controllers\Admin\PayrollController::class, 'index'])->name('payroll.index');
     Route::post('payroll', [\App\Http\Controllers\Admin\PayrollController::class, 'store'])->name('payroll.store');
     Route::get('payroll/{payroll}', [\App\Http\Controllers\Admin\PayrollController::class, 'show'])->name('payroll.show');
