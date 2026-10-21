@@ -11,7 +11,7 @@
 
     <div class="table-responsive">
         <table class="table table-vcenter align-middle">
-            <thead><tr><th>Document</th><th>Recipient</th><th>Type</th><th>Status</th><th>Date</th><th class="text-end">Actions</th></tr></thead>
+            <thead><tr><th>Document</th><th>Recipient</th><th>Type</th><th>Status</th><th>Date</th><th>Created by</th><th>Updated by</th><th class="text-end">Actions</th></tr></thead>
             <tbody>
                 @forelse ($documents as $document)
                     <tr>
@@ -20,6 +20,8 @@
                         <td>{{ $document->type_label }}</td>
                         <td>{{ $document->published_at ? 'Published' : 'Draft' }}</td>
                         <td>{{ ($document->published_at ?? $document->created_at)->format('M j, Y') }}</td>
+                        <td>{{ $document->created_by_name }}</td>
+                        <td>{{ $document->updated_by_name }}</td>
                         <td class="text-end text-nowrap">
                             <a class="btn btn-sm btn-outline-secondary" href="{{ route('staff-documents.preview', $document) }}" target="_blank" rel="noopener" aria-label="Preview {{ $document->title }}" title="Preview"><i class="la la-eye" aria-hidden="true"></i></a>
                             @if ($document->published_at)
@@ -34,7 +36,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="6" class="text-center text-muted py-4">No staff documents created yet.</td></tr>
+                    <tr><td colspan="8" class="text-center text-muted py-4">No staff documents created yet.</td></tr>
                 @endforelse
             </tbody>
         </table>

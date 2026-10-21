@@ -29,6 +29,7 @@ class PayrollTest extends TestCase
     {
         parent::setUp();
         Storage::fake('local');
+        config(['services.finance_mail.email' => 'finance@example.test']);
         $this->accountant = $this->employee(Person::ROLE_ACCOUNTANT, 'Accountant');
         $this->ceo = $this->employee(Person::ROLE_FOUNDER, 'Chief');
         $this->admin = $this->employee(Person::ROLE_ADMIN, 'Administrator');
@@ -312,6 +313,8 @@ class PayrollTest extends TestCase
         Mail::assertSentCount(1);
         Mail::assertSent(\App\Mail\PayrollBankInstruction::class, function ($mail) use ($payroll) {
             $this->assertTrue($mail->hasTo('bank@example.com'));
+            $this->assertSame('finance@example.test', $mail->envelope()->from->address);
+            $this->assertSame('finance@example.test', $mail->envelope()->replyTo[0]->address);
             $mail->render();
             $this->assertCount(1, $mail->rawAttachments);
             $attachment = $mail->rawAttachments[0];
@@ -333,6 +336,19 @@ class PayrollTest extends TestCase
         $this->post(route('payroll.action', [$payroll, 'paid']), ['payment_reference' => 'BANK-123', 'payment_date' => now()->format('Y-m-d')])->assertRedirect();
         $this->assertSame('paid', $payroll->fresh()->status);
         $this->post(route('payroll.action', [$payroll, 'paid']), ['payment_reference' => 'BANK-456', 'payment_date' => now()->format('Y-m-d')])->assertStatus(409);
+    }
+
+    public function test_bank_instruction_email_requires_a_valid_finance_sender(): void
+    {
+        $payroll = $this->approvedPayroll();
+        config(['services.finance_mail.email' => null]);
+        Mail::fake();
+
+        $this->login($this->accountant)
+            ->post(route('payroll.email', $payroll), ['confirm_recipient' => 'bank@example.com'])
+            ->assertStatus(422);
+
+        Mail::assertNothingSent();
     }
 
     public function test_settings_uploads_are_private_and_only_ceo_controls_signature(): void

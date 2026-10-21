@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\TracksAuditUsers;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
 
 class ChildPickupContact extends Model
 {
+    use TracksAuditUsers;
+
     protected $fillable = [
         'child_id',
         'pickup_contact_id',

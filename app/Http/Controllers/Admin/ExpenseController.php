@@ -141,7 +141,7 @@ class ExpenseController extends Controller
     public function show(Expense $expense)
     {
         $this->authorizeRole();
-        $expense->load('events.user');
+        $expense->load(['events.user.person', 'creator.person']);
 
         return view('expenses.show', compact('expense'));
     }

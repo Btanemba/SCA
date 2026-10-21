@@ -32,7 +32,7 @@ class StaffDocumentController extends Controller
     public function index()
     {
         $this->authorizeFounder();
-        $documents = StaffDocument::with('person.sacRole')->latest()->paginate(20);
+        $documents = StaffDocument::with(['person.sacRole', 'creator.person', 'updater.person'])->latest()->paginate(20);
 
         return view('staff-documents.index', compact('documents'));
     }

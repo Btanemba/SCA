@@ -811,6 +811,17 @@ class PersonCrudController extends CrudController
 
     }
 
+    protected function setupShowOperation(): void
+    {
+        $this->autoSetupShowOperation();
+
+        foreach (['created_by' => 'Created by', 'updated_by' => 'Updated by'] as $column => $label) {
+            CRUD::column($column)->label($label)->type('closure')
+                ->function(fn ($entry) => $entry->{$column.'_name'});
+        }
+        $this->crud->with(['creator.person', 'updater.person']);
+    }
+
     protected function setupUpdateOperation(): void
     {
         $this->setupCreateOperation();

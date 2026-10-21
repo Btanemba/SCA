@@ -30,11 +30,10 @@
             @endif
             <td>
                 <div class="academy-name">{{ $academy['name'] }}</div>
-                @if ($academy['address'])<div class="contact">{!! nl2br(e($academy['address'])) !!}</div>@endif
-                @if ($academy['phone'] || $academy['email'])
-                    <div class="contact">{{ $academy['phone'] }}@if ($academy['phone'] && $academy['email']) &middot; @endif{{ $academy['email'] }}</div>
-                @endif
-                @if ($academy['website'])<div class="contact">{{ $academy['website'] }}</div>@endif
+                @if ($academy['address'])<div class="contact"><strong>School Address:</strong> {!! nl2br(e($academy['address'])) !!}</div>@endif
+                @if ($academy['phone'])<div class="contact"><strong>Phone:</strong> {{ $academy['phone'] }}</div>@endif
+                @if ($academy['email'])<div class="contact"><strong>Email Address:</strong> {{ $academy['email'] }}</div>@endif
+                @if ($academy['website'])<div class="contact"><strong>Website:</strong> {{ $academy['website'] }}</div>@endif
             </td>
         </tr>
     </table>

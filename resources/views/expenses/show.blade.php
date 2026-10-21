@@ -68,8 +68,9 @@
             <div class="col-md-4"><button class="btn btn-outline-primary"><i class="la la-upload" aria-hidden="true"></i> {{ $expense->receipt_path ? 'Replace Receipt' : 'Upload Receipt' }}</button></div>
         </form>
     @endif
+    @include('partials.audit-fields', ['auditEntry' => $expense, 'showUpdater' => false])
     <h3 class="h5 mt-4">Audit History</h3>
     <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Date</th><th>Actor</th><th>Action</th><th>Details</th></tr></thead><tbody>
-        @foreach ($expense->events->sortByDesc('id') as $event)<tr><td class="text-nowrap">{{ $event->created_at->format('d M Y H:i') }}</td><td>{{ $event->user?->name }}</td><td>{{ ucwords(str_replace('_', ' ', $event->action)) }}</td><td>@foreach ($event->details ?? [] as $key => $value)<div class="text-break">{{ ucwords(str_replace('_', ' ', $key)) }}: {{ $value }}</div>@endforeach</td></tr>@endforeach
+        @foreach ($expense->events->sortByDesc('id') as $event)<tr><td class="text-nowrap">{{ $event->created_at->format('d M Y H:i') }}</td><td>{{ $event->user?->person?->full_name ?: $event->user?->name }}</td><td>{{ ucwords(str_replace('_', ' ', $event->action)) }}</td><td>@foreach ($event->details ?? [] as $key => $value)<div class="text-break">{{ ucwords(str_replace('_', ' ', $key)) }}: {{ $value }}</div>@endforeach</td></tr>@endforeach
     </tbody></table></div>
 @endsection

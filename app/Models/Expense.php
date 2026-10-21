@@ -2,12 +2,20 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\TracksAuditUsers;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Expense extends Model
 {
+    use TracksAuditUsers;
+
     protected $guarded = ['id'];
+
+    protected function tracksUpdater(): bool
+    {
+        return false;
+    }
 
     protected function casts(): array
     {

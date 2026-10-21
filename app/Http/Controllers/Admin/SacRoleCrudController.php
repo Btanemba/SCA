@@ -40,7 +40,7 @@ class SacRoleCrudController extends CrudController
     protected function setupListOperation()
     {
         $this->crud->orderBy('order');
-        
+
           CRUD::addColumn([
             'name' => 'custom_actions',
             'type' => 'view',
@@ -50,6 +50,13 @@ class SacRoleCrudController extends CrudController
             'visibleInExport' => false,
         ]);
         CRUD::setFromDb(); // set columns from db columns.
+
+        foreach (['created_by' => 'Created by', 'updated_by' => 'Updated by'] as $column => $label) {
+            CRUD::column($column)->label($label)->type('closure')
+                ->function(fn ($entry) => $entry->{$column.'_name'})
+                ->searchable(false)->orderable(false);
+        }
+        $this->crud->with(['creator.person', 'updater.person']);
 
 
         $this->crud->removeButton('preview');
@@ -76,10 +83,16 @@ class SacRoleCrudController extends CrudController
         CRUD::field('name')->type('text');
         CRUD::field('code')->type('text');
         CRUD::field('order')->type('number');
-        CRUD::field('created_by')->type('text')->wrapper(['class' => 'form-group col-md-3']);
-        CRUD::field('created_at')->type('text')->wrapper(['class' => 'form-group col-md-3']);
-        CRUD::field('updated_by')->type('text')->wrapper(['class' => 'form-group col-md-3']);
-        CRUD::field('updated_at')->type('text')->wrapper(['class' => 'form-group col-md-3']);
+        foreach ([
+            'created_by_name' => 'Created by',
+            'created_at' => 'Created at',
+            'updated_by_name' => 'Updated by',
+            'updated_at' => 'Updated at',
+        ] as $name => $label) {
+            CRUD::field($name)->label($label)->type('text')
+                ->wrapper(['class' => 'form-group col-md-3'])
+                ->attributes(['readonly' => 'readonly', 'style' => 'background-color: #e5e5e5;']);
+        }
     }
 
     /**
@@ -88,6 +101,17 @@ class SacRoleCrudController extends CrudController
      * @see https://backpackforlaravel.com/docs/crud-operation-update
      * @return void
      */
+    protected function setupShowOperation(): void
+    {
+        $this->autoSetupShowOperation();
+
+        foreach (['created_by' => 'Created by', 'updated_by' => 'Updated by'] as $column => $label) {
+            CRUD::column($column)->label($label)->type('closure')
+                ->function(fn ($entry) => $entry->{$column.'_name'});
+        }
+        $this->crud->with(['creator.person', 'updater.person']);
+    }
+
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();

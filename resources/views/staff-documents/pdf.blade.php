@@ -26,9 +26,10 @@
         @if ($branding['logo']) <img class="logo" src="{{ $branding['logo'] }}" alt=""> @endif
         <p class="school-name">{{ $branding['name'] }}</p>
         <div class="contact">
-            @if ($branding['address']) <div>{{ $branding['address'] }}</div> @endif
-            @if ($branding['phone'] || $branding['email']) <div>{{ $branding['phone'] }} @if ($branding['phone'] && $branding['email']) | @endif {{ $branding['email'] }}</div> @endif
-            @if ($branding['website']) <div>{{ $branding['website'] }}</div> @endif
+            @if ($branding['address']) <div><strong>School Address:</strong> {{ $branding['address'] }}</div> @endif
+            @if ($branding['phone']) <div><strong>Phone:</strong> {{ $branding['phone'] }}</div> @endif
+            @if ($branding['email']) <div><strong>Email Address:</strong> {{ $branding['email'] }}</div> @endif
+            @if ($branding['website']) <div><strong>Website:</strong> {{ $branding['website'] }}</div> @endif
         </div>
         <div class="clear"></div>
     </header>

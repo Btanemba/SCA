@@ -25,6 +25,13 @@ Route::group([
     Route::post('security-attendance/pick-up', [SecurityAttendanceController::class, 'pickUp'])->name('security.attendance.pick-up');
 
     Route::get('my-account', 'PersonCrudController@myAccount')->name('person.my-account');
+    Route::get('mail-accounts/{mailAccount}', [\App\Http\Controllers\Admin\InfoMailController::class, 'show'])
+        ->whereIn('mailAccount', ['info', 'finance'])
+        ->name('mail-accounts.show');
+    Route::post('mail-accounts/{mailAccount}/password', [\App\Http\Controllers\Admin\InfoMailController::class, 'revealPassword'])
+        ->whereIn('mailAccount', ['info', 'finance'])
+        ->middleware('throttle:5,1')
+        ->name('mail-accounts.password');
 
     Route::get('academy-settings', [\App\Http\Controllers\Admin\AcademySettingsController::class, 'edit'])->name('academy.settings');
     Route::put('academy-settings', [\App\Http\Controllers\Admin\AcademySettingsController::class, 'update'])->name('academy.settings.update');

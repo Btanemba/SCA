@@ -12,6 +12,7 @@ class ExpenseDocuments
     {
         abort_unless($expense->approved(), 403);
         $academy = $expense->approval_snapshot;
+        $academy['email'] = config('services.finance_mail.email');
         foreach (['logo', 'signature'] as $asset) {
             $path = $academy[$asset.'_path'] ?? null;
             abort_unless($path && Storage::disk('local')->exists($path), 422, 'The approved '.$asset.' image is missing.');

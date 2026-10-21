@@ -28,7 +28,7 @@ class AdmissionFeesController extends Controller
             'name' => $settings?->name ?? 'Springcare Academy',
             'address' => $settings?->address,
             'phone' => $settings?->phone,
-            'email' => $settings?->email,
+            'email' => config('services.finance_mail.email'),
             'website' => $settings?->website,
             'logo' => null,
         ];

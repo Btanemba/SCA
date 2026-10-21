@@ -274,6 +274,7 @@ class ExpenseTest extends TestCase
         $settings->update(['name' => 'Changed School', 'debit_account_number' => '9999999999']);
         Storage::disk('local')->delete($settings->logo_path);
         Storage::disk('local')->delete($settings->signature_path);
+        config(['services.finance_mail.email' => 'finance@example.test']);
         $response = $this->get(route('expenses.bank', $expense))->assertOk()->assertHeader('Content-Type', 'application/pdf');
         $this->assertStringStartsWith('%PDF', $response->getContent());
         $this->assertStringStartsWith('attachment;', $response->headers->get('Content-Disposition'));
@@ -282,8 +283,12 @@ class ExpenseTest extends TestCase
         $this->assertNull($expense->fresh()->paid_at);
         $this->assertSame($this->ceo->id, $expense->fresh()->approved_by);
         $this->assertSame($snapshot, $expense->fresh()->approval_snapshot);
-        $html = view('expenses.bank', ['expense' => $expense->fresh(), 'academy' => $snapshot + ['logo' => '', 'signature' => '']])->render();
+        $financeAcademy = $snapshot + ['logo' => '', 'signature' => ''];
+        $financeAcademy['email'] = config('services.finance_mail.email');
+        $html = view('expenses.bank', ['expense' => $expense->fresh(), 'academy' => $financeAcademy])->render();
         $this->assertStringContainsString('Springcare Academy', $html);
+        $this->assertStringContainsString('finance@example.test', $html);
+        $this->assertStringNotContainsString('academy@example.com', $html);
         $this->assertStringContainsString('100,000.01', $html);
         $this->assertStringContainsString('0012345678', $html);
         $this->assertStringNotContainsString('Changed School', $html);

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\TracksAuditUsers;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Person extends Model
 {
-    use CrudTrait, HasFactory;
+    use CrudTrait, HasFactory, TracksAuditUsers;
 
     public const ROLE_STUDENT = 'SUDT';
     public const ROLE_PARENT = 'PT';

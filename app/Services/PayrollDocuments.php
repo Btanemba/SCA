@@ -39,6 +39,7 @@ class PayrollDocuments
     private function documentAcademy(Payroll $payroll): array
     {
         $academy = $payroll->approval_snapshot;
+        $academy['email'] = config('services.finance_mail.email');
         foreach (['logo', 'signature'] as $asset) {
             $path = $academy[$asset.'_path'] ?? null;
             if (! $path) {

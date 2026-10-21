@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\TracksAuditUsers;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
 
 class SacRole extends Model
 {
-    use CrudTrait;
+    use CrudTrait, TracksAuditUsers;
 
     protected $table = 'sac_role';
 
@@ -16,8 +16,6 @@ class SacRole extends Model
         'name',
         'code',
         'order',
-        'created_by',
-        'updated_by',
     ];
 
     protected function casts(): array
@@ -27,13 +25,4 @@ class SacRole extends Model
         ];
     }
 
-    public function creator(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'created_by');
-    }
-
-    public function updater(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'updated_by');
-    }
 }

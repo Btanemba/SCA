@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\TracksAuditUsers;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class StaffDocument extends Model
 {
+    use TracksAuditUsers;
+
     protected $guarded = ['id'];
 
     protected function casts(): array
@@ -21,11 +24,6 @@ class StaffDocument extends Model
     public function person(): BelongsTo
     {
         return $this->belongsTo(Person::class);
-    }
-
-    public function creator(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function getTypeLabelAttribute(): string

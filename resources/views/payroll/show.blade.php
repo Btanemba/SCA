@@ -81,8 +81,9 @@
             </form>
         @endif
     @endif
+    @include('partials.audit-fields', ['auditEntry' => $payroll, 'showUpdater' => false])
     <h3 class="h5 mt-4">Audit History</h3>
     <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Date</th><th>Actor</th><th>Action</th><th>Details</th></tr></thead><tbody>
-        @foreach ($payroll->events->sortByDesc('id') as $event)<tr><td>{{ $event->created_at->format('d M Y H:i') }}</td><td>{{ $event->user?->name }}</td><td>{{ ucwords(str_replace('_', ' ', $event->action)) }}</td><td>@foreach ($event->details ?? [] as $key => $value)<div>{{ ucwords(str_replace('_', ' ', $key)) }}: {{ $value }}</div>@endforeach</td></tr>@endforeach
+        @foreach ($payroll->events->sortByDesc('id') as $event)<tr><td>{{ $event->created_at->format('d M Y H:i') }}</td><td>{{ $event->user?->person?->full_name ?: $event->user?->name }}</td><td>{{ ucwords(str_replace('_', ' ', $event->action)) }}</td><td>@foreach ($event->details ?? [] as $key => $value)<div>{{ ucwords(str_replace('_', ' ', $key)) }}: {{ $value }}</div>@endforeach</td></tr>@endforeach
     </tbody></table></div>
 @endsection

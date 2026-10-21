@@ -75,4 +75,21 @@
 @if ($hasPayslips && ! in_array($currentRoleCode, [\App\Models\Person::ROLE_ACCOUNTANT, \App\Models\Person::ROLE_FOUNDER], true))
 	<li class="nav-item"><a class="nav-link" href="{{ route('payroll.mine') }}"><i class="la la-file-invoice-dollar nav-icon"></i> My Payslips</a></li>
 @endif
+
+@if (in_array($currentRoleCode, [\App\Models\Person::ROLE_ADMIN, \App\Models\Person::ROLE_ACCOUNTANT, \App\Models\Person::ROLE_FOUNDER], true))
+	<x-backpack::menu-dropdown title="Mails" icon="la la-envelope">
+		@if (in_array($currentRoleCode, [\App\Models\Person::ROLE_ADMIN, \App\Models\Person::ROLE_FOUNDER], true))
+			<x-backpack::menu-dropdown-item
+				title="Info Mail "
+				:link="route('mail-accounts.show', 'info')"
+				icon="la la-key"
+			/>
+		@endif
+		<x-backpack::menu-dropdown-item
+			title="Finance Mail "
+			:link="route('mail-accounts.show', 'finance')"
+			icon="la la-key"
+		/>
+	</x-backpack::menu-dropdown>
+@endif
 <li class="nav-item"><a class="nav-link text-danger" href="{{ route('backpack.logout.home') }}"><i class="la la-sign-out-alt nav-icon"></i> {{ trans('backpack::base.logout') }}</a></li>

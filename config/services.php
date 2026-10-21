@@ -35,4 +35,16 @@ return [
         ],
     ],
 
+    'info_mail' => [
+        'url' => env('INFO_MAIL_URL', 'https://springcareacademy.ng/webmail'),
+        'email' => env('INFO_MAIL_EMAIL'),
+        'password' => env('INFO_MAIL_PASSWORD'),
+    ],
+
+    'finance_mail' => [
+        'url' => env('FINANCE_MAIL_URL', 'https://springcareacademy.ng/webmail'),
+        'email' => env('FINANCE_MAIL_EMAIL'),
+        'password' => env('FINANCE_MAIL_PASSWORD'),
+    ],
+
 ];

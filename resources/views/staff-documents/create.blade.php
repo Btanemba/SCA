@@ -43,6 +43,9 @@
                     <label class="form-check-label" for="requires_staff_signature">Include staff signature and date lines</label>
                 </div>
             </div>
+            <div class="col-12">
+                @include('partials.audit-fields', ['auditEntry' => $document])
+            </div>
             <div class="col-12 d-flex flex-wrap gap-2 pt-2">
                 <button class="btn btn-primary" type="submit"><i class="la la-save" aria-hidden="true"></i> Save draft</button>
                 <a class="btn btn-outline-secondary" href="{{ route('staff-documents.index') }}">Cancel</a>

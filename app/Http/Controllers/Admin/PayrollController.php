@@ -102,7 +102,7 @@ class PayrollController extends Controller
     public function show(Payroll $payroll)
     {
         $this->authorizeRole();
-        $payroll->load(['entries', 'events.user']);
+        $payroll->load(['entries', 'events.user.person', 'creator.person']);
 
         return view('payroll.show', compact('payroll'));
     }
@@ -265,6 +265,8 @@ class PayrollController extends Controller
         abort_unless($payroll->approved(), 403);
         $recipient = $payroll->approval_snapshot['bank_email'] ?? null;
         abort_unless($recipient, 422, 'No bank email was configured at approval. Download the letter for physical delivery.');
+        $financeEmail = config('services.finance_mail.email');
+        abort_unless(filter_var($financeEmail, FILTER_VALIDATE_EMAIL), 422, 'Configure a valid Finance Mail address before sending payment instructions.');
         $transport = config('mail.mailers.'.config('mail.default').'.transport');
         abort_if(in_array($transport, ['log', 'array'], true), 422, 'Configure a delivering mail transport before sending payroll to the bank.');
         $request->validate(['confirm_recipient' => ['required', Rule::in([$recipient])]]);
