@@ -491,6 +491,12 @@ class PersonCrudController extends CrudController
         $entry = CRUD::getCurrentEntry() ?: null;
         $selectedRoleId = request()->input('sac_role_id') ?? ($entry ? $entry->sac_role_id : null);
         $selectedRole = $selectedRoleId ? SacRole::find($selectedRoleId) : null;
+        if ($selectedRole) {
+            CRUD::setOperationSetting(
+                'backToAllEntriesUrl',
+                backpack_url('person?'.http_build_query(['role' => $selectedRole->code]))
+            );
+        }
         $detailsAttributes = in_array($selectedRole?->code, [Person::ROLE_PARENT, Person::ROLE_STAFF], true)
             ? ['required' => 'required'] : [];
 

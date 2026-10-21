@@ -66,6 +66,38 @@ class PersonProfileTest extends TestCase
         $this->assertSame('Updated', $person->fresh()->first_name);
     }
 
+    public function test_student_forms_cancel_to_the_student_list(): void
+    {
+        $admin = $this->employee(Person::ROLE_ADMIN);
+        $studentRole = SacRole::firstOrCreate(['code' => Person::ROLE_STUDENT], ['name' => 'Student', 'order' => 1]);
+        $student = Person::create([
+            'sac_role_id' => $studentRole->id,
+            'first_name' => 'OnlyStudent',
+            'last_name' => 'Example',
+            'gender' => 'female',
+            'date_of_birth' => '2020-01-01',
+        ]);
+        $otherPerson = $this->employee(Person::ROLE_PARENT)->person;
+        $otherPerson->update(['first_name' => 'NotAStudent']);
+        $this->actingAs($admin, config('backpack.base.guard'));
+        $listUrl = backpack_url('person?role='.Person::ROLE_STUDENT);
+
+        foreach (['person/create?sac_role_id='.$studentRole->id, 'person/'.$student->id.'/edit'] as $path) {
+            $this->get(backpack_url($path))
+                ->assertOk()
+                ->assertSee('href="'.$listUrl.'" class="btn btn-secondary text-decoration-none"', false);
+        }
+
+        $this->get($listUrl)->assertOk();
+        $response = $this->postJson(backpack_url('person/search?role='.Person::ROLE_STUDENT), [
+            'draw' => 1,
+            'start' => 0,
+            'length' => 10,
+        ])->assertOk();
+        $this->assertCount(1, $response->json('data'));
+        $response->assertSee('OnlyStudent')->assertDontSee('NotAStudent');
+    }
+
     public function test_accountant_cannot_add_people(): void
     {
         $user = $this->employee(Person::ROLE_ACCOUNTANT);
