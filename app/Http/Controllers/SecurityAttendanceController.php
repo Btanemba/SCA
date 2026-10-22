@@ -65,7 +65,7 @@ class SecurityAttendanceController extends Controller
 
                     if (! $attendance) {
                         if (! $link->can_drop_off) {
-                            return $this->scanResult($child, 'not_authorized', 'Not authorized to drop off');
+                            return $this->scanResult($child, 'not_authorized', 'Not authorized to drop off', null, $link->relationship);
                         }
 
                         $attendance = Attendance::create([
@@ -78,17 +78,17 @@ class SecurityAttendanceController extends Controller
                             'dropped_off_method' => 'rfid',
                         ]);
 
-                        return $this->scanResult($child, 'dropped_off', 'Dropped off', $attendance->dropped_off_at);
+                        return $this->scanResult($child, 'dropped_off', 'Dropped off', $attendance->dropped_off_at, $link->relationship);
                     }
 
                     if ($attendance->is_present) {
                         // Stops a repeated tap at drop-off from immediately recording a pickup.
                         if ($attendance->dropped_off_at->gt(now()->subMinutes(self::PICKUP_COOLDOWN_MINUTES))) {
-                            return $this->scanResult($child, 'already_present', 'Already checked in', $attendance->dropped_off_at);
+                            return $this->scanResult($child, 'already_present', 'Already checked in', $attendance->dropped_off_at, $link->relationship);
                         }
 
                         if (! $link->can_pick_up) {
-                            return $this->scanResult($child, 'not_authorized', 'Not authorized to pick up');
+                            return $this->scanResult($child, 'not_authorized', 'Not authorized to pick up', null, $link->relationship);
                         }
 
                         $attendance->update([
@@ -99,10 +99,10 @@ class SecurityAttendanceController extends Controller
                             'picked_up_method' => 'rfid',
                         ]);
 
-                        return $this->scanResult($child, 'picked_up', 'Picked up', $attendance->picked_up_at);
+                        return $this->scanResult($child, 'picked_up', 'Picked up', $attendance->picked_up_at, $link->relationship);
                     }
 
-                    return $this->scanResult($child, 'completed', 'Already picked up today', $attendance->picked_up_at);
+                    return $this->scanResult($child, 'completed', 'Already picked up today', $attendance->picked_up_at, $link->relationship);
                 })
                 ->values();
         });
@@ -278,11 +278,12 @@ class SecurityAttendanceController extends Controller
             ->firstOrFail();
     }
 
-    protected function scanResult(Person $child, string $action, string $label, ?CarbonInterface $time = null): array
+    protected function scanResult(Person $child, string $action, string $label, ?CarbonInterface $time = null, ?string $relationship = null): array
     {
         return [
             'name' => $child->full_name,
             'student_id' => $child->student_id,
+            'relationship' => $relationship,
             'image_url' => $child->image_path ? Storage::disk('public')->url($child->image_path) : null,
             'action' => $action,
             'label' => $label,

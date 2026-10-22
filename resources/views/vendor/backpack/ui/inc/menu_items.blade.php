@@ -23,6 +23,7 @@
 	<li class="nav-item"><a class="nav-link" href="{{ backpack_url('sac-role') }}"><i class="la la-user-tag nav-icon"></i> Roles</a></li>
 	@php
 		$peopleRoles = \App\Models\SacRole::query()
+			->when($currentRoleCode === \App\Models\Person::ROLE_ADMIN, fn ($query) => $query->where('code', '!=', \App\Models\Person::ROLE_FOUNDER))
 			->orderBy('order')
 			->orderBy('name')
 			->get(['code', 'name']);
@@ -43,7 +44,7 @@
 	@if (in_array($currentRoleCode, [\App\Models\Person::ROLE_STAFF, \App\Models\Person::ROLE_ADMIN, \App\Models\Person::ROLE_FOUNDER], true))
 		<li class="nav-item"><a class="nav-link" href="{{ backpack_url('event') }}"><i class="la la-calendar nav-icon"></i> Events</a></li>
 	@endif
-    @if (in_array($currentRoleCode, [\App\Models\Person::ROLE_ADMIN, \App\Models\Person::ROLE_FOUNDER], true))
+	@if ($currentRoleCode === \App\Models\Person::ROLE_FOUNDER)
 	    <x-backpack::menu-dropdown title="Academy" icon="la la-school" :open="request()->routeIs('management-member.*') || request()->routeIs('staff-member.*') || request()->routeIs('academy.settings*') || request()->routeIs('staff-documents.*')">
 			<x-backpack::menu-dropdown-item title="Management" :link="backpack_url('management-member')" icon="la la-users-cog" />
 			<x-backpack::menu-dropdown-item title="Staff Profiles" :link="backpack_url('staff-member')" icon="la la-user-friends" />

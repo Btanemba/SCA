@@ -13,16 +13,18 @@
         .kiosk-bar h1 { font-size: 1.25rem; margin: 0; }
         .kiosk-bar .clock { color: #27735e; font-size: 1.25rem; font-variant-numeric: tabular-nums; font-weight: 700; }
         .kiosk-bar a { color: #2779a7; font-size: .9rem; margin-left: 18px; text-decoration: none; }
-        .kiosk-main { align-items: center; display: flex; flex: 1; justify-content: center; padding: 28px; }
+        .kiosk-main { align-items: center; display: flex; flex: 1; justify-content: center; min-height: 0; overflow: auto; padding: 28px; }
         .idle { text-align: center; }
         .idle .pulse { animation: pulse 2s ease-in-out infinite; background: #dff4eb; border-radius: 50%; display: inline-flex; font-size: 4.5rem; height: 180px; align-items: center; justify-content: center; margin-bottom: 26px; width: 180px; }
         .idle h2 { font-size: clamp(2rem, 4vw, 3.2rem); margin: 0 0 8px; }
         .idle p { color: #718096; font-size: 1.2rem; margin: 0; }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
-        .result { width: 100%; max-width: 1200px; }
-        .contact { align-items: center; background: #fff; border: 1px solid #dce7ed; border-radius: 20px; display: flex; gap: 24px; margin-bottom: 22px; padding: 20px 26px; }
+        .result { width: 100%; max-width: 1400px; }
+        .result-layout { align-items: stretch; display: grid; gap: 22px; grid-template-columns: minmax(270px, .75fr) minmax(0, 1.5fr); }
+        .contact { align-items: center; background: #fff; border: 1px solid #dce7ed; border-radius: 20px; display: flex; flex-direction: column; justify-content: center; padding: 24px; text-align: center; }
         .contact .label { color: #718096; font-size: .9rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-        .contact h2 { font-size: clamp(1.8rem, 3vw, 2.6rem); margin: 4px 0 0; }
+        .contact h2 { font-size: clamp(1.5rem, 2.2vw, 2rem); margin: 12px 0 0; overflow-wrap: anywhere; }
+        .contact .detail { color: #718096; font-size: 1rem; margin-top: 6px; }
         .children { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
         .child { background: #fff; border: 1px solid #dce7ed; border-radius: 20px; border-top: 10px solid #a0aec0; padding: 24px; text-align: center; }
         .child h3 { font-size: 1.7rem; margin: 16px 0 4px; }
@@ -33,11 +35,30 @@
         .action-already_present, .action-completed { border-top-color: #d0a33d; } .action-already_present .status, .action-completed .status { background: #fbf3e0; color: #8a6514; }
         .action-not_authorized { border-top-color: #d64545; } .action-not_authorized .status { background: #fde8e8; color: #a52a2a; }
         .photo { align-items: center; background: #dcefe9; border-radius: 18px; color: #27735e; display: inline-flex; font-size: 3rem; font-weight: 800; justify-content: center; object-fit: cover; overflow: hidden; }
-        .photo-contact { height: 150px; width: 150px; }
+        .photo-contact { height: 200px; width: 200px; }
         .photo-child { height: 220px; width: 220px; }
+        .child .relationship { color: #536b7b; margin-top: 8px; }
         .error { background: #fde8e8; border: 2px solid #e6a1a1; border-radius: 20px; color: #a52a2a; font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 800; padding: 48px; text-align: center; }
         .scan-input { left: -9999px; opacity: 0; position: absolute; }
         .hidden { display: none !important; }
+        @media (max-width: 900px) {
+            body { overflow: auto; }
+            .kiosk { min-height: 100%; height: auto; }
+            .result-layout { grid-template-columns: 1fr; }
+            .contact { flex-direction: row; gap: 20px; text-align: left; }
+            .contact h2 { margin-top: 4px; }
+            .photo-contact { flex: 0 0 auto; height: 150px; width: 150px; }
+        }
+        @media (max-width: 560px) {
+            .kiosk-bar { align-items: flex-start; gap: 12px; padding: 12px 16px; }
+            .kiosk-bar > div { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px 12px; }
+            .kiosk-bar a { margin-left: 0; }
+            .kiosk-main { padding: 16px; }
+            .contact { align-items: flex-start; gap: 14px; padding: 16px; }
+            .photo-contact { height: 112px; width: 112px; }
+            .photo-child { height: 180px; width: 180px; }
+            .children { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -69,7 +90,7 @@
     const clock = document.getElementById('kiosk-clock');
     const scanUrl = @json(route('security.attendance.scan'));
     const csrfToken = @json(csrf_token());
-    const RESULT_DISPLAY_MS = 10000;
+    const RESULT_DISPLAY_MS = 20000;
     // Some readers do not send Enter, so submit once keystrokes stop.
     const INPUT_IDLE_MS = 300;
     let resetTimer;
@@ -127,16 +148,20 @@
                     ${photo(child, 'photo-child')}
                     <h3>${escapeHtml(child.name)}</h3>
                     <div class="sid">${escapeHtml(child.student_id)}</div>
+                    <div class="relationship">${escapeHtml(child.relationship || 'Authorized contact')}</div>
                     <div class="status">${escapeHtml(child.label)}${child.time ? ` · ${escapeHtml(child.time)}` : ''}</div>
                 </div>`).join('')
             : '<div class="error">No children are linked to this card.</div>';
 
         showResult(`
-            <div class="contact">
-                ${photo(data.contact, 'photo-contact')}
-                <div><div class="label">Card holder</div><h2>${escapeHtml(data.contact.name)}</h2></div>
+            <div class="result-layout">
+                <div class="contact">
+                    ${photo(data.contact, 'photo-contact')}
+                    <div><div class="label">Card holder</div><h2>${escapeHtml(data.contact.name)}</h2><div class="detail">Authorized pickup contact</div></div>
+                </div>
+                <div class="children">${children}</div>
             </div>
-            <div class="children">${children}</div>`);
+        `);
     }
 
     async function submitScan() {
