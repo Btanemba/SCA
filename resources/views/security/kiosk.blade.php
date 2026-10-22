@@ -90,7 +90,7 @@
     const clock = document.getElementById('kiosk-clock');
     const scanUrl = @json(route('security.attendance.scan'));
     const csrfToken = @json(csrf_token());
-    const RESULT_DISPLAY_MS = 20000;
+    const RESULT_DISPLAY_MS = 10000;
     // Some readers do not send Enter, so submit once keystrokes stop.
     const INPUT_IDLE_MS = 300;
     let resetTimer;
