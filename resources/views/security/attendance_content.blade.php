@@ -37,7 +37,10 @@
                 <h1 class="console-title mb-2">SpringCare Academy Check-in</h1>
                 <p class="text-muted mb-0">Find a child, verify the authorized person, and record today’s arrival or pickup.</p>
             </div>
-            <span class="date-chip">{{ $securityToday }}</span>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <a href="{{ route('security.attendance.kiosk') }}" class="btn btn-primary"><i class="la la-id-card me-1"></i> Open card kiosk</a>
+                <span class="date-chip">{{ $securityToday }}</span>
+            </div>
         </div>
     </div>
 

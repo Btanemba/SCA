@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\ChildPickupContact;
 use App\Models\Person;
+use App\Models\RfidCard;
 use App\Models\SacRole;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -44,6 +46,7 @@ class PersonRequest extends FormRequest
             'pickup_contacts.*.remove_image' => ['sometimes', 'boolean'],
             'pickup_contacts.*.can_pick_up' => ['sometimes', 'boolean'],
             'pickup_contacts.*.can_drop_off' => ['sometimes', 'boolean'],
+            'pickup_contacts.*.rfid_uid' => ['nullable', 'string', 'max:64', 'regex:/^[0-9A-Za-z :\-]+$/'],
             'phone' => [$detailsPresence, 'string', 'max:50'],
             'alt_email' => ['nullable', 'email', 'max:255'],
             'alt_phone' => ['nullable', 'string', 'max:50'],
@@ -115,6 +118,50 @@ class PersonRequest extends FormRequest
                     }
                 }
             }
+
+            $this->validateRfidCards($validator);
         });
+    }
+
+    protected function validateRfidCards($validator): void
+    {
+        $childId = $this->route('id');
+        $existingLinks = $childId
+            ? ChildPickupContact::query()->where('child_id', $childId)->get()->keyBy('slot')
+            : collect();
+        $seen = [];
+
+        foreach ($this->input('pickup_contacts', []) as $index => $contact) {
+            if (! is_array($contact) || ! is_string($contact['rfid_uid'] ?? null)) {
+                continue;
+            }
+
+            $uid = RfidCard::normalize($contact['rfid_uid']);
+            if ($uid === null) {
+                continue;
+            }
+
+            $field = "pickup_contacts.{$index}.rfid_uid";
+            $email = filled($contact['email'] ?? null) ? mb_strtolower(trim($contact['email'])) : null;
+
+            if (isset($seen[$uid]) && $seen[$uid] !== $email) {
+                $validator->errors()->add($field, 'Each contact needs a different card.');
+                continue;
+            }
+            $seen[$uid] = $email;
+
+            $card = RfidCard::query()->active()->where('uid', $uid)->with('contact')->first();
+            if (! $card?->contact) {
+                continue;
+            }
+
+            $slotContactId = $existingLinks->get(((int) $index) + 1)?->pickup_contact_id;
+            $sameContact = (int) $card->pickup_contact_id === (int) $slotContactId
+                || ($email !== null && mb_strtolower((string) $card->contact->email) === $email);
+
+            if (! $sameContact) {
+                $validator->errors()->add($field, "This card is already assigned to {$card->contact->full_name}.");
+            }
+        }
     }
 }

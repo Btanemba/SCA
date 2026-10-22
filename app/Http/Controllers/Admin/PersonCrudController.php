@@ -6,6 +6,7 @@ use App\Http\Requests\PersonRequest;
 use App\Models\ChildPickupContact;
 use App\Models\Person;
 use App\Models\PickupContact;
+use App\Models\RfidCard;
 use App\Models\SacRole;
 use App\Models\User;
 use App\Notifications\CompleteRegistrationInvitation;
@@ -303,6 +304,30 @@ class PersonCrudController extends CrudController
         }
     }
 
+    protected function syncRfidCard(PickupContact $contact, ?string $rawUid): void
+    {
+        $uid = RfidCard::normalize($rawUid);
+
+        $contact->rfidCards()
+            ->active()
+            ->when($uid, fn ($query) => $query->where('uid', '<>', $uid))
+            ->update(['revoked_at' => now()]);
+
+        if ($uid === null || $contact->rfidCards()->active()->where('uid', $uid)->exists()) {
+            return;
+        }
+
+        // A previously revoked card can be re-issued, so reuse its row instead of violating the unique UID.
+        RfidCard::query()->updateOrCreate(
+            ['uid' => $uid],
+            [
+                'pickup_contact_id' => $contact->getKey(),
+                'revoked_at' => null,
+                'issued_by' => backpack_user()?->getKey(),
+            ]
+        );
+    }
+
     protected function syncPickupContactsFromRequest(?Person $child): void
     {
         if (! $child || $child->sacRole?->code !== Person::ROLE_STUDENT) {
@@ -390,6 +415,10 @@ class PersonCrudController extends CrudController
                 'email' => $email,
                 'phone' => $phone,
             ])->save();
+
+            if (array_key_exists('rfid_uid', $details)) {
+                $this->syncRfidCard($contact, is_string($details['rfid_uid']) ? $details['rfid_uid'] : null);
+            }
 
             $child->pickupContactLinks()->updateOrCreate(
                 ['slot' => $slot],

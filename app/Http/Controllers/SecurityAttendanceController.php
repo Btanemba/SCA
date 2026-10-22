@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
+use App\Models\ChildPickupContact;
 use App\Models\Person;
+use App\Models\RfidCard;
+use Carbon\CarbonInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -12,11 +15,105 @@ use Illuminate\Validation\ValidationException;
 
 class SecurityAttendanceController extends Controller
 {
+    private const PICKUP_COOLDOWN_MINUTES = 5;
+
     public function index()
     {
         $this->ensureSecurityUser();
 
         return view('security.attendance');
+    }
+
+    public function kiosk()
+    {
+        $this->ensureSecurityUser();
+
+        return view('security.kiosk');
+    }
+
+    public function scan(Request $request): JsonResponse
+    {
+        $this->ensureSecurityUser();
+        $data = $request->validate(['uid' => ['required', 'string', 'max:64']]);
+        $uid = RfidCard::normalize($data['uid']);
+
+        $card = $uid ? RfidCard::query()->active()->where('uid', $uid)->with('contact')->first() : null;
+        if (! $card?->contact) {
+            return response()->json(['message' => 'Unknown or deactivated card. Please see the front desk.'], 404);
+        }
+
+        $contact = $card->contact;
+        $userId = backpack_user()->getKey();
+
+        $children = DB::transaction(function () use ($contact, $userId) {
+            $today = now()->toDateString();
+
+            return ChildPickupContact::query()
+                ->where('pickup_contact_id', $contact->getKey())
+                ->whereHas('child.sacRole', fn ($query) => $query->where('code', Person::ROLE_STUDENT))
+                ->with('child')
+                ->orderBy('child_id')
+                ->get()
+                ->unique('child_id')
+                ->map(function (ChildPickupContact $link) use ($contact, $userId, $today) {
+                    $child = $link->child;
+                    $attendance = Attendance::query()
+                        ->where('child_id', $child->getKey())
+                        ->whereDate('attendance_date', $today)
+                        ->lockForUpdate()
+                        ->first();
+
+                    if (! $attendance) {
+                        if (! $link->can_drop_off) {
+                            return $this->scanResult($child, 'not_authorized', 'Not authorized to drop off');
+                        }
+
+                        $attendance = Attendance::create([
+                            'child_id' => $child->getKey(),
+                            'attendance_date' => $today,
+                            'dropped_off_at' => now(),
+                            'dropped_off_by_contact_id' => $contact->getKey(),
+                            'dropped_off_by_name' => $contact->full_name,
+                            'dropped_off_recorded_by' => $userId,
+                            'dropped_off_method' => 'rfid',
+                        ]);
+
+                        return $this->scanResult($child, 'dropped_off', 'Dropped off', $attendance->dropped_off_at);
+                    }
+
+                    if ($attendance->is_present) {
+                        // Stops a repeated tap at drop-off from immediately recording a pickup.
+                        if ($attendance->dropped_off_at->gt(now()->subMinutes(self::PICKUP_COOLDOWN_MINUTES))) {
+                            return $this->scanResult($child, 'already_present', 'Already checked in', $attendance->dropped_off_at);
+                        }
+
+                        if (! $link->can_pick_up) {
+                            return $this->scanResult($child, 'not_authorized', 'Not authorized to pick up');
+                        }
+
+                        $attendance->update([
+                            'picked_up_at' => now(),
+                            'picked_up_by_contact_id' => $contact->getKey(),
+                            'picked_up_by_name' => $contact->full_name,
+                            'picked_up_recorded_by' => $userId,
+                            'picked_up_method' => 'rfid',
+                        ]);
+
+                        return $this->scanResult($child, 'picked_up', 'Picked up', $attendance->picked_up_at);
+                    }
+
+                    return $this->scanResult($child, 'completed', 'Already picked up today', $attendance->picked_up_at);
+                })
+                ->values();
+        });
+
+        return response()->json([
+            'contact' => [
+                'name' => $contact->full_name,
+                'image_url' => $contact->image_path ? Storage::disk('public')->url($contact->image_path) : null,
+            ],
+            'children' => $children,
+        ]);
     }
 
     public function search(Request $request): JsonResponse
@@ -114,6 +211,7 @@ class SecurityAttendanceController extends Controller
                 'dropped_off_by_contact_id' => $link->contact->getKey(),
                 'dropped_off_by_name' => $link->contact->full_name,
                 'dropped_off_recorded_by' => backpack_user()->getKey(),
+                'dropped_off_method' => 'manual',
             ]);
         });
 
@@ -161,6 +259,7 @@ class SecurityAttendanceController extends Controller
                 'picked_up_by_contact_id' => $link->contact->getKey(),
                 'picked_up_by_name' => $link->contact->full_name,
                 'picked_up_recorded_by' => backpack_user()->getKey(),
+                'picked_up_method' => 'manual',
             ]);
 
             return $attendance;
@@ -177,6 +276,18 @@ class SecurityAttendanceController extends Controller
             ->whereKey($id)
             ->whereHas('sacRole', fn ($query) => $query->where('code', Person::ROLE_STUDENT))
             ->firstOrFail();
+    }
+
+    protected function scanResult(Person $child, string $action, string $label, ?CarbonInterface $time = null): array
+    {
+        return [
+            'name' => $child->full_name,
+            'student_id' => $child->student_id,
+            'image_url' => $child->image_path ? Storage::disk('public')->url($child->image_path) : null,
+            'action' => $action,
+            'label' => $label,
+            'time' => $time?->format('g:i A'),
+        ];
     }
 
     protected function ensureSecurityUser(): void

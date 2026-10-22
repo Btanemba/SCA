@@ -117,9 +117,11 @@ class AttendanceCrudController extends CrudController
         CRUD::column('dropped_off_at')->type('datetime')->label('Dropped off');
         CRUD::column('dropped_off_by_name')->label('Dropped off by');
         CRUD::column('droppedOffRecordedBy.name')->label('Drop-off recorded by');
+        CRUD::column('dropped_off_method')->label('Drop-off method');
         CRUD::column('picked_up_at')->type('datetime')->label('Picked up');
         CRUD::column('picked_up_by_name')->label('Picked up by');
         CRUD::column('pickedUpRecordedBy.name')->label('Pickup recorded by');
+        CRUD::column('picked_up_method')->label('Pickup method');
         CRUD::column('status')->label('Status');
 
         $this->crud->removeButton('update');

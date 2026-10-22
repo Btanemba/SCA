@@ -99,6 +99,16 @@
                                 </div>
                             @endif
                         </div>
+                        <div class="col-md-6">
+                            @php
+                                $rfidValue = array_key_exists('rfid_uid', $oldContact)
+                                    ? $oldContact['rfid_uid']
+                                    : $contact?->activeRfidCard?->uid;
+                            @endphp
+                            <label class="form-label" for="pickup-contact-{{ $slot }}-rfid">RFID card number</label>
+                            <input id="pickup-contact-{{ $slot }}-rfid" type="text" class="form-control pickup-contact-rfid" name="pickup_contacts[{{ $slot - 1 }}][rfid_uid]" value="{{ $rfidValue }}" maxlength="64" autocomplete="off" placeholder="Click here, then tap the card on the reader">
+                            <div class="form-text">Shared by every child this contact is linked to. Clear it or tap a new card to replace a lost one.</div>
+                        </div>
                         <div class="col-12 d-flex align-items-end gap-3 pb-2">
                             <div class="form-check">
                                 <input type="hidden" name="pickup_contacts[{{ $slot - 1 }}][can_pick_up]" value="0">
@@ -121,6 +131,15 @@
 @include('crud::fields.inc.wrapper_end')
 
 <script>
+    // Card readers press Enter after the number, which would otherwise submit the form.
+    document.querySelectorAll('.pickup-contact-rfid').forEach((input) => {
+        input.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+            }
+        });
+    });
+
     function updatePickupContactRequirements(field) {
         const slots = [...field.querySelectorAll('.pickup-contact-slot')];
         const activeSlots = slots.filter((slot) => !slot.classList.contains('d-none')

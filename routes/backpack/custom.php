@@ -23,6 +23,10 @@ Route::group([
     Route::get('security-attendance/search', [SecurityAttendanceController::class, 'search'])->name('security.attendance.search');
     Route::post('security-attendance/drop-off', [SecurityAttendanceController::class, 'dropOff'])->name('security.attendance.drop-off');
     Route::post('security-attendance/pick-up', [SecurityAttendanceController::class, 'pickUp'])->name('security.attendance.pick-up');
+    Route::get('security-attendance/kiosk', [SecurityAttendanceController::class, 'kiosk'])->name('security.attendance.kiosk');
+    Route::post('security-attendance/scan', [SecurityAttendanceController::class, 'scan'])
+        ->middleware('throttle:120,1')
+        ->name('security.attendance.scan');
 
     Route::get('my-account', 'PersonCrudController@myAccount')->name('person.my-account');
     Route::get('mail-accounts/{mailAccount}', [\App\Http\Controllers\Admin\InfoMailController::class, 'show'])

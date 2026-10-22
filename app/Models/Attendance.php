@@ -17,10 +17,12 @@ class Attendance extends Model
         'dropped_off_by_contact_id',
         'dropped_off_by_name',
         'dropped_off_recorded_by',
+        'dropped_off_method',
         'picked_up_at',
         'picked_up_by_contact_id',
         'picked_up_by_name',
         'picked_up_recorded_by',
+        'picked_up_method',
     ];
 
     protected function casts(): array
