@@ -7,6 +7,8 @@ use App\Models\Person;
 use App\Models\SacRole;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
@@ -14,6 +16,13 @@ use Tests\TestCase;
 class PersonProfileTest extends TestCase
 {
     use RefreshDatabase;
+
+    private function photo(): UploadedFile
+    {
+        return UploadedFile::fake()->createWithContent('photo.png', base64_decode(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a/s8AAAAASUVORK5CYII='
+        ));
+    }
 
     private function employee(string $code): User
     {
@@ -98,6 +107,66 @@ class PersonProfileTest extends TestCase
         $response->assertSee('OnlyStudent')->assertDontSee('NotAStudent');
     }
 
+    public function test_student_pickup_form_offers_linked_parent_details(): void
+    {
+        $admin = $this->employee(Person::ROLE_ADMIN);
+        $parent = $this->employee(Person::ROLE_PARENT)->person;
+        $parent->update([
+            'first_name' => 'PickupParent',
+            'last_name' => 'Example',
+            'phone' => '08012345678',
+            'address_line_1' => '12 Parent Street',
+            'city' => 'Lagos',
+            'state' => 'Lagos State',
+            'postal_code' => '100001',
+            'country' => 'Nigeria',
+            'nationality' => 'Nigerian',
+            'state_of_origin' => 'Ogun',
+            'lga' => 'Abeokuta South',
+        ]);
+        $studentRole = SacRole::firstOrCreate(['code' => Person::ROLE_STUDENT], ['name' => 'Student', 'order' => 1]);
+        $student = Person::create([
+            'sac_role_id' => $studentRole->id,
+            'first_name' => 'Child',
+            'last_name' => 'Example',
+            'gender' => 'female',
+            'date_of_birth' => '2020-01-01',
+        ]);
+        $student->guardians()->attach($parent->id, ['relationship' => 'Mother']);
+        $this->actingAs($admin, config('backpack.base.guard'));
+
+        $this->get(backpack_url('person/'.$student->id.'/edit'))
+            ->assertOk()
+            ->assertSee('This parent will also pick up the child')
+            ->assertSee('pickup-contact-1-use-parent', false)
+            ->assertSee('pickup-contact-2-use-parent', false)
+            ->assertSee('student-use-parent-details', false)
+            ->assertSee('Use parent\'s details', false)
+            ->assertSee('"address_line_1":"12 Parent Street"', false)
+            ->assertSee('"city":"Lagos"', false)
+            ->assertSee('"state":"Lagos State"', false)
+            ->assertSee('"postal_code":"100001"', false)
+            ->assertSee('"country":"Nigeria"', false)
+            ->assertSee('"nationality":"Nigerian"', false)
+            ->assertSee('"state_of_origin":"Ogun"', false)
+            ->assertSee('"lga":"Abeokuta South"', false)
+            ->assertSee('"first_name":"PickupParent"', false)
+            ->assertSee('"email":"'.$parent->user->email.'"', false)
+            ->assertSee('"phone":"08012345678"', false)
+            ->assertSee('"address":"12 Parent Street"', false)
+            ->assertSee('"relationship":"Mother"', false);
+
+        $this->get(backpack_url('person/create?sac_role_id='.$studentRole->id))
+            ->assertOk()
+            ->assertSee('pickup-contact-1-use-parent', false)
+            ->assertSee('student-use-parent-details', false)
+            ->assertDontSee('"first_name":"PickupParent"', false);
+
+        $this->get(backpack_url('person/'.$parent->id.'/edit'))
+            ->assertOk()
+            ->assertDontSee('student-use-parent-details', false);
+    }
+
     public function test_accountant_cannot_add_people(): void
     {
         $user = $this->employee(Person::ROLE_ACCOUNTANT);
@@ -120,6 +189,7 @@ class PersonProfileTest extends TestCase
 
     public function test_student_picker_creates_a_student_and_parent_save_links_them(): void
     {
+        Storage::fake('public');
         $admin = $this->employee(Person::ROLE_ADMIN);
         $studentRole = SacRole::firstOrCreate(['code' => Person::ROLE_STUDENT], ['name' => 'Student', 'order' => 1]);
         $parentRole = SacRole::firstOrCreate(['code' => Person::ROLE_PARENT], ['name' => 'Parent', 'order' => 1]);
@@ -136,6 +206,7 @@ class PersonProfileTest extends TestCase
             'last_name' => 'Student',
             'gender' => 'female',
             'date_of_birth' => '2020-01-01',
+            'image_path' => $this->photo(),
             'pickup_contacts' => [[
                 'first_name' => 'Pickup',
                 'last_name' => 'Contact',
@@ -144,6 +215,7 @@ class PersonProfileTest extends TestCase
                 'phone' => '08012345678',
                 'address' => '1 Test Street',
                 'can_pick_up' => true,
+                'image' => $this->photo(),
             ]],
         ])->assertCreated()->assertJsonStructure(['id', 'student_id', 'first_name', 'last_name', 'details_url']);
 
@@ -168,6 +240,7 @@ class PersonProfileTest extends TestCase
             'gender' => 'female',
             'date_of_birth' => '1990-01-01',
             'email' => 'parent@example.com',
+            'image_path' => $this->photo(),
             'phone' => '08012345678',
             'Occupation' => 'Teacher',
             'city' => 'Lagos',
@@ -217,6 +290,7 @@ class PersonProfileTest extends TestCase
             'email' => 'pickup@example.com',
             'phone' => '08012345678',
             'address' => '1 Test Street',
+            'image' => $this->photo(),
         ];
         $blankContact = [
             'first_name' => null,
@@ -238,6 +312,11 @@ class PersonProfileTest extends TestCase
                 'date_of_birth' => '2020-01-01',
                 'pickup_contacts' => $contacts,
             ]);
+            $request->files->set('pickup_contacts', array_map(
+                fn ($contact) => isset($contact['image']) ? ['image' => $contact['image']] : [],
+                $contacts
+            ));
+            $request->files->set('image_path', $this->photo());
             $validator = Validator::make($request->all(), $request->rules());
             $request->withValidator($validator);
 
@@ -249,6 +328,12 @@ class PersonProfileTest extends TestCase
         $this->assertTrue($validate([$blankContact, $completeContact])->passes());
         $this->assertTrue($validate([$completeContact, array_replace($blankContact, ['remove_image' => '1'])])->passes());
 
+        $withoutPhoto = $completeContact;
+        unset($withoutPhoto['image']);
+        $missingPhoto = $validate([$withoutPhoto]);
+        $this->assertTrue($missingPhoto->fails());
+        $this->assertTrue($missingPhoto->errors()->has('pickup_contacts.0.image'));
+
         $partial = $validate([$completeContact, array_replace($blankContact, ['first_name' => 'Partial'])]);
         $this->assertTrue($partial->fails());
         $this->assertTrue($partial->errors()->has('pickup_contacts.1.last_name'));
@@ -258,6 +343,60 @@ class PersonProfileTest extends TestCase
         $empty = $validate([$blankContact, $blankContact]);
         $this->assertTrue($empty->fails());
         $this->assertTrue($empty->errors()->has('pickup_contacts'));
+    }
+
+    public function test_saved_photos_satisfy_requirements_until_removed(): void
+    {
+        $parent = $this->employee(Person::ROLE_PARENT)->person;
+        $parent->update(['image_path' => 'parents/saved.png']);
+        $child = $this->employee(Person::ROLE_STUDENT)->person;
+        $contact = \App\Models\PickupContact::create([
+            'first_name' => 'Pickup',
+            'last_name' => 'Contact',
+            'image_path' => 'pickup-contacts/saved.png',
+        ]);
+        $child->pickupContactLinks()->create([
+            'slot' => 1,
+            'pickup_contact_id' => $contact->id,
+            'relationship' => 'Mother',
+            'can_pick_up' => true,
+            'can_drop_off' => true,
+        ]);
+
+        $validate = function (Person $person, array $input) {
+            $request = new PersonRequest(array_merge(['sac_role_id' => $person->sac_role_id], $input));
+            $route = new \Illuminate\Routing\Route('PUT', 'person/{id}', []);
+            $route->bind(\Illuminate\Http\Request::create('/person/'.$person->id, 'PUT'));
+            $request->setRouteResolver(fn () => $route);
+            $validator = Validator::make($request->all(), $request->rules());
+            $request->withValidator($validator);
+            $validator->fails();
+
+            return $validator->errors();
+        };
+
+        foreach ([$parent, $child] as $person) {
+            $person->update(['image_path' => 'people/saved.png']);
+            $this->assertFalse($validate($person, [])->has('image_path'));
+            $this->assertTrue($validate($person, ['image_path' => null])->has('image_path'));
+            $person->update(['image_path' => null]);
+            $this->assertTrue($validate($person, [])->has('image_path'));
+        }
+
+        $details = [
+            'first_name' => 'Pickup',
+            'last_name' => 'Contact',
+            'relationship' => 'Mother',
+            'email' => 'pickup@example.com',
+            'phone' => '08012345678',
+            'address' => '1 Test Street',
+        ];
+        $this->assertFalse($validate($child, ['pickup_contacts' => [$details]])->has('pickup_contacts.0.image'));
+        $this->assertTrue($validate($child, [
+            'pickup_contacts' => [array_merge($details, ['remove_image' => '1'])],
+        ])->has('pickup_contacts.0.image'));
+        $contact->update(['image_path' => null]);
+        $this->assertTrue($validate($child, ['pickup_contacts' => [$details]])->has('pickup_contacts.0.image'));
     }
 
     public static function rolesRequiringContactDetails(): array
@@ -297,6 +436,9 @@ class PersonProfileTest extends TestCase
             'state' => 'Lagos',
             'nationality' => 'Nigerian',
         ]);
+        if ($code === Person::ROLE_PARENT) {
+            $request->files->set('image_path', $this->photo());
+        }
         $validator = Validator::make($request->all(), $request->rules());
         $request->withValidator($validator);
         $this->assertTrue($validator->passes(), $validator->errors()->toJson());

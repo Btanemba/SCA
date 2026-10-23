@@ -7,12 +7,22 @@
 
     $oldContacts = old('pickup_contacts', []);
     $relationshipOptions = $field['relationship_options'] ?? [];
-    $contactFields = ['first_name', 'last_name', 'relationship', 'email', 'phone', 'address'];
+    $contactFields = array_keys(config('registration.pickup.fields', []));
     $highestSavedSlot = session()->hasOldInput('pickup_contacts') ? 0 : (int) $contacts->keys()->max();
     $highestOldSlot = collect($oldContacts)
         ->filter(fn ($contact) => is_array($contact) && collect($contact)->only($contactFields)->contains(fn ($value) => filled($value)))
         ->keys()->map(fn ($index) => (int) $index + 1)->max();
     $visibleSlots = max(1, min(2, max($highestSavedSlot, (int) $highestOldSlot)));
+    $pickupParents = $entry instanceof \App\Models\Person
+        ? $entry->guardians->map(fn ($parent) => [
+            'first_name' => $parent->first_name,
+            'last_name' => $parent->last_name,
+            'email' => $parent->user?->email,
+            'phone' => $parent->phone,
+            'address' => $parent->address_line_1,
+            'relationship' => $parent->pivot?->relationship,
+        ])->values()->all()
+        : [];
 @endphp
 
 @include('crud::fields.inc.wrapper_start')
@@ -47,6 +57,13 @@
                         <h6 class="mb-0">Contact {{ $slot }}</h6>
                         <button type="button" class="btn btn-sm btn-outline-danger pickup-contact-remove">Remove contact</button>
                     </div>
+                    <div class="pickup-contact-parent-controls d-none mb-3">
+                        <div class="form-check">
+                            <input id="pickup-contact-{{ $slot }}-use-parent" type="checkbox" class="form-check-input pickup-contact-use-parent">
+                            <label class="form-check-label" for="pickup-contact-{{ $slot }}-use-parent">This parent will also pick up the child</label>
+                        </div>
+                        <select id="pickup-contact-{{ $slot }}-parent" class="form-select mt-2 pickup-contact-parent-select d-none" aria-label="Parent for contact {{ $slot }}"></select>
+                    </div>
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label class="form-label" for="pickup-contact-{{ $slot }}-first-name">First name @if ($slotIsVisible) <span class="text-danger pickup-required-marker" aria-hidden="true">*</span><span class="visually-hidden">required</span>@else<span class="text-danger pickup-required-marker d-none" aria-hidden="true">*</span><span class="visually-hidden">required</span>@endif</label>
@@ -80,9 +97,17 @@
                             <label class="form-label" for="pickup-contact-{{ $slot }}-address">Address @if ($slotIsVisible) <span class="text-danger pickup-required-marker" aria-hidden="true">*</span><span class="visually-hidden">required</span>@else<span class="text-danger pickup-required-marker d-none" aria-hidden="true">*</span><span class="visually-hidden">required</span>@endif</label>
                             <input id="pickup-contact-{{ $slot }}-address" type="text" class="form-control" name="pickup_contacts[{{ $slot - 1 }}][address]" value="{{ $value('address') }}" maxlength="255" data-required-when-visible {{ $slotIsVisible ? 'required' : '' }}>
                         </div>
+                        @foreach (array_diff_key(config('registration.pickup.fields', []), array_flip(['first_name', 'last_name', 'relationship', 'email', 'phone', 'address'])) as $name => $definition)
+                            <div class="col-md-6">
+                                <label class="form-label" for="pickup-contact-{{ $slot }}-{{ $name }}">{{ $definition['label'] }}
+                                    @if ($definition['required'] ?? false)<span class="text-danger pickup-required-marker{{ $slotIsVisible ? '' : ' d-none' }}" aria-hidden="true">*</span>@endif
+                                </label>
+                                <input id="pickup-contact-{{ $slot }}-{{ $name }}" type="{{ in_array($definition['type'] ?? '', ['email', 'date', 'number', 'tel'], true) ? $definition['type'] : 'text' }}" class="form-control" name="pickup_contacts[{{ $slot - 1 }}][{{ $name }}]" value="{{ $value($name) }}" @if ($definition['required'] ?? false) data-required-when-visible @required($slotIsVisible) @endif>
+                            </div>
+                        @endforeach
                         <div class="col-md-6">
-                            <label class="form-label" for="pickup-contact-{{ $slot }}-image">Photo</label>
-                            <input id="pickup-contact-{{ $slot }}-image" type="file" class="form-control" name="pickup_contacts[{{ $slot - 1 }}][image]" accept="image/*">
+                            <label class="form-label" for="pickup-contact-{{ $slot }}-image">Photo <span class="text-danger pickup-required-marker{{ $slotIsVisible ? '' : ' d-none' }}" aria-hidden="true">*</span></label>
+                            <input id="pickup-contact-{{ $slot }}-image" type="file" class="form-control" name="pickup_contacts[{{ $slot - 1 }}][image]" accept="image/*" data-has-saved-photo="{{ $contact?->image_path ? '1' : '0' }}" @required($slotIsVisible && (! $contact?->image_path || $removeImage))>
                             <input type="hidden" class="pickup-contact-remove-image-flag" name="pickup_contacts[{{ $slot - 1 }}][remove_image]" value="{{ $removeImage ? '1' : '0' }}">
                         </div>
                         <div class="col-md-6 pickup-contact-current-photo">
@@ -131,6 +156,77 @@
 @include('crud::fields.inc.wrapper_end')
 
 <script>
+    document.querySelectorAll('.pickup-contact-use-parent').forEach((checkbox) => {
+        const slot = checkbox.closest('.pickup-contact-slot');
+        const controls = checkbox.closest('.pickup-contact-parent-controls');
+        const parentSelect = controls.querySelector('.pickup-contact-parent-select');
+        const parents = @json($pickupParents);
+        let parentForm = null;
+        let previousValues = null;
+
+        try {
+            if (window.frameElement?.matches('.student-picker-create-frame')) {
+                parentForm = window.frameElement.closest('form');
+            }
+        } catch (error) {
+            parentForm = null;
+        }
+
+        if (!parentForm && parents.length === 0) {
+            return;
+        }
+
+        controls.classList.remove('d-none');
+        parents.forEach((parent, index) => {
+            parentSelect.add(new Option(`${parent.first_name || ''} ${parent.last_name || ''}`.trim(), index));
+        });
+        parentSelect.classList.toggle('d-none', Boolean(parentForm) || parents.length < 2);
+
+        const contactInput = (name) => slot.querySelector(`[name$="[${name}]"]`);
+        const copyParent = () => {
+            const parent = parentForm
+                ? Object.fromEntries(['first_name', 'last_name', 'email', 'phone', 'address'].map((name) => [
+                    name,
+                    parentForm.querySelector(`[name="${name === 'address' ? 'address_line_1' : name}"]`)?.value || '',
+                ]))
+                : parents[parentSelect.value];
+
+            ['first_name', 'last_name', 'email', 'phone', 'address'].forEach((name) => {
+                contactInput(name).value = parent[name] || '';
+            });
+            const relationship = contactInput('relationship');
+            if (!parentForm) {
+                relationship.value = [...relationship.options].some((option) => option.value === parent.relationship)
+                    ? parent.relationship
+                    : '';
+            }
+            slot.querySelector('input[type="checkbox"][name$="[can_pick_up]"]').checked = true;
+            updatePickupContactRequirements(slot.closest('.form-group'));
+        };
+
+        checkbox.addEventListener('change', () => {
+            const inputs = [...slot.querySelectorAll('[data-required-when-visible], input[type="checkbox"][name$="[can_pick_up]"]')];
+            if (checkbox.checked) {
+                previousValues = inputs.map((input) => ({ input, value: input.value, checked: input.checked }));
+                copyParent();
+            } else if (previousValues) {
+                previousValues.forEach(({ input, value, checked }) => {
+                    input.value = value;
+                    if (input.type === 'checkbox') {
+                        input.checked = checked;
+                    }
+                });
+                previousValues = null;
+                updatePickupContactRequirements(slot.closest('.form-group'));
+            }
+        });
+        parentSelect.addEventListener('change', () => {
+            if (checkbox.checked) {
+                copyParent();
+            }
+        });
+    });
+
     // Card readers press Enter after the number, which would otherwise submit the form.
     document.querySelectorAll('.pickup-contact-rfid').forEach((input) => {
         input.addEventListener('keydown', (event) => {
@@ -151,6 +247,9 @@
             slot.querySelectorAll('[data-required-when-visible]').forEach((input) => {
                 input.required = required;
             });
+            const photo = slot.querySelector('input[type="file"]');
+            const removingPhoto = slot.querySelector('.pickup-contact-remove-image-flag').value === '1';
+            photo.required = required && (photo.dataset.hasSavedPhoto !== '1' || removingPhoto);
             slot.querySelectorAll('.pickup-required-marker').forEach((marker) => {
                 marker.classList.toggle('d-none', !required);
             });
@@ -312,6 +411,7 @@
         input.value = '';
         slot.querySelector('.pickup-contact-remove-image-flag').value = '1';
         preview.innerHTML = '<p class="text-muted small mb-0">No photo uploaded.</p>';
+        updatePickupContactRequirements(slot.closest('.form-group'));
     }
 
     function bindPhotoRemove(button) {

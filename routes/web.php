@@ -5,6 +5,7 @@ use App\Http\Controllers\AdmissionFeesController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\ManagementController;
+use App\Http\Controllers\RegistrationFormController;
 use App\Http\Controllers\StaffController;
 use Illuminate\Support\Facades\Route;
 
@@ -12,6 +13,7 @@ Route::get('/', [EventController::class, 'home'])->name('home');
 Route::get('/events', [EventController::class, 'index'])->name('events.index');
 
 Route::view('/admissions', 'admissions.overview')->name('admissions.overview');
+Route::get('/admissions/registration-form', RegistrationFormController::class)->name('admissions.registration-form');
 Route::get('/admissions/fees', [AdmissionFeesController::class, 'index'])->name('admissions.fees');
 Route::get('/admissions/fees/brochure', [AdmissionFeesController::class, 'brochure'])->name('admissions.fees.brochure');
 

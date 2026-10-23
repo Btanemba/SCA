@@ -14,11 +14,12 @@
             <summary>Admissions</summary>
             <div class="site-nav-dropdown-menu">
                 <a href="{{ route('admissions.overview') }}">Admissions Overview</a>
-                <a href="#how-to-apply">How to Apply</a>
+                <a href="{{ route('admissions.overview') }}#how-to-apply">How to Apply</a>
                 <a href="{{ route('admissions.fees') }}">Fees &amp; Tuition</a>
                 <a href="#what-to-bring">What to Bring</a>
                 <a href="#book-a-visit">Book a Visit</a>
                 <a href="#apply-now">Apply Now</a>
+                <a href="{{ route('admissions.registration-form') }}" target="_blank" rel="noopener">Download Registration Form</a>
             </div>
         </details>
         <details class="site-nav-dropdown">
@@ -40,11 +41,12 @@
             <a href="{{ url('/#early-years') }}">Early years</a>
             <a href="{{ route('events.index') }}">Events</a>
             <a href="{{ route('admissions.overview') }}">Admissions Overview</a>
-            <a href="#how-to-apply">How to Apply</a>
+            <a href="{{ route('admissions.overview') }}#how-to-apply">How to Apply</a>
             <a href="{{ route('admissions.fees') }}">Fees &amp; Tuition</a>
             <a href="#what-to-bring">What to Bring</a>
             <a href="#book-a-visit">Book a Visit</a>
             <a href="#apply-now">Apply Now</a>
+            <a href="{{ route('admissions.registration-form') }}" target="_blank" rel="noopener">Download Registration Form</a>
             <a href="{{ route('management.index') }}">Management</a>
             <a href="{{ route('staffs.index') }}">Staffs</a>
             <a href="{{ route('jobs.index') }}">Jobs</a>

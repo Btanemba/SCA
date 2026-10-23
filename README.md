@@ -7,6 +7,16 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Registration Form
+
+Parents can open the blank A4 registration PDF from **Admissions > Download Registration Form** or the **How to Apply** steps. Staff can use **Print Registration Form** on the Parent and Student People lists; the button is hidden on other role lists and the unfiltered People list. The PDF viewer provides print and save controls; no login is required for the blank form.
+
+The form uses the current Academy Settings name, address, phone, email and private logo (with the public school logo as a fallback). It never includes family records or the private school signature. It contains parent, student and two pickup-contact sections, required-photo spaces, authorizations and office-only fields. Complete one parent sheet per family and student/pickup sheets for each child.
+
+`config/registration.php` defines the public registration fields, labels and required markers. Parent/student definitions also feed the CRUD forms and validation; additional pickup fields appear in the pickup form. Add future registration fields there rather than only in the CRUD controller. New stored fields also require the appropriate database columns and model fillable attributes; custom field types may need explicit rendering and validation rules. Review PDF pagination after adding fields. Internal account, payroll, audit and RFID fields are not part of the shared public definitions.
+
+Focused checks: `php vendor/bin/phpunit tests/Feature/RegistrationFormTest.php tests/Feature/PersonProfileTest.php`.
+
 ## Payroll
 
 Install dependencies with `composer install` and run `php artisan migrate` before opening the payroll screens.

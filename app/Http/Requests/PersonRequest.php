@@ -17,13 +17,17 @@ class PersonRequest extends FormRequest
 
     public function rules(): array
     {
+        $roleCode = SacRole::find($this->input('sac_role_id'))?->code;
+        $existingPerson = $this->route('id') ? Person::find($this->route('id')) : null;
+        $photoRequired = in_array($roleCode, [Person::ROLE_PARENT, Person::ROLE_STUDENT], true)
+            && (! $existingPerson?->image_path || ($this->exists('image_path') && ! $this->hasFile('image_path')));
         $detailsPresence = in_array(
-            SacRole::find($this->input('sac_role_id'))?->code,
+            $roleCode,
             [Person::ROLE_PARENT, Person::ROLE_STAFF],
             true
         ) ? 'required' : 'nullable';
 
-        return [
+        $rules = [
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'gender' => ['required', 'string', 'max:50'],
@@ -63,8 +67,26 @@ class PersonRequest extends FormRequest
             'nationality' => [$detailsPresence, 'string', 'max:100'],
             'state_of_origin' => ['nullable', 'string', 'max:100'],
             'lga' => ['nullable', 'string', 'max:100'],
-            'image_path' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'max:5120'],
+            'image_path' => [$photoRequired ? 'required' : 'nullable', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'max:5120'],
         ];
+
+        $section = match ($roleCode) {
+            Person::ROLE_PARENT => 'parent',
+            Person::ROLE_STUDENT => 'student',
+            default => null,
+        };
+        if ($section) {
+            foreach (config('registration.'.$section.'.fields', []) as $name => $definition) {
+                $fieldRules = $rules[$name] ?? ['nullable', ($definition['type'] ?? '') === 'date' ? 'date' : 'string', 'max:255'];
+                $fieldRules[0] = ($definition['required'] ?? false) ? 'required' : 'nullable';
+                $rules[$name] = $definition['rules'] ?? $fieldRules;
+            }
+        }
+        foreach (config('registration.pickup.fields', []) as $name => $definition) {
+            $rules['pickup_contacts.*.'.$name] ??= $definition['rules'] ?? ['nullable', 'string', 'max:255'];
+        }
+
+        return $rules;
     }
 
     public function withValidator($validator): void
@@ -96,6 +118,10 @@ class PersonRequest extends FormRequest
                 );
             }
 
+            $existingLinks = $this->route('id')
+                ? ChildPickupContact::where('child_id', $this->route('id'))->with('contact')->get()->keyBy('slot')
+                : collect();
+
             foreach ($this->input('pickup_contacts', []) as $index => $contact) {
                 if (! is_array($contact)) {
                     continue;
@@ -109,13 +135,22 @@ class PersonRequest extends FormRequest
                     continue;
                 }
 
-                foreach (['first_name', 'last_name', 'relationship', 'email', 'phone', 'address'] as $field) {
+                foreach (config('registration.pickup.fields', []) as $field => $definition) {
+                    if (! ($definition['required'] ?? false)) {
+                        continue;
+                    }
                     if (! filled($contact[$field] ?? null)) {
                         $validator->errors()->add(
                             "pickup_contacts.{$index}.{$field}",
                             ucfirst(str_replace('_', ' ', $field)).' is required for this contact.'
                         );
                     }
+                }
+
+                $existingPhoto = $existingLinks->get(((int) $index) + 1)?->contact?->image_path;
+                $removingPhoto = filter_var($contact['remove_image'] ?? false, FILTER_VALIDATE_BOOLEAN);
+                if (! $this->hasFile("pickup_contacts.{$index}.image") && (! $existingPhoto || $removingPhoto)) {
+                    $validator->errors()->add("pickup_contacts.{$index}.image", 'A photo is required for this contact.');
                 }
             }
 

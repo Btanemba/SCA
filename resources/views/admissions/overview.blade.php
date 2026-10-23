@@ -47,8 +47,8 @@
                     Confirm current tuition, required documents, schedules, and what your child should bring.
                 </li>
                 <li>
-                    <strong>Confirm how to apply</strong>
-                    Contact the academy for the current application steps and any forms your family will need.
+                    <strong id="how-to-apply">Complete your registration form</strong>
+                    <a href="{{ route('admissions.registration-form') }}" target="_blank" rel="noopener">Download the registration form</a>, print it, and complete it by hand. Attach the required photographs and return the signed form to the school. Contact the academy to confirm availability and supporting documents.
                 </li>
             </ol>
 

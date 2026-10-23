@@ -406,6 +406,7 @@ class PersonCrudController extends CrudController
                 $imagePath = null;
             }
 
+            $contact->fill(array_intersect_key($details, config('registration.pickup.fields', []), array_flip($contact->getFillable())));
             $contact->fill([
                 'person_id' => $registeredPerson?->getKey() ?? $contact->person_id,
                 'first_name' => $firstName,
@@ -478,6 +479,9 @@ class PersonCrudController extends CrudController
             'create',
             'person_create'
         );
+        if (in_array($roleCode, [Person::ROLE_PARENT, Person::ROLE_STUDENT], true)) {
+            CRUD::addButtonFromView('top', 'registration_form', 'registration_form');
+        }
 
          CRUD::addColumn([
             'name' => 'custom_actions',
@@ -574,11 +578,12 @@ class PersonCrudController extends CrudController
 
           CRUD::addField([
             'name' => 'image_path',
-            'label' => 'Photo',
+            'label' => in_array($selectedRole?->code, [Person::ROLE_PARENT, Person::ROLE_STUDENT], true) ? 'Photo <span class="text-danger">*</span>' : 'Photo',
             'type' => 'upload',
             'withFiles' => true,
             'disk' => 'public',
-            'attributes' => ['accept' => 'image/*'],
+            'attributes' => array_merge(['accept' => 'image/*'],
+                in_array($selectedRole?->code, [Person::ROLE_PARENT, Person::ROLE_STUDENT], true) && ! $entry?->image_path ? ['required' => 'required'] : []),
             'wrapper' => ['class' => 'form-group col-md-3'],
             'tab' => 'General',
         ]);
@@ -658,6 +663,25 @@ class PersonCrudController extends CrudController
             ]);
         }
 
+        if ($selectedRole?->code === Person::ROLE_STUDENT) {
+            $sharedFields = ['address_line_1', 'city', 'state', 'postal_code', 'country', 'nationality', 'state_of_origin', 'lga'];
+
+            CRUD::addField([
+                'name' => 'student_parent_details',
+                'type' => 'view',
+                'view' => 'vendor.backpack.crud.fields.student_parent_details',
+                'shared_fields' => $sharedFields,
+                'parents' => $entry instanceof Person
+                    ? $entry->guardians->map(fn ($parent) => [
+                        'name' => $parent->full_name,
+                        'details' => $parent->only($sharedFields),
+                    ])->values()->all()
+                    : [],
+                'wrapper' => ['class' => 'form-group col-md-12'],
+                'tab' => 'General',
+            ]);
+        }
+
         CRUD::field('address_line_1')
         ->type('text')
         ->label('Home Address')
@@ -704,6 +728,32 @@ class PersonCrudController extends CrudController
         ->label('Local government area')
         ->wrapper(['class' => 'form-group col-md-6'])
         ->tab('General');
+
+        $registrationSection = match ($selectedRole?->code) {
+            Person::ROLE_PARENT => 'parent',
+            Person::ROLE_STUDENT => 'student',
+            default => null,
+        };
+        if ($registrationSection) {
+            $existingFields = $this->crud->fields();
+            foreach (config('registration.'.$registrationSection.'.fields', []) as $name => $definition) {
+                $existing = $existingFields[$name] ?? [];
+                $attributes = $existing['attributes'] ?? [];
+                if ($definition['required'] ?? false) {
+                    $attributes['required'] = 'required';
+                } else {
+                    unset($attributes['required']);
+                }
+                CRUD::addField(array_replace($existing, [
+                    'name' => $name,
+                    'label' => $definition['label'],
+                    'type' => $existing['type'] ?? $definition['type'] ?? 'text',
+                    'attributes' => $attributes,
+                    'wrapper' => $existing['wrapper'] ?? ['class' => 'form-group col-md-6'],
+                    'tab' => 'General',
+                ], isset($definition['options']) ? ['options' => $definition['options']] : []));
+            }
+        }
 
         CRUD::addField([
             'name' => 'sac_role_display',
