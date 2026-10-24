@@ -16,6 +16,7 @@ use Illuminate\Validation\ValidationException;
 class SecurityAttendanceController extends Controller
 {
     private const PICKUP_COOLDOWN_MINUTES = 5;
+    private const ATTENDANCE_TIMEZONE = 'Africa/Lagos';
 
     public function index()
     {
@@ -44,9 +45,10 @@ class SecurityAttendanceController extends Controller
 
         $contact = $card->contact;
         $userId = backpack_user()->getKey();
+        $scanAt = now();
 
-        $children = DB::transaction(function () use ($contact, $userId) {
-            $today = now()->toDateString();
+        $children = DB::transaction(function () use ($contact, $userId, $scanAt) {
+            $today = $scanAt->copy()->setTimezone(self::ATTENDANCE_TIMEZONE)->toDateString();
 
             return ChildPickupContact::query()
                 ->where('pickup_contact_id', $contact->getKey())
@@ -55,7 +57,7 @@ class SecurityAttendanceController extends Controller
                 ->orderBy('child_id')
                 ->get()
                 ->unique('child_id')
-                ->map(function (ChildPickupContact $link) use ($contact, $userId, $today) {
+                ->map(function (ChildPickupContact $link) use ($contact, $userId, $today, $scanAt) {
                     $child = $link->child;
                     $attendance = Attendance::query()
                         ->where('child_id', $child->getKey())
@@ -71,7 +73,7 @@ class SecurityAttendanceController extends Controller
                         $attendance = Attendance::create([
                             'child_id' => $child->getKey(),
                             'attendance_date' => $today,
-                            'dropped_off_at' => now(),
+                            'dropped_off_at' => $scanAt,
                             'dropped_off_by_contact_id' => $contact->getKey(),
                             'dropped_off_by_name' => $contact->full_name,
                             'dropped_off_recorded_by' => $userId,
@@ -83,7 +85,7 @@ class SecurityAttendanceController extends Controller
 
                     if ($attendance->is_present) {
                         // Stops a repeated tap at drop-off from immediately recording a pickup.
-                        if ($attendance->dropped_off_at->gt(now()->subMinutes(self::PICKUP_COOLDOWN_MINUTES))) {
+                        if ($attendance->dropped_off_at->gt($scanAt->copy()->subMinutes(self::PICKUP_COOLDOWN_MINUTES))) {
                             return $this->scanResult($child, 'already_present', 'Already checked in', $attendance->dropped_off_at, $link->relationship);
                         }
 
@@ -92,7 +94,7 @@ class SecurityAttendanceController extends Controller
                         }
 
                         $attendance->update([
-                            'picked_up_at' => now(),
+                            'picked_up_at' => $scanAt,
                             'picked_up_by_contact_id' => $contact->getKey(),
                             'picked_up_by_name' => $contact->full_name,
                             'picked_up_recorded_by' => $userId,
@@ -125,7 +127,7 @@ class SecurityAttendanceController extends Controller
             return response()->json([]);
         }
 
-        $today = now()->toDateString();
+        $today = now(self::ATTENDANCE_TIMEZONE)->toDateString();
         $children = Person::query()
             ->whereHas('sacRole', fn ($query) => $query->where('code', Person::ROLE_STUDENT))
             ->where(function ($query) use ($term) {
@@ -152,9 +154,9 @@ class SecurityAttendanceController extends Controller
                 'image_url' => $child->image_path ? Storage::disk('public')->url($child->image_path) : null,
                 'attendance' => $attendance ? [
                     'id' => $attendance->getKey(),
-                    'dropped_off_at' => $attendance->dropped_off_at?->format('F j, Y g:i A'),
+                    'dropped_off_at' => $attendance->dropped_off_at?->copy()->setTimezone(self::ATTENDANCE_TIMEZONE)->format('F j, Y g:i:s A'),
                     'dropped_off_by_name' => $attendance->dropped_off_by_name,
-                    'picked_up_at' => $attendance->picked_up_at?->format('F j, Y g:i A'),
+                    'picked_up_at' => $attendance->picked_up_at?->copy()->setTimezone(self::ATTENDANCE_TIMEZONE)->format('F j, Y g:i:s A'),
                     'picked_up_by_name' => $attendance->picked_up_by_name,
                     'is_present' => $attendance->is_present,
                 ] : null,
@@ -193,7 +195,7 @@ class SecurityAttendanceController extends Controller
                 $this->invalidSelection('pickup_contact_id', 'This person is not authorized to drop off this child.');
             }
 
-            $today = now()->toDateString();
+            $today = now(self::ATTENDANCE_TIMEZONE)->toDateString();
             $existing = Attendance::query()
                 ->where('child_id', $child->getKey())
                 ->whereDate('attendance_date', $today)
@@ -242,7 +244,7 @@ class SecurityAttendanceController extends Controller
 
             $attendance = Attendance::query()
                 ->where('child_id', $child->getKey())
-                ->whereDate('attendance_date', now()->toDateString())
+                ->whereDate('attendance_date', now(self::ATTENDANCE_TIMEZONE)->toDateString())
                 ->lockForUpdate()
                 ->first();
 
@@ -287,7 +289,7 @@ class SecurityAttendanceController extends Controller
             'image_url' => $child->image_path ? Storage::disk('public')->url($child->image_path) : null,
             'action' => $action,
             'label' => $label,
-            'time' => $time?->format('g:i A'),
+            'time' => $time?->copy()->setTimezone(self::ATTENDANCE_TIMEZONE)->format('g:i:s A'),
         ];
     }
 

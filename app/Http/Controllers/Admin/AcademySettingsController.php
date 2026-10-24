@@ -14,7 +14,7 @@ class AcademySettingsController extends Controller
 {
     private function authorizeSettings(): void
     {
-        abort_unless(in_array(backpack_user()?->person?->sacRole?->code, [Person::ROLE_ADMIN, Person::ROLE_FOUNDER], true), 403);
+        abort_unless(backpack_user()?->person?->sacRole?->code === Person::ROLE_FOUNDER, 403);
     }
 
     public function edit()

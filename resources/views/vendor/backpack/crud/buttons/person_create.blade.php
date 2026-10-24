@@ -12,7 +12,7 @@
         $createUrl = url($crud->route . '/create');
     @endphp
 
-    <div class="dropdown">
+    <div class="dropdown d-inline-block me-2">
         <button
             class="btn btn-primary dropdown-toggle"
             type="button"

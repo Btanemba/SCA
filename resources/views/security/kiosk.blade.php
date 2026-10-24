@@ -122,7 +122,12 @@
     }
 
     function tickClock() {
-        clock.textContent = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        clock.textContent = new Date().toLocaleTimeString('en-NG', {
+            timeZone: 'Africa/Lagos',
+            hour: 'numeric',
+            minute: '2-digit',
+            second: '2-digit',
+        });
     }
 
     function focusInput() {
@@ -221,7 +226,7 @@
     input.addEventListener('blur', () => setTimeout(focusInput, 0));
     setInterval(focusInput, 2000);
     tickClock();
-    setInterval(tickClock, 15000);
+    setInterval(tickClock, 1000);
     focusInput();
 })();
 </script>

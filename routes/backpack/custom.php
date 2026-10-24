@@ -37,12 +37,14 @@ Route::group([
         ->middleware('throttle:5,1')
         ->name('mail-accounts.password');
 
-    Route::get('academy-settings', [\App\Http\Controllers\Admin\AcademySettingsController::class, 'edit'])->name('academy.settings');
-    Route::put('academy-settings', [\App\Http\Controllers\Admin\AcademySettingsController::class, 'update'])->name('academy.settings.update');
-    Route::get('academy-settings/assets/{asset}', [\App\Http\Controllers\Admin\AcademySettingsController::class, 'asset'])->name('academy.settings.asset');
-    Route::post('academy-settings/documents', [\App\Http\Controllers\Admin\AcademySettingsController::class, 'storeDocument'])->name('academy.settings.documents.store');
-    Route::get('academy-settings/documents/{document}', [\App\Http\Controllers\Admin\AcademySettingsController::class, 'downloadDocument'])->name('academy.settings.documents.download');
-    Route::delete('academy-settings/documents/{document}', [\App\Http\Controllers\Admin\AcademySettingsController::class, 'deleteDocument'])->name('academy.settings.documents.delete');
+    Route::middleware(\App\Http\Middleware\EnsureFounder::class)->group(function () {
+        Route::get('academy-settings', [\App\Http\Controllers\Admin\AcademySettingsController::class, 'edit'])->name('academy.settings');
+        Route::put('academy-settings', [\App\Http\Controllers\Admin\AcademySettingsController::class, 'update'])->name('academy.settings.update');
+        Route::get('academy-settings/assets/{asset}', [\App\Http\Controllers\Admin\AcademySettingsController::class, 'asset'])->name('academy.settings.asset');
+        Route::post('academy-settings/documents', [\App\Http\Controllers\Admin\AcademySettingsController::class, 'storeDocument'])->name('academy.settings.documents.store');
+        Route::get('academy-settings/documents/{document}', [\App\Http\Controllers\Admin\AcademySettingsController::class, 'downloadDocument'])->name('academy.settings.documents.download');
+        Route::delete('academy-settings/documents/{document}', [\App\Http\Controllers\Admin\AcademySettingsController::class, 'deleteDocument'])->name('academy.settings.documents.delete');
+    });
     Route::get('my-payslips', [\App\Http\Controllers\Admin\PayrollController::class, 'myPayslips'])->name('payroll.mine');
     Route::get('payslips/{entry}', [\App\Http\Controllers\Admin\PayrollController::class, 'payslip'])->name('payroll.payslip');
     Route::get('my-documents', [\App\Http\Controllers\Admin\StaffDocumentController::class, 'mine'])->name('staff-documents.mine');
@@ -92,8 +94,10 @@ Route::group([
             ->middleware('throttle:6,1')
             ->name('person.registration.invite');
         Route::crud('person', 'PersonCrudController');
-        Route::crud('management-member', 'ManagementMemberCrudController');
-        Route::crud('staff-member', 'StaffMemberCrudController');
+        Route::middleware(\App\Http\Middleware\EnsureFounder::class)->group(function () {
+            Route::crud('management-member', 'ManagementMemberCrudController');
+            Route::crud('staff-member', 'StaffMemberCrudController');
+        });
         Route::crud('job-opening', 'JobOpeningCrudController');
         Route::middleware(EnsureEventAccess::class)->group(function () {
             Route::crud('event', 'EventCrudController');
