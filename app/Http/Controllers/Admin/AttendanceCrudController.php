@@ -74,9 +74,19 @@ class AttendanceCrudController extends CrudController
         CRUD::column('attendance_date')->type('date')->label('Date');
         CRUD::column('child.student_id')->label('Student ID');
         CRUD::column('child.full_name')->label('Child');
-        CRUD::column('dropped_off_at')->type('datetime')->label('Dropped off');
+        CRUD::addColumn([
+            'name' => 'dropped_off_at',
+            'label' => 'Dropped off',
+            'type' => 'closure',
+            'function' => fn (Attendance $entry) => $entry->dropped_off_at?->copy()->setTimezone('Africa/Lagos')->format('Y-m-d g:i:s A'),
+        ]);
         CRUD::column('dropped_off_by_name')->label('Dropped off by');
-        CRUD::column('picked_up_at')->type('datetime')->label('Picked up');
+        CRUD::addColumn([
+            'name' => 'picked_up_at',
+            'label' => 'Picked up',
+            'type' => 'closure',
+            'function' => fn (Attendance $entry) => $entry->picked_up_at?->copy()->setTimezone('Africa/Lagos')->format('Y-m-d g:i:s A'),
+        ]);
         CRUD::column('picked_up_by_name')->label('Picked up by');
         CRUD::addColumn([
             'name' => 'status',
@@ -114,11 +124,21 @@ class AttendanceCrudController extends CrudController
         CRUD::column('attendance_date')->type('date')->label('Date');
         CRUD::column('child.student_id')->label('Student ID');
         CRUD::column('child.full_name')->label('Child');
-        CRUD::column('dropped_off_at')->type('datetime')->label('Dropped off');
+        CRUD::addColumn([
+            'name' => 'dropped_off_at',
+            'label' => 'Dropped off',
+            'type' => 'closure',
+            'function' => fn (Attendance $entry) => $entry->dropped_off_at?->copy()->setTimezone('Africa/Lagos')->format('Y-m-d g:i:s A'),
+        ]);
         CRUD::column('dropped_off_by_name')->label('Dropped off by');
         CRUD::column('droppedOffRecordedBy.name')->label('Drop-off recorded by');
         CRUD::column('dropped_off_method')->label('Drop-off method');
-        CRUD::column('picked_up_at')->type('datetime')->label('Picked up');
+        CRUD::addColumn([
+            'name' => 'picked_up_at',
+            'label' => 'Picked up',
+            'type' => 'closure',
+            'function' => fn (Attendance $entry) => $entry->picked_up_at?->copy()->setTimezone('Africa/Lagos')->format('Y-m-d g:i:s A'),
+        ]);
         CRUD::column('picked_up_by_name')->label('Picked up by');
         CRUD::column('pickedUpRecordedBy.name')->label('Pickup recorded by');
         CRUD::column('picked_up_method')->label('Pickup method');

@@ -153,7 +153,7 @@
                     ${photo(child, 'photo-child')}
                     <h3>${escapeHtml(child.name)}</h3>
                     <div class="sid">${escapeHtml(child.student_id)}</div>
-                    <div class="relationship">${escapeHtml(child.relationship || 'Authorized contact')}</div>
+                    <div class="relationship">Relationship: ${escapeHtml(child.relationship || 'Authorized contact')}</div>
                     <div class="status">${escapeHtml(child.label)}${child.time ? ` · ${escapeHtml(child.time)}` : ''}</div>
                 </div>`).join('')
             : '<div class="error">No children are linked to this card.</div>';
