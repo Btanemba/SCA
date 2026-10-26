@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Http\Requests\PersonRequest;
 use App\Models\Person;
+use App\Models\PickupContact;
+use App\Models\RfidCard;
 use App\Models\SacRole;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -257,6 +259,10 @@ class PersonProfileTest extends TestCase
             'relationship' => 'Mother',
             'is_primary_contact' => true,
         ]);
+
+        $this->get(backpack_url('person/'.$student->id.'/edit'))
+            ->assertOk()
+            ->assertSee('id="pickup-contact-1-use-parent" type="checkbox" class="form-check-input pickup-contact-use-parent" name="pickup_contacts[0][is_parent]" value="1" checked', false);
     }
 
     public function test_student_picker_preserves_student_validation_and_create_permissions(): void
@@ -300,6 +306,7 @@ class PersonProfileTest extends TestCase
             'phone' => null,
             'address' => null,
             'remove_image' => '0',
+            'is_parent' => '0',
             'can_pick_up' => '1',
             'can_drop_off' => '1',
         ];
@@ -397,6 +404,44 @@ class PersonProfileTest extends TestCase
         ])->has('pickup_contacts.0.image'));
         $contact->update(['image_path' => null]);
         $this->assertTrue($validate($child, ['pickup_contacts' => [$details]])->has('pickup_contacts.0.image'));
+    }
+
+    public function test_active_pickup_rfid_card_is_read_only_and_has_a_deactivate_control(): void
+    {
+        $admin = $this->employee(Person::ROLE_ADMIN);
+        $studentRole = SacRole::firstOrCreate(['code' => Person::ROLE_STUDENT], ['name' => 'Student', 'order' => 1]);
+        $student = Person::create([
+            'sac_role_id' => $studentRole->id,
+            'first_name' => 'Test',
+            'last_name' => 'Student',
+            'gender' => 'female',
+            'date_of_birth' => '2020-01-01',
+        ]);
+        $contact = PickupContact::create([
+            'first_name' => 'Pickup',
+            'last_name' => 'Contact',
+            'image_path' => 'pickup-contacts/saved.png',
+        ]);
+        RfidCard::create([
+            'pickup_contact_id' => $contact->id,
+            'uid' => 'A1B2C3D4',
+            'issued_by' => $admin->id,
+        ]);
+        $this->actingAs($admin, config('backpack.base.guard'));
+        $student->pickupContactLinks()->create([
+            'slot' => 1,
+            'pickup_contact_id' => $contact->id,
+            'relationship' => 'Mother',
+            'can_pick_up' => true,
+            'can_drop_off' => true,
+        ]);
+
+        $this->get(backpack_url('person/'.$student->id.'/edit'))
+            ->assertOk()
+            ->assertSee('name="pickup_contacts[0][rfid_uid]" value="A1B2C3D4"', false)
+            ->assertSee('name="pickup_contacts[0][rfid_uid]" value="A1B2C3D4" maxlength="64" autocomplete="off" placeholder="Click here, then tap the card on the reader" readonly', false)
+            ->assertSee('class="btn btn-outline-danger pickup-contact-rfid-deactivate"', false)
+            ->assertSee('It will be deactivated when you save.', false);
     }
 
     public static function rolesRequiringContactDetails(): array

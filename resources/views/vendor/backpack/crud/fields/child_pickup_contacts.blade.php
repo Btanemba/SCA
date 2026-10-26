@@ -15,6 +15,7 @@
     $visibleSlots = max(1, min(2, max($highestSavedSlot, (int) $highestOldSlot)));
     $pickupParents = $entry instanceof \App\Models\Person
         ? $entry->guardians->map(fn ($parent) => [
+            'id' => $parent->getKey(),
             'first_name' => $parent->first_name,
             'last_name' => $parent->last_name,
             'email' => $parent->user?->email,
@@ -43,6 +44,27 @@
                 $relationshipValue = array_key_exists('relationship', $oldContact)
                     ? $oldContact['relationship']
                     : $link?->relationship;
+                $parentIndex = false;
+                if ($contact?->person_id) {
+                    $parentIndex = collect($pickupParents)->search(
+                        fn ($parent) => (int) $parent['id'] === (int) $contact->person_id
+                    );
+                } elseif ($contact) {
+                    $parentIndex = collect($pickupParents)->search(fn ($parent) =>
+                        filled($contact->email) && filled($parent['email'])
+                        && strcasecmp($contact->email, $parent['email']) === 0
+                    );
+
+                    if ($parentIndex === false) {
+                        $parentIndex = collect($pickupParents)->search(fn ($parent) =>
+                            filled($contact->phone) && filled($parent['phone'])
+                            && trim($contact->phone) === trim($parent['phone'])
+                        );
+                    }
+                }
+                $isParent = array_key_exists('is_parent', $oldContact)
+                    ? filter_var($oldContact['is_parent'], FILTER_VALIDATE_BOOLEAN)
+                    : $parentIndex !== false;
                 $canPickUp = array_key_exists('can_pick_up', $oldContact)
                     ? filter_var($oldContact['can_pick_up'], FILTER_VALIDATE_BOOLEAN)
                     : ($link?->can_pick_up ?? true);
@@ -51,7 +73,7 @@
                     : ($link?->can_drop_off ?? true);
                 $slotIsVisible = $slot <= $visibleSlots;
             @endphp
-            <div class="col-12 pickup-contact-slot{{ $slot > $visibleSlots ? ' d-none' : '' }}" data-slot="{{ $slot }}">
+            <div class="col-12 pickup-contact-slot{{ $slot > $visibleSlots ? ' d-none' : '' }}" data-slot="{{ $slot }}" data-parent-index="{{ $parentIndex === false ? '' : $parentIndex }}">
                 <div class="border rounded p-3">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <h6 class="mb-0">Contact {{ $slot }}</h6>
@@ -59,7 +81,8 @@
                     </div>
                     <div class="pickup-contact-parent-controls d-none mb-3">
                         <div class="form-check">
-                            <input id="pickup-contact-{{ $slot }}-use-parent" type="checkbox" class="form-check-input pickup-contact-use-parent">
+                            <input type="hidden" name="pickup_contacts[{{ $slot - 1 }}][is_parent]" value="0">
+                            <input id="pickup-contact-{{ $slot }}-use-parent" type="checkbox" class="form-check-input pickup-contact-use-parent" name="pickup_contacts[{{ $slot - 1 }}][is_parent]" value="1" @checked($isParent)>
                             <label class="form-check-label" for="pickup-contact-{{ $slot }}-use-parent">This parent will also pick up the child</label>
                         </div>
                         <select id="pickup-contact-{{ $slot }}-parent" class="form-select mt-2 pickup-contact-parent-select d-none" aria-label="Parent for contact {{ $slot }}"></select>
@@ -129,9 +152,16 @@
                                 $rfidValue = array_key_exists('rfid_uid', $oldContact)
                                     ? $oldContact['rfid_uid']
                                     : $contact?->activeRfidCard?->uid;
+                                $savedRfidValue = $contact?->activeRfidCard?->uid;
+                                $rfidIsReadOnly = filled($rfidValue) && $rfidValue === $savedRfidValue;
                             @endphp
                             <label class="form-label" for="pickup-contact-{{ $slot }}-rfid">RFID card number</label>
-                            <input id="pickup-contact-{{ $slot }}-rfid" type="text" class="form-control pickup-contact-rfid" name="pickup_contacts[{{ $slot - 1 }}][rfid_uid]" value="{{ $rfidValue }}" maxlength="64" autocomplete="off" placeholder="Click here, then tap the card on the reader">
+                            <div class="d-flex align-items-start gap-2">
+                                <input id="pickup-contact-{{ $slot }}-rfid" type="text" class="form-control pickup-contact-rfid" name="pickup_contacts[{{ $slot - 1 }}][rfid_uid]" value="{{ $rfidValue }}" maxlength="64" autocomplete="off" placeholder="Click here, then tap the card on the reader" @readonly($rfidIsReadOnly) @if ($rfidIsReadOnly) style="background-color: #f3f1f1;" @endif>
+                                @if ($rfidIsReadOnly)
+                                    <button type="button" class="btn btn-outline-danger pickup-contact-rfid-deactivate">Deactivate</button>
+                                @endif
+                            </div>
                             <div class="form-text">Shared by every child this contact is linked to. Clear it or tap a new card to replace a lost one.</div>
                         </div>
                         <div class="col-12 d-flex align-items-end gap-3 pb-2">
@@ -180,6 +210,9 @@
         parents.forEach((parent, index) => {
             parentSelect.add(new Option(`${parent.first_name || ''} ${parent.last_name || ''}`.trim(), index));
         });
+        if (checkbox.checked && slot.dataset.parentIndex !== '') {
+            parentSelect.value = slot.dataset.parentIndex;
+        }
         parentSelect.classList.toggle('d-none', Boolean(parentForm) || parents.length < 2);
 
         const contactInput = (name) => slot.querySelector(`[name$="[${name}]"]`);
@@ -233,6 +266,33 @@
             if (event.key === 'Enter') {
                 event.preventDefault();
             }
+        });
+    });
+
+    document.querySelectorAll('.pickup-contact-rfid-deactivate').forEach((button) => {
+        button.addEventListener('click', () => {
+            const slot = button.closest('.pickup-contact-slot');
+            const input = slot?.querySelector('.pickup-contact-rfid');
+            if (!input) {
+                return;
+            }
+
+            swal({
+                title: 'Deactivate RFID card?',
+                text: 'This card is shared by this contact across all linked children. It will be deactivated when you save.',
+                icon: 'warning',
+                buttons: ['Cancel', 'Deactivate'],
+                dangerMode: true,
+            }).then((confirmed) => {
+                if (!confirmed) {
+                    return;
+                }
+
+                input.value = '';
+                input.readOnly = false;
+                button.remove();
+                input.focus();
+            });
         });
     });
 

@@ -563,9 +563,9 @@ class PersonCrudController extends CrudController
 
         CRUD::field('gender')
         ->type('select_from_array')->options([
-            'male' => 'Male',
-            'female' => 'Female',
-            'other' => 'Other',
+            'Male' => 'Male',
+            'Female' => 'Female',
+            'Other' => 'Other',
         ])->wrapper(['class' => 'form-group col-md-4'])
         ->allows_null(true)
         ->tab('General');

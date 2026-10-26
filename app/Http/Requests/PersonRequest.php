@@ -48,6 +48,7 @@ class PersonRequest extends FormRequest
             'pickup_contacts.*.address' => ['nullable', 'string', 'max:255'],
             'pickup_contacts.*.image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'max:2048'],
             'pickup_contacts.*.remove_image' => ['sometimes', 'boolean'],
+            'pickup_contacts.*.is_parent' => ['sometimes', 'boolean'],
             'pickup_contacts.*.can_pick_up' => ['sometimes', 'boolean'],
             'pickup_contacts.*.can_drop_off' => ['sometimes', 'boolean'],
             'pickup_contacts.*.rfid_uid' => ['nullable', 'string', 'max:64', 'regex:/^[0-9A-Za-z :\-]+$/'],
@@ -128,7 +129,7 @@ class PersonRequest extends FormRequest
                 }
 
                 $hasAnyValue = collect($contact)
-                    ->except(['can_pick_up', 'can_drop_off', 'image', 'remove_image'])
+                    ->except(['can_pick_up', 'can_drop_off', 'image', 'remove_image', 'is_parent'])
                     ->contains(fn ($value) => filled($value));
 
                 if (! $hasAnyValue) {
