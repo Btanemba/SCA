@@ -8,6 +8,7 @@ use App\Models\Person;
 use App\Models\PickupContact;
 use App\Models\RfidCard;
 use App\Models\SacRole;
+use App\Models\StudentFeeCharge;
 use App\Models\User;
 use App\Notifications\CompleteRegistrationInvitation;
 use Illuminate\Support\Facades\Storage;
@@ -473,6 +474,16 @@ class PersonCrudController extends CrudController
             );
         }
 
+        if ($roleCode === Person::ROLE_STUDENT) {
+            $feeMonth = now()->format('Y-m');
+            $billingMonth = $feeMonth.'-01';
+            CRUD::addClause('with', [
+                'studentFeeCharges' => fn ($query) => $query
+                    ->whereDate('billing_month', $billingMonth)
+                    ->withSum('payments', 'amount_kobo'),
+            ]);
+        }
+
         CRUD::removeButton('create');
         CRUD::addButtonFromView(
             'top',
@@ -493,6 +504,40 @@ class PersonCrudController extends CrudController
         ]);
         if (! is_string($roleCode) || $roleCode === Person::ROLE_STUDENT) {
             CRUD::column('student_id')->label('Student ID');
+        }
+        if ($roleCode === Person::ROLE_STUDENT) {
+            CRUD::addColumn([
+                'name' => 'fee_payment_status',
+                'label' => 'Fee status ('.now()->format('F Y').')',
+                'type' => 'closure',
+                'escaped' => false,
+                'function' => function (Person $entry): string {
+                    $charges = $entry->studentFeeCharges;
+                    if ($charges->isEmpty()) {
+                        $status = 'Not charged';
+                        $statusCode = 'not-charged';
+                        $style = 'background:#fff;color:#495057;border:1px solid #ced4da;';
+                    } else {
+                        $amountDue = (int) $charges->sum('amount_due_kobo');
+                        $amountPaid = (int) $charges->sum(fn (StudentFeeCharge $charge) => $charge->payments_sum_amount_kobo ?? 0);
+                        if ($amountPaid >= $amountDue) {
+                            $status = 'Paid';
+                            $statusCode = 'paid';
+                            $style = 'background:#d1e7dd;color:#0f5132;';
+                        } elseif ($amountPaid > 0) {
+                            $status = 'Part-paid';
+                            $statusCode = 'part-paid';
+                            $style = 'background:#ffe066;color:#4a3b00;';
+                        } else {
+                            $status = 'Unpaid';
+                            $statusCode = 'unpaid';
+                            $style = 'background:#ffe066;color:#4a3b00;';
+                        }
+                    }
+
+                    return '<span class="badge" data-student-fee-status="'.$statusCode.'" style="'.$style.'">'.$status.'</span>';
+                },
+            ]);
         }
         CRUD::column('first_name')->label('First name');
         CRUD::column('last_name')->label('Last name');

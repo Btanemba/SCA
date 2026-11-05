@@ -80,6 +80,10 @@ Route::group([
     Route::post('expenses/{expense}/receipt', [\App\Http\Controllers\Admin\ExpenseController::class, 'uploadReceipt'])->name('expenses.receipt');
     Route::get('expenses/{expense}/attachments/{asset}', [\App\Http\Controllers\Admin\ExpenseController::class, 'attachment'])->name('expenses.attachment');
     Route::get('expenses/{expense}/bank-letter', [\App\Http\Controllers\Admin\ExpenseController::class, 'bankDocument'])->name('expenses.bank');
+    Route::get('student-fees', [\App\Http\Controllers\Admin\StudentFeeController::class, 'index'])->name('student-fees.index');
+    Route::post('student-fees/charges', [\App\Http\Controllers\Admin\StudentFeeController::class, 'createCharge'])->name('student-fees.charges');
+    Route::post('student-fees/charges/all', [\App\Http\Controllers\Admin\StudentFeeController::class, 'createChargesForAll'])->name('student-fees.charges.all');
+    Route::post('student-fees/{charge}/payments', [\App\Http\Controllers\Admin\StudentFeeController::class, 'recordPayment'])->name('student-fees.payments');
 
     Route::middleware([
         \App\Http\Middleware\BlockSecurityRole::class,

@@ -25,3 +25,33 @@
   </div>
 
 @endsection
+
+@push('after_styles')
+  <style>
+    .student-fee-row--unpaid > td,
+    .student-fee-row--part-paid > td { background-color: #ffe066 !important; background-image: none !important; }
+    .student-fee-row--paid > td { background-color: #d1e7dd !important; background-image: none !important; }
+    .student-fee-row--not-charged > td { background-color: #fff !important; background-image: none !important; }
+  </style>
+@endpush
+
+@push('after_scripts')
+  <script>
+    (() => {
+      const applyStudentFeeRowColors = () => {
+        document.querySelectorAll('[data-student-fee-status]').forEach(status => {
+          const row = status.closest('tr');
+          if (!row) return;
+
+          row.classList.remove('student-fee-row--unpaid', 'student-fee-row--part-paid', 'student-fee-row--paid', 'student-fee-row--not-charged');
+          row.classList.add(`student-fee-row--${status.dataset.studentFeeStatus}`);
+        });
+      };
+
+      if (window.jQuery) {
+        window.jQuery(document).on('draw.dt', applyStudentFeeRowColors);
+      }
+      applyStudentFeeRowColors();
+    })();
+  </script>
+@endpush

@@ -24,7 +24,9 @@
     .security-console .detail-header { border-bottom: 1px solid #e8eff1; padding: 18px 22px; }
     .security-console .detail-body { padding: 22px; }
     .security-console .readonly-field { background: #f4f8f8; border-color: #e2ecec; }
-    .security-console .contact-preview { align-items: center; background: #f5faf8; border: 1px solid #dcece7; border-radius: 14px; display: flex; gap: 14px; margin-top: 12px; min-height: 100px; padding: 10px; }
+    .security-console .contact-preview { align-items: center; display: flex; flex-direction: column; gap: 12px; min-width: 0; text-align: center; width: 260px; max-width: 100%; }
+    .security-console .contact-photo { align-items: center; background: #edf5f2; border-radius: 8px; color: #27735e; display: flex; flex-shrink: 0; font-size: 48px; font-weight: 800; height: 240px; justify-content: center; max-width: 100%; object-fit: contain; width: 240px; }
+    .security-console .contact-preview strong { display: block; overflow-wrap: anywhere; }
     .security-console .action-button { border-radius: 10px; font-weight: 750; min-height: 46px; padding: 10px 20px; }
     @media (max-width: 575px) { .security-console .console-hero { padding: 22px 18px; } .security-console .detail-body { padding: 17px; } }
 </style>
@@ -103,20 +105,20 @@
 
     function bindContactPreview(form, contacts, permission) {
         const select = form.querySelector('select[name="pickup_contact_id"]');
-        const preview = form.querySelector('[data-contact-preview]');
+        const preview = attendancePanel.querySelector('[data-contact-preview]');
         const update = () => {
             const contact = contacts.find((item) => String(item.id) === String(select.value));
             preview.innerHTML = contact
-                ? `${photo(contact, 'photo-sm')}<div><strong>${escapeHtml(contact.name)}</strong><div class="small text-muted">${escapeHtml(contact.relationship || 'Authorized contact')}</div></div>`
+                ? `${photo(contact, 'contact-photo')}<div><strong>${escapeHtml(contact.name)}</strong><div class="small text-muted">${escapeHtml(contact.relationship || 'Authorized contact')}</div></div>`
                 : '<span class="small text-muted">Select the person to verify their photo.</span>';
         };
         select.addEventListener('change', update);
         update();
     }
 
-    function childHeader(child, label, tone) {
+    function childHeader(child, label, tone, showContactPreview = false) {
         const age = child.age === null || child.age === undefined ? 'Age not provided' : `${child.age} ${child.age === 1 ? 'year' : 'years'} old`;
-        return `<div class="detail-header d-flex flex-wrap align-items-center justify-content-between gap-3"><div class="d-flex align-items-center gap-3">${photo(child, 'photo-lg')}<div><div class="small text-muted">${escapeHtml(child.student_id)} · ${escapeHtml(age)}</div><h2 class="h4 mb-1">${escapeHtml(child.name)}</h2><span class="state-pill ${tone}">${label}</span></div></div></div>`;
+        return `<div class="detail-header d-flex flex-wrap align-items-center justify-content-between gap-3"><div class="d-flex align-items-center gap-3">${photo(child, 'photo-lg')}<div><div class="small text-muted">${escapeHtml(child.student_id)} · ${escapeHtml(age)}</div><h2 class="h4 mb-1">${escapeHtml(child.name)}</h2><span class="state-pill ${tone}">${label}</span></div></div>${showContactPreview ? '<div data-contact-preview class="contact-preview"></div>' : ''}</div>`;
     }
 
     function readonlyField(label, value) {
@@ -127,10 +129,10 @@
         const attendance = child.attendance;
         attendancePanel.classList.remove('d-none');
         if (!attendance) {
-            attendancePanel.innerHTML = `${childHeader(child, 'Ready for drop-off', 'state-new')}<div class="detail-body"><form data-action="drop-off"><input type="hidden" name="child_id" value="${child.id}"><div class="row g-4 align-items-end"><div class="col-lg-7"><label class="form-label fw-bold" for="drop-off-contact">Dropped off by</label><select id="drop-off-contact" name="pickup_contact_id" class="form-select form-select-lg" required>${contactOptions(child.contacts, 'can_drop_off')}</select><div data-contact-preview class="contact-preview"></div></div><div class="col-lg-5"><button class="btn btn-primary action-button w-100" type="submit"><i class="la la-sign-in-alt me-1"></i> Record drop-off</button></div></div></form></div>`;
+            attendancePanel.innerHTML = `${childHeader(child, 'Ready for drop-off', 'state-new', true)}<div class="detail-body"><form data-action="drop-off"><input type="hidden" name="child_id" value="${child.id}"><div class="row g-4 align-items-end"><div class="col-lg-7"><label class="form-label fw-bold" for="drop-off-contact">Dropped off by</label><select id="drop-off-contact" name="pickup_contact_id" class="form-select form-select-lg" required>${contactOptions(child.contacts, 'can_drop_off')}</select></div><div class="col-lg-5"><button class="btn btn-primary action-button w-100" type="submit"><i class="la la-sign-in-alt me-1"></i> Record drop-off</button></div></div></form></div>`;
             bindContactPreview(attendancePanel.querySelector('form'), child.contacts, 'can_drop_off');
         } else if (attendance.is_present) {
-            attendancePanel.innerHTML = `${childHeader(child, 'Currently present', 'state-present')}<div class="detail-body"><div class="row g-3 mb-4">${readonlyField('Dropped off at', attendance.dropped_off_at)}${readonlyField('Dropped off by', attendance.dropped_off_by_name)}</div><form data-action="pick-up"><input type="hidden" name="child_id" value="${child.id}"><div class="row g-4 align-items-end"><div class="col-lg-7"><label class="form-label fw-bold" for="pick-up-contact">Picked up by</label><select id="pick-up-contact" name="pickup_contact_id" class="form-select form-select-lg" required>${contactOptions(child.contacts, 'can_pick_up')}</select><div data-contact-preview class="contact-preview"></div></div><div class="col-lg-5"><button class="btn btn-success action-button w-100" type="submit"><i class="la la-sign-out-alt me-1"></i> Record pickup</button></div></div></form></div>`;
+            attendancePanel.innerHTML = `${childHeader(child, 'Currently present', 'state-present', true)}<div class="detail-body"><div class="row g-3 mb-4">${readonlyField('Dropped off at', attendance.dropped_off_at)}${readonlyField('Dropped off by', attendance.dropped_off_by_name)}</div><form data-action="pick-up"><input type="hidden" name="child_id" value="${child.id}"><div class="row g-4 align-items-end"><div class="col-lg-7"><label class="form-label fw-bold" for="pick-up-contact">Picked up by</label><select id="pick-up-contact" name="pickup_contact_id" class="form-select form-select-lg" required>${contactOptions(child.contacts, 'can_pick_up')}</select></div><div class="col-lg-5"><button class="btn btn-success action-button w-100" type="submit"><i class="la la-sign-out-alt me-1"></i> Record pickup</button></div></div></form></div>`;
             bindContactPreview(attendancePanel.querySelector('form'), child.contacts, 'can_pick_up');
         } else {
             attendancePanel.innerHTML = `${childHeader(child, 'Attendance complete', 'state-done')}<div class="detail-body"><div class="row g-3">${readonlyField('Dropped off at', attendance.dropped_off_at)}${readonlyField('Dropped off by', attendance.dropped_off_by_name)}${readonlyField('Picked up at', attendance.picked_up_at)}${readonlyField('Picked up by', attendance.picked_up_by_name)}</div><div class="alert alert-light border mt-4 mb-0">This child has already been picked up today.</div></div>`;

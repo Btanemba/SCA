@@ -168,6 +168,41 @@ class ExpenseTest extends TestCase
             ->assertSee('Expense follow-up');
     }
 
+    public function test_founder_dashboard_shows_previous_calendar_month_paid_expenses(): void
+    {
+        foreach (['2026-11-30' => '2026-10', '2027-01-31' => '2026-12'] as $today => $period) {
+            $this->travelTo(\Illuminate\Support\Carbon::parse($today));
+            $expense = $this->draft();
+            $expense->update(['status' => 'paid', 'paid_at' => $period.'-01']);
+            $currentExpense = $this->draft();
+            $currentExpense->update(['status' => 'paid', 'paid_at' => now()->toDateString()]);
+            $this->draft();
+
+            $this->login($this->ceo)->get(backpack_url('dashboard'))
+                ->assertOk()
+                ->assertSee('Previous month finances')
+                ->assertSee(\Illuminate\Support\Carbon::parse($period.'-01')->format('F Y'))
+                ->assertSee('NGN</span> 100,000.01', false)
+                ->assertSee('href="'.e(route('expenses.index', ['status' => 'paid', 'paid_month' => $period])).'"', false);
+
+            $currentExpense->update(['status' => 'draft', 'paid_at' => null]);
+        }
+    }
+
+    public function test_founder_finance_cards_show_zero_when_previous_month_has_no_records(): void
+    {
+        $this->login($this->ceo)->get(backpack_url('dashboard'))
+            ->assertOk()
+            ->assertSee('Paid expenses')
+            ->assertSee('Total net payroll')
+            ->assertSee('NGN</span> 0.00', false);
+
+        $this->login($this->employee(Person::ROLE_ADMIN, 'Administrator'))
+            ->get(backpack_url('dashboard'))
+            ->assertOk()
+            ->assertDontSee('Previous month finances');
+    }
+
     public function test_paid_expense_list_can_be_filtered_by_payment_month(): void
     {
         $thisMonth = $this->draft(['title' => 'Paid this month']);

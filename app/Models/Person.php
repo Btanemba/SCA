@@ -119,6 +119,11 @@ class Person extends Model
         return $this->hasMany(Attendance::class, 'child_id');
     }
 
+    public function studentFeeCharges(): HasMany
+    {
+        return $this->hasMany(StudentFeeCharge::class, 'student_id');
+    }
+
     public function getEmailAttribute(): ?string
     {
         return $this->user?->email;

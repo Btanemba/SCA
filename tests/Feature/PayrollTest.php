@@ -106,6 +106,23 @@ class PayrollTest extends TestCase
         return $payroll->fresh();
     }
 
+    public function test_founder_dashboard_shows_previous_month_net_payroll_including_drafts(): void
+    {
+        $this->travelTo(\Illuminate\Support\Carbon::parse('2026-11-30'));
+        $payroll = $this->populatedDraft();
+        $currentPayroll = Payroll::create(['year' => 2026, 'month' => 11, 'created_by' => $this->accountant->id]);
+        $currentEntry = \App\Models\PayrollEntry::query()->where('payroll_id', $payroll->id)->firstOrFail()->replicate();
+        $currentEntry->payroll_id = $currentPayroll->id;
+        $currentEntry->save();
+
+        $this->login($this->ceo)->get(backpack_url('dashboard'))
+            ->assertOk()
+            ->assertSee('October 2026')
+            ->assertSee('Total net payroll')
+            ->assertSee('NGN</span> 104,000.00', false)
+            ->assertSee('href="'.e(route('payroll.index', ['month' => 10, 'year' => 2026])).'"', false);
+    }
+
     public function test_accountant_creates_unique_monthly_payroll_and_staff_cannot_manage_it(): void
     {
         $this->login($this->accountant)->post(route('payroll.store'), ['year' => 2026, 'month' => 10])->assertRedirect();

@@ -57,7 +57,7 @@
     <li class="nav-item"><a class="nav-link" href="{{ backpack_url('attendance') }}"><i class="la la-clipboard-check nav-icon"></i> Attendance</a></li>
 @endif
 @if (in_array($currentRoleCode, [\App\Models\Person::ROLE_ADMIN, \App\Models\Person::ROLE_ACCOUNTANT, \App\Models\Person::ROLE_FOUNDER], true))
-	<x-backpack::menu-dropdown title="Finance" icon="la la-calculator" :open="request()->routeIs('payroll.*') || request()->routeIs('expenses.*') || request()->routeIs('academy-fee.*')">
+	<x-backpack::menu-dropdown title="Finance" icon="la la-calculator" :open="request()->routeIs('payroll.*') || request()->routeIs('expenses.*') || request()->routeIs('student-fees.*') || request()->routeIs('academy-fee.*')">
 		@if (in_array($currentRoleCode, [\App\Models\Person::ROLE_ACCOUNTANT, \App\Models\Person::ROLE_FOUNDER], true))
 			<x-backpack::menu-dropdown-item title="Payroll" :link="route('payroll.index')" icon="la la-money-bill" />
 			<x-backpack::menu-dropdown-item title="Expenses" :link="route('expenses.index')" icon="la la-file-invoice-dollar" />
@@ -65,6 +65,7 @@
 				<x-backpack::menu-dropdown-item title="My Payslips" :link="route('payroll.mine')" icon="la la-file-invoice-dollar" />
 			@endif
 		@endif
+		<x-backpack::menu-dropdown-item title="Child Fees" :link="route('student-fees.index')" icon="la la-child" />
 		@if (in_array($currentRoleCode, [\App\Models\Person::ROLE_ADMIN, \App\Models\Person::ROLE_FOUNDER], true))
 			<x-backpack::menu-dropdown-item title="Fees" :link="backpack_url('academy-fee')" icon="la la-money-bill-wave" />
 		@endif
