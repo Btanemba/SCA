@@ -19,7 +19,7 @@
                 {{ backpack_user()->name }}
             </a>
             <div class="dropdown-menu" data-bs-popper="static">
-                <a class="dropdown-item" href="{{ route('person.my-account') }}">
+                <a class="dropdown-item" href="{{ backpack_user()?->person?->sacRole?->code === \App\Models\Person::ROLE_PARENT ? route('parent.account') : route('person.my-account') }}">
                     <i class="nav-icon la la-user d-block"></i>
                     {{ trans('backpack::base.my_account') }}
                 </a>

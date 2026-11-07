@@ -4,9 +4,10 @@
     $currentRoleCode = backpack_user()?->person?->sacRole?->code;
     $isSecurityUser = $currentRoleCode === \App\Models\Person::ROLE_SECURITY;
     $isAccountantUser = $currentRoleCode === \App\Models\Person::ROLE_ACCOUNTANT;
+    $isParentUser = $currentRoleCode === \App\Models\Person::ROLE_PARENT;
     $canViewPeopleOverview = in_array($currentRoleCode, \App\Models\Person::ROLES_MANAGE_ACCOUNTS, true);
 
-    if ($isSecurityUser || $isAccountantUser || $canViewPeopleOverview) {
+    if ($isSecurityUser || $isAccountantUser || $isParentUser || $canViewPeopleOverview) {
         $widgets['before_content'] = [];
     } elseif (backpack_theme_config('show_getting_started')) {
         $widgets['before_content'][] = [
@@ -58,7 +59,9 @@
 @endif
 
 @section('content')
-@if ($isSecurityUser)
+@if ($isParentUser)
+    @include('parent.dashboard')
+@elseif ($isSecurityUser)
     @include('security.attendance_content')
 @elseif ($canViewPeopleOverview)
     @php
@@ -142,7 +145,7 @@
                         <div class="card-body d-flex flex-column p-4">
                             <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
                                 <div>
-                                    <div class="placard-label">Fee income this month</div>
+                                    <div class="placard-label">Fee payments received this month</div>
                                     <div class="text-muted small">By payment date</div>
                                 </div>
                                 <span class="placard-icon"><i class="la la-coins" aria-hidden="true"></i></span>
@@ -183,7 +186,7 @@
         <div class="col-12 col-sm-6 col-xxl-3">
             <a class="card h-100 text-body text-decoration-none" href="{{ route('student-fees.index', ['month' => now()->format('Y-m')]) }}">
                 <div class="card-body">
-                    <div class="text-muted mb-2">Fee income this month</div>
+                    <div class="text-muted mb-2">Fee payments received this month</div>
                     <div class="h3 mb-1">NGN {{ number_format($currentMonthFeeIncomeKobo / 100, 2) }}</div>
                     <small class="text-muted">By payment date</small>
                 </div>

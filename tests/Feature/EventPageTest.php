@@ -3,12 +3,31 @@
 namespace Tests\Feature;
 
 use App\Models\Event;
+use App\Models\Person;
+use App\Models\SacRole;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class EventPageTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_school_portal_link_opens_dashboard_or_login_as_appropriate(): void
+    {
+        $dashboardUrl = backpack_url('dashboard');
+        $this->get(route('events.index'))->assertOk()
+            ->assertSee('href="'.$dashboardUrl.'"', false)
+            ->assertDontSee('href="'.backpack_url('login').'"', false);
+        $this->get($dashboardUrl)->assertRedirect(backpack_url('login'));
+
+        $role = SacRole::firstOrCreate(['code' => Person::ROLE_PARENT], ['name' => 'Parent', 'order' => 1]);
+        $user = User::factory()->create(['email_verified_at' => now()]);
+        Person::create(['user_id' => $user->id, 'sac_role_id' => $role->id, 'first_name' => 'Parent', 'last_name' => 'User']);
+        $this->actingAs($user, config('backpack.base.guard'))
+            ->get(route('events.index'))->assertOk()->assertSee('href="'.$dashboardUrl.'"', false);
+        $this->get($dashboardUrl)->assertOk()->assertSee('My children');
+    }
 
     public function test_events_are_listed_on_the_archive_instead_of_the_homepage(): void
     {

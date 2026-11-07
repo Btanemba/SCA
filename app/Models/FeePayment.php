@@ -9,6 +9,7 @@ class FeePayment extends Model
 {
     protected $fillable = [
         'student_fee_charge_id',
+        'payment_receipt_id',
         'amount_kobo',
         'paid_at',
         'payment_method',

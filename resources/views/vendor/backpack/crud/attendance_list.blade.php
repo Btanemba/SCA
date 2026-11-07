@@ -141,6 +141,30 @@
             </form>
         </header>
 
+        <section class="mb-3" aria-labelledby="reported-absences-heading">
+            <h2 class="h5 text-danger" id="reported-absences-heading">Reported absences</h2>
+            @if ($absenceNotices->isEmpty())
+                <p class="text-muted">No reported absences for this period.</p>
+            @else
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle">
+                        <thead><tr><th>Date</th><th>Child</th><th>Reported by</th><th>Reason</th><th>Status</th></tr></thead>
+                        <tbody>
+                            @foreach ($absenceNotices as $notice)
+                                <tr>
+                                    <td class="text-nowrap">{{ $notice->absence_date->format('d M Y') }}</td>
+                                    <td>{{ $notice->child->full_name }}<div class="small text-muted">{{ $notice->child->student_id }}</div></td>
+                                    <td>{{ $notice->reporter?->person?->full_name ?: $notice->reporter?->name }}</td>
+                                    <td style="max-width: 24rem; white-space: pre-wrap; overflow-wrap: anywhere;">{{ filled($notice->reason) ? $notice->reason : '-' }}</td>
+                                    <td>{{ $absenceAttendanceKeys->has($notice->child_id.':'.$notice->absence_date->format('Y-m-d')) ? 'Attendance recorded' : 'Reported' }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        </section>
+
         <div class="attendance-stats" aria-label="Attendance summary">
             <a class="attendance-stat {{ $selectedStatus ? '' : 'is-active' }}" href="{{ $filterUrl(null) }}">
                 <span class="stat-label">All records</span>

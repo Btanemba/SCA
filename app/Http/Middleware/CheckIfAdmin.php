@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Person;
 use Closure;
 
 class CheckIfAdmin
@@ -63,6 +64,16 @@ class CheckIfAdmin
             return $this->respondToUnauthorizedRequest($request);
         }
 
-        return $next($request);
+        $isParent = backpack_user()?->person?->sacRole?->code === Person::ROLE_PARENT;
+        if ($isParent) {
+            abort_unless($request->routeIs('backpack', 'backpack.dashboard', 'backpack.logout.home', 'parent.*'), 403);
+        }
+
+        $response = $next($request);
+        if ($isParent) {
+            $response->headers->set('Cache-Control', 'private, no-store');
+        }
+
+        return $response;
     }
 }

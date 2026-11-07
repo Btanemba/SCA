@@ -19,6 +19,13 @@ Route::group([
     'namespace' => 'App\Http\Controllers\Admin',
 ], function () { // custom admin routes
     Route::get('logout-home', [\App\Http\Controllers\Admin\LogoutController::class, 'logout'])->name('backpack.logout.home');
+    Route::get('parent/account', [\App\Http\Controllers\Admin\ParentPortalController::class, 'account'])->name('parent.account');
+    Route::get('parent/children/{student}', [\App\Http\Controllers\Admin\ParentPortalController::class, 'show'])->name('parent.children.show');
+    Route::post('parent/children/{student}/absences', [\App\Http\Controllers\Admin\ParentPortalController::class, 'reportAbsence'])->name('parent.children.absences.store');
+    Route::delete('parent/children/{student}/absences/{notice}', [\App\Http\Controllers\Admin\ParentPortalController::class, 'cancelAbsence'])->name('parent.children.absences.cancel');
+    Route::get('parent/children/{student}/photo', [\App\Http\Controllers\Admin\ParentPortalController::class, 'photo'])->name('parent.children.photo');
+    Route::get('parent/children/{student}/invoice', [\App\Http\Controllers\Admin\StudentFeeController::class, 'invoice'])->name('parent.children.invoice');
+    Route::get('parent/receipts/{receipt}/download', [\App\Http\Controllers\PaymentReceiptController::class, 'download'])->name('parent.receipts.download');
     Route::get('security-attendance', [SecurityAttendanceController::class, 'index'])->name('security.attendance');
     Route::get('security-attendance/search', [SecurityAttendanceController::class, 'search'])->name('security.attendance.search');
     Route::post('security-attendance/drop-off', [SecurityAttendanceController::class, 'dropOff'])->name('security.attendance.drop-off');
@@ -84,6 +91,9 @@ Route::group([
     Route::post('student-fees/charges', [\App\Http\Controllers\Admin\StudentFeeController::class, 'createCharge'])->name('student-fees.charges');
     Route::post('student-fees/charges/all', [\App\Http\Controllers\Admin\StudentFeeController::class, 'createChargesForAll'])->name('student-fees.charges.all');
     Route::post('student-fees/{charge}/payments', [\App\Http\Controllers\Admin\StudentFeeController::class, 'recordPayment'])->name('student-fees.payments');
+    Route::post('student-fees/{charge}/wallet', [\App\Http\Controllers\Admin\StudentFeeController::class, 'applyWallet'])->name('student-fees.wallet');
+    Route::get('student-fees/{student}/invoice', [\App\Http\Controllers\Admin\StudentFeeController::class, 'invoice'])->name('student-fees.invoice');
+    Route::get('student-fees/receipts/{receipt}/download', [\App\Http\Controllers\PaymentReceiptController::class, 'download'])->name('student-fees.receipts.download');
 
     Route::middleware([
         \App\Http\Middleware\BlockSecurityRole::class,
@@ -108,7 +118,9 @@ Route::group([
         });
         Route::get('job-application/{id}/resume', 'JobApplicationCrudController@downloadResume')->name('job-application.resume');
         Route::crud('job-application', 'JobApplicationCrudController');
-        Route::crud('attendance', 'AttendanceCrudController');
+        Route::middleware(\App\Http\Middleware\EnsureAttendanceAccess::class)->group(function () {
+            Route::crud('attendance', 'AttendanceCrudController');
+        });
     });
 }); // this should be the absolute last line of this file
 

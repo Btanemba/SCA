@@ -94,6 +94,9 @@ class AcademySettingsController extends Controller
             'bank_email' => 'nullable|email|max:255',
             'debit_account_name' => 'nullable|string|max:255',
             'debit_account_number' => 'nullable|regex:/^\d{10}$/',
+            'fee_bank_name' => 'nullable|required_with:fee_account_name,fee_account_number|string|max:255',
+            'fee_account_name' => 'nullable|required_with:fee_bank_name,fee_account_number|string|max:255',
+            'fee_account_number' => 'nullable|required_with:fee_bank_name,fee_account_name|regex:/^\d{10}$/D',
         ]);
         unset($data['logo'], $data['signature']);
         $uploads = [];

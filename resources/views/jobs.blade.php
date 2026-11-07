@@ -15,7 +15,7 @@
     @include('partials.nav')
 
     <main class="jobs-page" id="top">
-     
+
         <section class="jobs-values" aria-labelledby="jobs-values-title">
             <div class="jobs-values-inner">
                 <p class="jobs-eyebrow">Growing together</p>
@@ -70,7 +70,7 @@
     <footer class="site-footer">
         <p>Springcare Academy</p>
         <p>&copy; {{ date('Y') }} Springcare Academy</p>
-        <a href="{{ backpack_url('login') }}">School portal</a>
+        <a href="{{ backpack_url('dashboard') }}">School portal</a>
     </footer>
 </body>
 </html>

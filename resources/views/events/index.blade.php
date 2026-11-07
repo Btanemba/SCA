@@ -114,7 +114,7 @@
     <footer class="site-footer">
         <p>Springcare Academy</p>
         <p>&copy; {{ date('Y') }} Springcare Academy</p>
-        <a href="{{ backpack_url('login') }}">Staff portal</a>
+        <a href="{{ backpack_url('dashboard') }}">School portal</a>
     </footer>
 </body>
 </html>

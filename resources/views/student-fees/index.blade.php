@@ -17,7 +17,7 @@
         @if ($fees->isNotEmpty())
             <form id="bulk-student-fees-form" action="{{ route('student-fees.charges.all') }}" method="post"
                 data-confirm="Add only the fees selected for students in {{ \Illuminate\Support\Carbon::createFromFormat('Y-m', $month)->format('F Y') }}? Students without a selected fee will not be charged."
-                data-confirm-title="Add All Monthly Fees"
+                data-confirm-title="Add Selected Fees"
                 data-confirm-button="Add Charges"
                 data-confirm-danger="true">
                 @csrf
@@ -28,11 +28,20 @@
     </div>
     <div class="table-responsive">
         <table class="table table-striped align-middle">
-            <thead><tr><th>Child</th><th>Monthly fees</th><th class="text-end">Due (NGN)</th><th class="text-end">Paid (NGN)</th><th class="text-end">Balance (NGN)</th><th>Status</th><th>Action</th></tr></thead>
+            <thead><tr><th>Child</th><th>Fees for month</th><th class="text-end">Due (NGN)</th><th class="text-end">Paid (NGN)</th><th class="text-end">Balance (NGN)</th><th>Status</th><th>Wallet (NGN)</th><th>Action</th></tr></thead>
             <tbody>
                 @forelse ($students as $student)
                     <tr>
-                        <td>{{ $student->full_name }}<div class="small text-muted">{{ $student->student_id }}</div></td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                @if ($student->image_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($student->image_path))
+                                    <img src="{{ asset('storage/'.$student->image_path) }}" alt="Photo of {{ $student->full_name }}" class="rounded" width="44" height="44" style="object-fit: cover; flex-shrink: 0;" loading="lazy">
+                                @else
+                                    <span class="d-inline-flex align-items-center justify-content-center rounded bg-light text-muted" style="width: 44px; height: 44px; flex-shrink: 0;" aria-label="No photo available"><i class="la la-user" aria-hidden="true"></i></span>
+                                @endif
+                                <div>{{ $student->full_name }}<div class="small text-muted">{{ $student->student_id }}</div></div>
+                            </div>
+                        </td>
                         <td>
                             @forelse ($student->monthCharges as $monthCharge)
                                 <div><a href="#charge-{{ $monthCharge->id }}">{{ $monthCharge->fee_name }}</a> <span class="text-muted">NGN {{ number_format($monthCharge->amount_due_kobo / 100, 2) }}</span></div>
@@ -44,16 +53,39 @@
                         <td class="text-end text-nowrap">{{ $student->month_due_kobo ? number_format($student->month_paid_kobo / 100, 2) : '—' }}</td>
                         <td class="text-end text-nowrap">{{ $student->month_due_kobo ? number_format($student->month_balance_kobo / 100, 2) : '—' }}</td>
                         <td><span class="badge text-bg-{{ $student->month_payment_status === 'paid' ? 'success' : ($student->month_payment_status === 'part_paid' ? 'warning' : ($student->month_payment_status === 'unpaid' ? 'danger' : 'secondary')) }}">{{ $student->month_payment_status === 'part_paid' ? 'Part-paid' : ($student->month_payment_status === 'not_charged' ? 'Not charged' : ucfirst($student->month_payment_status)) }}</span></td>
+                        <td class="text-nowrap">
+                            {{ number_format($student->wallet_balance_kobo / 100, 2) }}
+                            @if ($student->walletTransactions->isNotEmpty())
+                                <details class="small mt-1">
+                                    <summary>History</summary>
+                                    @foreach ($student->walletTransactions as $transaction)
+                                        <div class="mt-1">
+                                            {{ $transaction->type === 'credit' ? '+' : '-' }}{{ number_format($transaction->amount_kobo / 100, 2) }}
+                                            - {{ ($transaction->receipt?->paid_at ?? $transaction->created_at)->format('d M Y') }}
+                                            @if ($transaction->receipt)
+                                                - {{ str_replace('_', ' ', ucfirst($transaction->receipt->payment_method)) }}@if ($transaction->receipt->reference) ({{ $transaction->receipt->reference }})@endif
+                                                <div class="text-muted">Received: NGN {{ number_format($transaction->receipt->amount_kobo / 100, 2) }}; applied to fees: NGN {{ number_format($transaction->receipt->payments->sum('amount_kobo') / 100, 2) }}</div>
+                                            @elseif ($transaction->feePayment?->charge)
+                                                - {{ $transaction->feePayment->charge->fee_name }} ({{ $transaction->feePayment->charge->billing_month->format('M Y') }})
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </details>
+                            @endif
+                        </td>
                         <td>
+                            @if ($student->monthCharges->isNotEmpty())
+                                <a class="btn btn-sm btn-outline-secondary mb-2" href="{{ route('student-fees.invoice', ['student' => $student->id, 'month' => $month]) }}" title="Download invoice" aria-label="Download invoice for {{ $student->full_name }}"><i class="la la-download" aria-hidden="true"></i> Download invoice</a>
+                            @endif
                             @if ($student->availableMonthFees->isNotEmpty())
                                 <form action="{{ route('student-fees.charges') }}" method="post" class="d-flex gap-2">
                                     @csrf
                                     <input type="hidden" name="student_id" value="{{ $student->id }}">
                                     <input type="hidden" name="billing_month" value="{{ $month }}">
-                                    <select class="form-select form-select-sm" name="academy_fee_id" data-bulk-student-id="{{ $student->id }}" aria-label="Monthly fee for {{ $student->full_name }}" required>
+                                    <select class="form-select form-select-sm" name="academy_fee_id" data-bulk-student-id="{{ $student->id }}" aria-label="Fee for {{ $student->full_name }}" required>
                                         <option value="">Choose fee</option>
                                         @foreach ($student->availableMonthFees as $fee)
-                                            <option value="{{ $fee->id }}">{{ $fee->fee_name }} (NGN {{ number_format($fee->amount) }})</option>
+                                            <option value="{{ $fee->id }}">{{ $fee->fee_name }} - {{ $fee->age_or_level }} - {{ $fee->schedule }} (NGN {{ number_format($fee->amount) }})</option>
                                         @endforeach
                                     </select>
                                     <button class="btn btn-sm btn-outline-primary text-nowrap">Add fee</button>
@@ -62,7 +94,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="7" class="text-center text-muted">No students found for these filters.</td></tr>
+                    <tr><td colspan="8" class="text-center text-muted">No students found for these filters.</td></tr>
                 @endforelse
             </tbody>
         </table>
@@ -84,17 +116,28 @@
                         <td><span class="badge text-bg-{{ $charge->payment_status === 'paid' ? 'success' : ($charge->payment_status === 'part_paid' ? 'warning' : 'danger') }}">{{ $charge->payment_status === 'part_paid' ? 'Part-paid' : ucfirst($charge->payment_status) }}</span></td>
                         <td style="min-width: 290px">
                             @foreach ($charge->payments as $payment)
-                                <div class="small mb-2">NGN {{ number_format($payment->amount_kobo / 100, 2) }} - {{ $payment->paid_at->format('d M Y') }} - {{ str_replace('_', ' ', ucfirst($payment->payment_method)) }}@if ($payment->reference) <span class="text-muted">({{ $payment->reference }})</span>@endif</div>
+                                <div class="small mb-2">NGN {{ number_format($payment->amount_kobo / 100, 2) }} - {{ $payment->paid_at->format('d M Y') }} - {{ str_replace('_', ' ', ucfirst($payment->payment_method)) }}@if ($payment->reference) <span class="text-muted">({{ $payment->reference }})</span>@endif
+                                    @if ($payment->payment_receipt_id)
+                                        <a class="btn btn-outline-secondary ms-2" href="{{ route('student-fees.receipts.download', $payment->payment_receipt_id) }}" title="Download receipt" aria-label="Download receipt for {{ $charge->child->full_name }}"><i class="la la-download" aria-hidden="true"></i> Download receipt</a>
+                                    @endif
+                                </div>
                             @endforeach
                             @if ($charge->balance_kobo > 0)
                                 <form action="{{ route('student-fees.payments', $charge) }}" method="post" class="d-flex flex-wrap gap-2 mt-2">
                                     @csrf
-                                    <input class="form-control form-control-sm" name="amount" type="number" min="0.01" max="{{ number_format($charge->balance_kobo / 100, 2, '.', '') }}" step="0.01" placeholder="Amount" aria-label="Payment amount for {{ $charge->child->full_name }}" required>
+                                    <input class="form-control form-control-sm" name="amount" type="number" min="0.01" step="0.01" placeholder="Amount" aria-label="Payment amount for {{ $charge->child->full_name }}" required>
                                     <input class="form-control form-control-sm" name="paid_at" type="date" value="{{ now()->format('Y-m-d') }}" aria-label="Payment date" required>
                                     <select class="form-select form-select-sm" name="payment_method" aria-label="Payment method" required><option value="cash">Cash</option><option value="bank_transfer">Bank transfer</option><option value="pos">POS</option><option value="other">Other</option></select>
                                     <input class="form-control form-control-sm" name="reference" maxlength="255" placeholder="Reference (optional)" aria-label="Payment reference">
                                     <button class="btn btn-sm btn-outline-primary">Record Payment</button>
                                 </form>
+                                @if (($walletBalances[$charge->student_id] ?? 0) > 0)
+                                    <form action="{{ route('student-fees.wallet', $charge) }}" method="post" class="d-flex flex-wrap gap-2 mt-2">
+                                        @csrf
+                                        <input class="form-control form-control-sm" name="amount" type="number" min="0.01" max="{{ number_format(min($charge->balance_kobo, $walletBalances[$charge->student_id]) / 100, 2, '.', '') }}" value="{{ number_format(min($charge->balance_kobo, $walletBalances[$charge->student_id]) / 100, 2, '.', '') }}" step="0.01" aria-label="Wallet amount for {{ $charge->child->full_name }}" required>
+                                        <button class="btn btn-sm btn-outline-secondary">Apply wallet</button>
+                                    </form>
+                                @endif
                             @endif
                         </td>
                     </tr>

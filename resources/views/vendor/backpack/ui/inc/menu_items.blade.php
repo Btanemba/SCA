@@ -3,14 +3,17 @@
 	$currentRoleCode = backpack_user()?->person?->sacRole?->code;
 	$isSecurity = $currentRoleCode === \App\Models\Person::ROLE_SECURITY;
 	$isAccountant = $currentRoleCode === \App\Models\Person::ROLE_ACCOUNTANT;
+	$isParent = $currentRoleCode === \App\Models\Person::ROLE_PARENT;
 	$currentPerson = backpack_user()?->person;
-	$hasPayslips = $currentPerson && \App\Models\PayrollEntry::query()
+	$hasPayslips = ! $isParent && $currentPerson && \App\Models\PayrollEntry::query()
 		->where('person_id', $currentPerson->id)
 		->whereHas('payroll', fn ($query) => $query->whereIn('status', ['approved', 'paid']))
 		->exists();
 @endphp
 <li class="nav-item"><a class="nav-link" href="{{ backpack_url('dashboard') }}"><i class="la la-home nav-icon"></i> {{ trans('backpack::base.dashboard') }}</a></li>
-@if ($isSecurity)
+@if ($isParent)
+	<li class="nav-item"><a class="nav-link" href="{{ route('events.index') }}"><i class="la la-calendar nav-icon"></i> Events</a></li>
+@elseif ($isSecurity)
 @elseif ($isAccountant)
 	<x-backpack::menu-dropdown title="People" icon="la la-users" :open="request()->routeIs('person.*')">
 		<x-backpack::menu-dropdown-item
@@ -54,7 +57,9 @@
 			@endif
 		</x-backpack::menu-dropdown>
     @endif
-    <li class="nav-item"><a class="nav-link" href="{{ backpack_url('attendance') }}"><i class="la la-clipboard-check nav-icon"></i> Attendance</a></li>
+	@if (in_array($currentRoleCode, [\App\Models\Person::ROLE_STAFF, \App\Models\Person::ROLE_ADMIN, \App\Models\Person::ROLE_FOUNDER], true))
+		<li class="nav-item"><a class="nav-link" href="{{ backpack_url('attendance') }}"><i class="la la-clipboard-check nav-icon"></i> Attendance</a></li>
+	@endif
 @endif
 @if (in_array($currentRoleCode, [\App\Models\Person::ROLE_ADMIN, \App\Models\Person::ROLE_ACCOUNTANT, \App\Models\Person::ROLE_FOUNDER], true))
 	<x-backpack::menu-dropdown title="Finance" icon="la la-calculator" :open="request()->routeIs('payroll.*') || request()->routeIs('expenses.*') || request()->routeIs('student-fees.*') || request()->routeIs('academy-fee.*')">
@@ -71,7 +76,7 @@
 		@endif
 	</x-backpack::menu-dropdown>
 @endif
-@if ($currentPerson && $currentRoleCode && ! in_array($currentRoleCode, [\App\Models\Person::ROLE_STUDENT, \App\Models\Person::ROLE_FOUNDER], true))
+@if ($currentPerson && $currentRoleCode && ! in_array($currentRoleCode, [\App\Models\Person::ROLE_STUDENT, \App\Models\Person::ROLE_PARENT, \App\Models\Person::ROLE_FOUNDER], true))
 	<li class="nav-item"><a class="nav-link" href="{{ route('staff-documents.mine') }}"><i class="la la-file-alt nav-icon"></i> My Documents</a></li>
 @endif
 @if ($hasPayslips && ! in_array($currentRoleCode, [\App\Models\Person::ROLE_ACCOUNTANT, \App\Models\Person::ROLE_FOUNDER], true))

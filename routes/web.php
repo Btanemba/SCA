@@ -5,12 +5,17 @@ use App\Http\Controllers\AdmissionFeesController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\ManagementController;
+use App\Http\Controllers\PaymentReceiptController;
 use App\Http\Controllers\RegistrationFormController;
 use App\Http\Controllers\StaffController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [EventController::class, 'home'])->name('home');
 Route::get('/events', [EventController::class, 'index'])->name('events.index');
+Route::get('/receipts/verify/{number}', [PaymentReceiptController::class, 'verify'])
+    ->where('number', 'SCA-[A-Z0-9]{24}')
+    ->middleware('throttle:30,1')
+    ->name('payment-receipts.verify');
 
 Route::view('/admissions', 'admissions.overview')->name('admissions.overview');
 Route::get('/admissions/registration-form', RegistrationFormController::class)->name('admissions.registration-form');

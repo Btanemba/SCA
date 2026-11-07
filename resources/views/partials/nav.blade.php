@@ -30,7 +30,7 @@
             </div>
         </details>
         <a href="{{ route('jobs.index') }}">Jobs</a>
-        <a class="portal-link" href="{{ backpack_url('login') }}">School portal</a>
+        <a class="portal-link" href="{{ backpack_url('dashboard') }}">School portal</a>
     </nav>
     <details class="mobile-menu">
         <summary aria-label="Open navigation">
@@ -50,7 +50,7 @@
             <a href="{{ route('management.index') }}">Management</a>
             <a href="{{ route('staffs.index') }}">Staffs</a>
             <a href="{{ route('jobs.index') }}">Jobs</a>
-            <a class="mobile-menu-portal" href="{{ backpack_url('login') }}">School portal</a>
+            <a class="mobile-menu-portal" href="{{ backpack_url('dashboard') }}">School portal</a>
         </nav>
     </details>
 </header>

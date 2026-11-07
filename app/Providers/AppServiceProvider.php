@@ -3,9 +3,10 @@
 namespace App\Providers;
 
 use App\Models\Expense;
-use App\Models\FeePayment;
+use App\Models\PaymentReceipt;
 use App\Models\Payroll;
 use App\Models\Person;
+use App\Services\ParentDashboard;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 
@@ -26,6 +27,11 @@ class AppServiceProvider extends ServiceProvider
     {
         View::composer(backpack_view('dashboard'), function ($view): void {
             $person = backpack_user()?->person;
+            if ($person?->sacRole?->code === Person::ROLE_PARENT) {
+                $view->with(app(ParentDashboard::class)->data($person));
+
+                return;
+            }
             if (in_array($person?->sacRole?->code, Person::ROLES_MANAGE_ACCOUNTS, true)) {
                 $view->with('peopleTotals', Person::query()
                     ->join('sac_role', 'persons.sac_role_id', '=', 'sac_role.id')
@@ -39,7 +45,7 @@ class AppServiceProvider extends ServiceProvider
                 $previousMonth = $month->copy()->startOfMonth()->subMonth();
                 $view->with([
                     'previousMonth' => $previousMonth,
-                    'currentMonthFeeIncomeKobo' => FeePayment::query()
+                    'currentMonthFeeIncomeKobo' => PaymentReceipt::query()
                         ->whereYear('paid_at', $month->year)
                         ->whereMonth('paid_at', $month->month)
                         ->sum('amount_kobo'),
@@ -69,7 +75,7 @@ class AppServiceProvider extends ServiceProvider
 
             $month = now();
             $view->with([
-                'currentMonthFeeIncomeKobo' => FeePayment::query()
+                'currentMonthFeeIncomeKobo' => PaymentReceipt::query()
                     ->whereYear('paid_at', $month->year)
                     ->whereMonth('paid_at', $month->month)
                     ->sum('amount_kobo'),

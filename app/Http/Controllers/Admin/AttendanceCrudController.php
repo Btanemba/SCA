@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Attendance;
+use App\Models\AbsenceNotice;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -47,6 +48,23 @@ class AttendanceCrudController extends CrudController
             'present' => (int) ($summary->present_count ?? 0),
             'picked_up' => (int) ($summary->picked_up_count ?? 0),
         ];
+
+        $noticeQuery = AbsenceNotice::query()->whereNull('cancelled_at')->with(['child', 'reporter.person']);
+        if (is_string($date) && $date !== '') {
+            $noticeQuery->whereDate('absence_date', $date);
+        } elseif ($month = $this->selectedMonth()) {
+            $noticeQuery->whereYear('absence_date', $month[0])->whereMonth('absence_date', $month[1]);
+        } else {
+            $noticeQuery->whereDate('absence_date', '>=', now('Africa/Lagos')->toDateString());
+        }
+        $notices = $noticeQuery->orderBy('absence_date')->orderBy('id')->get();
+        $attendanceKeys = Attendance::query()
+            ->whereIn('child_id', $notices->pluck('child_id'))
+            ->whereIn('attendance_date', $notices->map(fn ($notice) => $notice->absence_date->format('Y-m-d'))->unique())
+            ->get(['child_id', 'attendance_date'])
+            ->mapWithKeys(fn ($attendance) => [$attendance->child_id.':'.substr((string) $attendance->getRawOriginal('attendance_date'), 0, 10) => true]);
+        $this->data['absenceNotices'] = $notices;
+        $this->data['absenceAttendanceKeys'] = $attendanceKeys;
 
         return view('vendor.backpack.crud.attendance_list', $this->data);
     }

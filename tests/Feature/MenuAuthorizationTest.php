@@ -89,6 +89,41 @@ class MenuAuthorizationTest extends TestCase
         }
     }
 
+    public function test_parent_cannot_access_administrative_routes(): void
+    {
+        $parent = $this->userForRole(Person::ROLE_PARENT);
+        $this->actingAs($parent, config('backpack.base.guard'))
+            ->get(backpack_url('dashboard'))->assertOk();
+
+        foreach (['person', 'sac-role', 'job-application', 'job-opening', 'attendance', 'student-fees', 'expenses', 'payroll'] as $path) {
+            $this->get(backpack_url($path))->assertForbidden();
+        }
+        $this->post(backpack_url('person'), [])->assertForbidden();
+        $this->post(route('student-fees.charges'), [])->assertForbidden();
+    }
+
+    public function test_attendance_routes_are_limited_to_staff_admin_and_founder(): void
+    {
+        foreach ([Person::ROLE_STAFF, Person::ROLE_ADMIN, Person::ROLE_FOUNDER] as $role) {
+            $this->actingAs($this->userForRole($role), config('backpack.base.guard'))
+                ->get(backpack_url('attendance'))->assertOk()->assertSee('Reported absences');
+        }
+
+        foreach ([Person::ROLE_STUDENT, Person::ROLE_PARENT, Person::ROLE_ACCOUNTANT, Person::ROLE_SECURITY, 'OTHER'] as $role) {
+            $this->actingAs($this->userForRole($role), config('backpack.base.guard'));
+            $this->get(backpack_url('attendance'))->assertForbidden();
+            $this->post(backpack_url('attendance/search'), [])->assertForbidden();
+            $this->get(backpack_url('attendance/999/details'))->assertForbidden();
+            $this->get(backpack_url('attendance/999/show'))->assertForbidden();
+            if ($role === Person::ROLE_SECURITY) {
+                $this->get(route('security.attendance'))->assertOk();
+            }
+        }
+
+        $this->actingAs(User::factory()->create(['email_verified_at' => now()]), config('backpack.base.guard'))
+            ->get(backpack_url('attendance'))->assertForbidden();
+    }
+
     public function test_people_summary_is_not_shown_to_other_roles(): void
     {
         foreach ([Person::ROLE_STAFF, Person::ROLE_PARENT, Person::ROLE_STUDENT, Person::ROLE_ACCOUNTANT] as $code) {

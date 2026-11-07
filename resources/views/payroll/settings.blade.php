@@ -59,6 +59,16 @@
                 <textarea class="form-control" id="bank_address" name="bank_address" rows="3" maxlength="2000">{{ old('bank_address', $settings?->bank_address) }}</textarea>
             </div>
                 </div>
+                <hr>
+                <h3 class="h5">Fee Payment Details</h3>
+                <div class="row">
+                    @foreach (['fee_bank_name' => 'Bank name', 'fee_account_name' => 'Account name', 'fee_account_number' => 'Account number'] as $field => $label)
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label" for="{{ $field }}">{{ $label }}</label>
+                            <input class="form-control" id="{{ $field }}" name="{{ $field }}" value="{{ old($field, $settings?->$field) }}" @if ($field === 'fee_account_number') inputmode="numeric" pattern="[0-9]{10}" maxlength="10" @else maxlength="255" @endif>
+                        </div>
+                    @endforeach
+                </div>
                 <button class="btn btn-primary" type="submit"><i class="la la-save" aria-hidden="true"></i> Save Settings</button>
             </form>
         </section>

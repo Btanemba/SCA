@@ -57,7 +57,7 @@ class AcademyFeeCrudController extends CrudController
             ->type('number')
             ->attributes(['min' => 0, 'step' => 1])
             ->hint('Leave blank to display "Coming soon".');
-        CRUD::field('schedule')->type('text')->hint('For example: Monthly or Per session.');
+        CRUD::field('schedule')->type('text')->hint('For child fees, use Monthly, One Time, 1-Year, or Per session.');
         CRUD::field('sort_order')->type('number')->attributes(['min' => 0, 'step' => 1]);
         CRUD::field('is_published')->type('switch')->label('Visible on the public fees page');
     }
